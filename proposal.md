@@ -34,4 +34,4 @@ display, travel plans and travel routes.
 
 
 ## Github Repository:
-[Travel Companion](https://github.com/TOXXXX/TravelCompanion/upload/main)
+[Travel Companion](https://github.com/TOXXXX/TravelCompanion)

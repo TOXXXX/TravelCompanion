@@ -20,7 +20,7 @@ travel plans.
 ## Core Features
 1. **Main Page**: Users can discover the travel plans posted by other users 
 and look for travel companions.
-2. **Companion Match Page**: Discover potential travel companions and friends.
+2. **Companion Discovery Page**: Discover potential travel companions and friends.
 3. **Login/Register Page**: User can login to or register their account.
 4. **Personal Page**: User can customize their personal page to showcase 
 their travel plans, interests and personal information. Other users can make 

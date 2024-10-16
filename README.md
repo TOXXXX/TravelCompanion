@@ -32,6 +32,7 @@ display, travel plans and travel routes.
 1. **Chat Box**: On-site communication between users.
 2. **Travel Route/Place Visualization**: Visualizing places/routes on embedded map.
 3. **Follower Other User**: Following other user's account and keep updated about their activity.
+4. **Search Function**: In-site search for travel routes/plans, users.
 
 
 ## Github Repository:

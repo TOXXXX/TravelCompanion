@@ -44,11 +44,11 @@ display, travel plans and travel routes.
 
 1. **Chat Box**: <br />On-site chat between users.
 2. **Travel Route/Place Visualization**: <br />Visualizing places/routes on embedded map.
-3. **Follow Other User**: <br />Following other user's account and keep updated on their activities.
-4. **Search Function**: <br />In-site search for travel routesm, plans and users.
-5. **Report Inappropriate Activities**: <br />For reporting inappropriate activities, and add moderator accounts that
+3. **Follow Other Users**: <br />Following other user's account and keep updated on their activities.
+4. **Search Function**: <br />In-site search for travel route, plans and users.
+5. **Report Inappropriate Activities**: <br />For reporting inappropriate activities; add moderator accounts that
 are authorized to hide users' account & activities.
 
-## Github Repository:
+## GitHub Repository:
 
 [Travel Companion](https://github.com/TOXXXX/TravelCompanion)

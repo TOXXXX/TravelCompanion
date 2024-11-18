@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+    "test": "echo \\\"Error: no test specified\\\" && exit 1",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -19,14 +20,12 @@
   },
   "homepage": "https://github.com/TOXXXX/TravelCompanion#readme",
   "lint-staged": {
-    "*.{js}": [
+    "*.js": [
       "prettier --write",
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ],
     "*.{json,js,ts,jsx,tsx,html}": [
-      "prettier --write --ignore-unknown",
-      "git add"
+      "prettier --write --ignore-unknown"
     ]
   },
   "devDependencies": {
@@ -36,5 +35,14 @@
     "husky": "^9.0.0",
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.1",
+    "express-handlebars": "^8.0.1",
+    "express-session": "^1.18.1",
+    "mongodb": "^6.10.0",
+    "xss": "^1.0.15"
   }
 }

@@ -1,0 +1,48 @@
+{
+  "name": "travel_companion",
+  "version": "1.0.0",
+  "description": "A forum for travel enthusiasts to share and discover travel routes and plans",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \\\"Error: no test specified\\\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TOXXXX/TravelCompanion.git"
+  },
+  "author": "Arman Singh, Haolin Chen, Jiaqi Chen, Junran Tao, Mahesh Swaminathan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TOXXXX/TravelCompanion/issues"
+  },
+  "homepage": "https://github.com/TOXXXX/TravelCompanion#readme",
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,js,ts,jsx,tsx,html}": [
+      "prettier --write --ignore-unknown"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.12.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.1",
+    "express-handlebars": "^8.0.1",
+    "express-session": "^1.18.1",
+    "mongodb": "^6.10.0",
+    "xss": "^1.0.15"
+  }
+}

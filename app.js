@@ -6,7 +6,6 @@ import seedDatabase from "./seed.js";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 
-// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
@@ -20,11 +19,11 @@ const startServer = async () => {
 
     app.use(
       session({
-        secret: process.env.SECRET_KEY, // Use the secret key from .env file
+        secret: process.env.SECRET_KEY,
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({
-          mongoUrl: process.env.MONGO_URI, // Your MongoDB connection string
+          mongoUrl: process.env.MONGO_URI,
           ttl: 14 * 24 * 60 * 60 // Time to live in seconds (14 days here)
         }),
         cookie: { maxAge: 1000 * 60 * 60 }, // 1 hour
@@ -41,7 +40,7 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error("Error starting server:", error);
-    process.exit(1); // Exit the process with a non-zero status code
+    process.exit(1);
   }
 };
 

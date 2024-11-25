@@ -1,8 +1,6 @@
-// routes/auth.js
 import express from "express";
 import bcrypt from "bcrypt";
 import User from "../models/users.js";
-import { isAuthenticated } from "../middleware/auth.js";
 
 const router = express.Router();
 

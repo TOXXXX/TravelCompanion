@@ -2,17 +2,15 @@ import { createUser } from "./data/userService.js";
 import bcrypt from "bcrypt";
 import { dropDB, disconnectDB } from "./config/db.js";
 
-export const seedDatabase = async () => {
+const seedDatabase = async () => {
   try {
     // Clear existing data
     await dropDB();
 
-    const hashedPassword = await bcrypt.hash("1234", 10);
-
     const sampleUsers = [
       {
         userName: "maheshs85",
-        password: hashedPassword,
+        password: "1234",
         email: "maheshs85@example.com",
         phoneNumber: "123-456-7890",
         followers: [],
@@ -22,7 +20,7 @@ export const seedDatabase = async () => {
       },
       {
         userName: "TOXXXX",
-        password: hashedPassword,
+        password: "1234",
         email: "TOXXXX@example.com",
         phoneNumber: "123-456-7891",
         followers: [],
@@ -32,7 +30,7 @@ export const seedDatabase = async () => {
       },
       {
         userName: "ChenHaolinOlym",
-        password: hashedPassword,
+        password: "1234",
         email: "ChenHaolinOlym@example.com",
         phoneNumber: "123-456-7892",
         followers: [],
@@ -42,7 +40,7 @@ export const seedDatabase = async () => {
       },
       {
         userName: "Junran Tao",
-        password: hashedPassword,
+        password: "1234",
         email: "Junran Tao@example.com",
         phoneNumber: "123-456-7893",
         followers: [],
@@ -52,7 +50,7 @@ export const seedDatabase = async () => {
       },
       {
         userName: "Arman Singh",
-        password: hashedPassword,
+        password: "1234",
         email: "Arman Singh@example.com",
         phoneNumber: "123-456-7894",
         followers: [],
@@ -74,3 +72,5 @@ export const seedDatabase = async () => {
     await disconnectDB();
   }
 };
+
+export default seedDatabase;

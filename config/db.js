@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-import { mongoConfig } from "./settings.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Store the connection promise to prevent multiple connection attempts
 let connectionPromise = null;
@@ -7,12 +9,11 @@ let connectionPromise = null;
 export const connectDB = async () => {
   try {
     if (!connectionPromise) {
-      const uri = `${mongoConfig.serverUrl}${mongoConfig.database}`;
+      const uri = process.env.MONGO_URI;
       connectionPromise = mongoose.connect(uri);
     }
 
     await connectionPromise;
-    console.log("MongoDB connected");
 
     return mongoose.connection;
   } catch (err) {
@@ -38,7 +39,6 @@ export const dropDB = async () => {
     for (const collectionName of collections) {
       await conn.collections[collectionName].drop();
     }
-    console.log("Database cleared successfully");
   } catch (error) {
     // Handle "namespace not found" error which occurs when collections don't exist
     if (error.code === 26) {
@@ -56,7 +56,6 @@ export const disconnectDB = async () => {
 
     // Reset the promise so new connections can be established after disconnect
     connectionPromise = null;
-    console.log("MongoDB disconnected successfully");
   } catch (err) {
     throw new Error(`Failed to disconnect from MongoDB: ${err.message}`);
   }

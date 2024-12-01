@@ -1,4 +1,5 @@
 import express from "express";
+import handlebars from "express-handlebars";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import registerRoutes from "./routes/index.js";
@@ -10,6 +11,14 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+app.use(express.static("public"));
+app.use(express.json());
+
+// Set up Handlebars
+app.engine("handlebars", handlebars.engine({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
+app.set("views", "./views");
 
 const startServer = async () => {
   try {

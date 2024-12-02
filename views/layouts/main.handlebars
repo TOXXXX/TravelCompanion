@@ -1,43 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/css/shared.css">
+  {{#if customCSS}}
+    <link rel="stylesheet" href="/css/{{customCSS}}.css">
+  {{/if}}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <a href="/" class="logo">ForumApp</a>
-                <ul class="nav-links">
-                    <li><a href="/home">Main Page</a></li>
-                    <li><a href="/match">Companion Discovery</a></li>
-                    {{#if logined}}
-                        <li><a href="/mypage">My Page</a></li>
-                        <li><a href="/logout">Logout</a></li>
-                    {{else}}
-                        <li><a href="/logreg">Login/Registration</a></li>
-                    {{/if}}
-                </ul>
-            </div>
-        </nav>
-    </header>
-    
-    <main class="main-content">
-        {{{body}}}
-    </main>
-    
-    <footer>
-        <div class="container">
-            <p>&copy;2024 TravelCompanion. A opensource platform for opensource travel ideas.</p>
-            <p>Open source at:
-                <a href="https://github.com/TOXXXX/TravelCompanion" class="social"><i class="fab fa-github"></i></a>
-            </p>
-        </div>
-    </footer>
-    <script src="/js/main.js"></script>
+<header>
+  <div class="container">
+    <div class="header-content">
+      <h1>Travel Companion</h1>
+      <nav>
+        <ul>
+          <li><a href="routes">Routes</a></li>
+          <li><a href="#companions">Companions</a></li>
+          <li><a href="#profile">Profile</a></li>
+          <li><a href="#login">Log in</a></li>
+          <li><a href="register" class="btn-signup">Sign Up</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+  {{{body}}}
+</main>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2024 Travel Companion. Open-source platform for travel ideas.</p>
+    <p>
+      Contribute on
+      <a href="https://github.com/TOXXXX/TravelCompanion" class="social" aria-label="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+    </p>
+  </div>
+</footer>
+<script src="/js/main.js"></script>
 </body>
 </html>

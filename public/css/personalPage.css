@@ -1,0 +1,163 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+  }
+  
+  .personal-page {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 250px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+  }
+  
+  .profile-section {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    margin-bottom: 10px;
+  }
+  
+  .profile-section h1 {
+    font-size: 1.8rem;
+    margin: 10px 0;
+  }
+  
+  .profile-section .bio {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #e0e0e0;
+  }
+  
+  .btn-edit {
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-edit:hover {
+    background-color: #0056b3;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+  
+  .posts {
+    margin-bottom: 20px;
+  }
+  
+  .posts h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .post-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .post {
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .post h3 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+  }
+  
+  .post p {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .btn-view {
+    display: inline-block;
+    background-color: #28a745;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  
+  .btn-view:hover {
+    background-color: #218838;
+  }
+  
+  .follow-section {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .btn-follow {
+    background-color: #ffc107;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-follow:hover {
+    background-color: #e0a800;
+  }
+  
+  @media (max-width: 768px) {
+    .post-list {
+      grid-template-columns: 1fr;
+    }
+  
+    .header {
+      height: 200px;
+    }
+  
+    .profile-section h1 {
+      font-size: 1.5rem;
+    }
+  
+    .btn-edit {
+      font-size: 0.8rem;
+    }
+  
+    .btn-follow {
+      font-size: 0.9rem;
+    }
+  }
+  

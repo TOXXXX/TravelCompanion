@@ -10,7 +10,9 @@ const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   phoneNumber: { type: String, unique: true },
   posts: { type: [String], default: [] },
-  personalPageComments: { type: [String], default: [] }
+  personalPageComments: { type: [String], default: [] },
+  profilePicture: { type: String, default: "/public/default-profile.jpg" },
+  bio: { type: String, default: "This user has not set a bio yet." }
 });
 
 UserSchema.pre("save", async function (next) {

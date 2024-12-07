@@ -1,0 +1,42 @@
+<div class="container">
+<section class="personal-page">
+
+  <div class="header" style="background-image: url({{default user.backgroundPicture '/default-background.jpg'}})">
+    <img class="profile-picture" src="{{default user.profilePicture '/default-profile.jpg'}}"
+      alt="{{user.userName}}'s Profile Picture">
+
+    <h1>{{user.userName}}</h1>
+    <p class="bio">{{user.bio}}</p>
+    <a href="/personal/{{user.userName}}/edit" class="btn btn-edit">Edit Profile</a>
+  </div>
+  </div>
+
+
+  <div class="content">
+    <section class="posts">
+      <h2>Travel Plans & Routes</h2>
+      {{#if posts.length}}
+      <div class="post-list">
+        {{#each posts}}
+        <article class="post">
+          <h3>{{this.title}}</h3>
+          <p>{{this.summary}}</p>
+          <a href="/routes/{{this._id}}" class="btn btn-view">View Details</a>
+        </article>
+        {{/each}}
+      </div>
+      {{else}}
+      <p class="no-posts">No travel plans or routes to display yet.</p>
+      {{/if}}
+    </section>
+
+    <section class="follow-section">
+      <form action="/personal/{{user.userName}}/follow" method="POST">
+        <button type="submit" class="btn btn-follow">
+          {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+        </button>
+      </form>
+    </section>
+  </div>
+</section>
+</div>

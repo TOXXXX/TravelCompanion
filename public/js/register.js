@@ -19,11 +19,11 @@ document
 
       if (response.ok) {
         document.getElementById("message").textContent =
-          "User registered successfully";
+          response.json().message;
         document.getElementById("message").style.color = "green";
       } else {
-        document.getElementById("message").textContent =
-          `Error: ${jqXHR.responseText}`;
+        const errorText = await response.text();
+        document.getElementById("message").textContent = `Error: ${errorText}`;
         document.getElementById("message").style.color = "red";
       }
     } catch (error) {

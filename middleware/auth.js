@@ -6,6 +6,11 @@ export const isAuthenticated = (req, res, next) => {
   }
 };
 
+export const setAuth = (req, res, next) => {
+  res.locals.isAuthenticated = req.session.isAuthenticated || false;
+  next();
+};
+
 const requireRole = (role) => {
   return (req, res, next) => {
     if (req.session.userRole === role) {
@@ -14,11 +19,4 @@ const requireRole = (role) => {
       res.status(403).json({ message: "Unauthorized" });
     }
   };
-};
-
-const redirectIfAuthenticated = (req, res, next) => {
-  if (req.session.isAuthenticated) {
-    // TODO: Redirect to main page
-  }
-  next();
 };

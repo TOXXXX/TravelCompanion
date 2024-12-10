@@ -1,5 +1,4 @@
 import { createUser } from "./data/userService.js";
-import bcrypt from "bcrypt";
 import { dropDB, disconnectDB } from "./config/db.js";
 
 const seedDatabase = async () => {

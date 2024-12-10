@@ -1,8 +1,8 @@
 <div class="container">
   <h1>Sign Up</h1>
-  <form action="/signup" method="POST">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
+  <form id="registerForm">
+    <label for="userName">Username:</label>
+    <input type="text" id="userName" name="userName" required>
 
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" required>
@@ -10,12 +10,15 @@
     <label for="password">Password:</label>
     <input type="password" id="password" name="password" required>
 
-    <label for="confirm-password">Confirm Password:</label>
-    <input type="password" id="confirm-password" name="confirm-password" required>
+    <label for="confirmPassword">Confirm Password:</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" required>
 
     <button type="submit">Sign Up</button>
   </form>
+  <div id="message" class="message"></div>
   <div class="login-link">
     Already have an account? <a href="login">Log in</a>
   </div>
 </div>
+
+<script src="/js/register.js"></script>

@@ -8,8 +8,7 @@ const router = express.Router();
 router.get("/register", (req, res) => {
   res.render("register", {
     title: "Sign Up",
-    customCSS: "register",
-    isAuthenticated: req.session.isAuthenticated
+    customCSS: "register"
   });
 });
 

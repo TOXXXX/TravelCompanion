@@ -1,0 +1,7 @@
+<form action="/personal/{{user.username}}/edit" method="POST">
+  <label for="bio">Personal Bio:</label>
+  <textarea name="bio" id="bio">{{user.bio}}</textarea>
+  <label for="profilePicture">Profile Picture:</label>
+  <input type="file" name="profilePicture" id="profilePicture" />
+  <button type="submit">Save Changes</button>
+</form>

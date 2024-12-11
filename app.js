@@ -11,12 +11,23 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+const hbs = handlebars.create({
+  defaultLayout: "main",
+  helpers: {
+    default: (value, defaultValue) => {
+      return value || defaultValue;
+    },
+    json: (context) => {
+      return JSON.stringify(context);
+    }
+  }
+});
+app.engine("handlebars", hbs.engine);
 app.use(express.static("public"));
 app.use(express.json());
 
 // Set up Handlebars
-app.engine("handlebars", handlebars.engine({ defaultLayout: "main" }));
+// app.engine("handlebars", handlebars.engine({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 app.set("views", "./views");
 

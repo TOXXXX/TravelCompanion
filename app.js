@@ -6,6 +6,7 @@ import registerRoutes from "./routes/index.js";
 import seedDatabase from "./seed.js";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
+import { setAuth } from "./middleware/auth.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ const hbs = handlebars.create({
 app.engine("handlebars", hbs.engine);
 app.use(express.static("public"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Set up Handlebars
 // app.engine("handlebars", handlebars.engine({ defaultLayout: "main" }));
@@ -50,6 +52,9 @@ const startServer = async () => {
         name: "sessionId"
       })
     );
+
+    // Use the setAuth middleware to set isAuthenticated for all routes
+    app.use(setAuth);
 
     registerRoutes(app);
 

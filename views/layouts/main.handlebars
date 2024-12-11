@@ -14,19 +14,24 @@
 <header>
   <div class="container">
     <div class="header-content">
-      <h1>Travel Companion</h1>
+      <h1><a href="/">Travel Companion</a></h1>
       <nav>
         <ul>
           <li><a href="routes">Routes</a></li>
           <li><a href="#companions">Companions</a></li>
           <li><a href="#profile">Profile</a></li>
-          <li><a href="#login">Log in</a></li>
-          <li><a href="register" class="btn-signup">Sign Up</a></li>
+          {{#if isAuthenticated}}
+            <li><a href="#" id="logoutButton">Log out</a></li>
+          {{else}}
+            <li><a href="login">Log in</a></li>
+            <li><a href="register" class="btn-signup">Sign Up</a></li>
+          {{/if}}
         </ul>
       </nav>
     </div>
   </div>
 </header>
+<script src="/js/main.js"></script>
 
 <main>
   {{{body}}}
@@ -43,6 +48,5 @@
     </p>
   </div>
 </footer>
-<script src="/js/main.js"></script>
 </body>
 </html>

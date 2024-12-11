@@ -5,46 +5,57 @@ body {
     padding: 0;
     color: #333;
 }
+
 header {
     background-color: #3498db;
     color: #fff;
     padding: 1rem;
 }
+
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+
 nav ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
     display: flex;
 }
+
 nav ul li {
     margin-left: 20px;
 }
+
 nav ul li:first-child {
     margin-left: 0;
 }
+
 nav ul li a {
     color: #fff;
     text-decoration: none;
 }
+
 main {
     padding: 20px;
 }
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
 }
+
 .hero {
     text-align: center;
     margin-bottom: 2rem;
 }
+
 .cta-buttons {
     margin-top: 1rem;
 }
+
 .btn {
     display: inline-block;
     background-color: #3498db;
@@ -54,39 +65,47 @@ main {
     border-radius: 5px;
     margin-right: 10px;
 }
+
 .btn-outline {
     background-color: transparent;
     border: 1px solid #3498db;
     color: #3498db;
 }
+
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
 }
+
 .card {
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 1rem;
 }
+
 .card h3 {
     margin-top: 0;
 }
+
 footer {
     background-color: #f4f4f4;
     text-align: center;
     padding: 1rem;
     margin-top: 2rem;
 }
+
 @media (max-width: 768px) {
     .header-content {
         flex-direction: column;
         align-items: flex-start;
     }
+
     nav ul {
         margin-top: 1rem;
         flex-direction: column;
     }
+
     nav ul li {
         margin-left: 0;
         margin-bottom: 0.5rem;

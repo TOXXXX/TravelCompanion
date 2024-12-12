@@ -1,0 +1,103 @@
+{{!-- Filter Form --}}
+<div class="card">
+  <form class="search-form">
+    <div class="search-bar-container">
+      <input 
+        class="search-input" 
+        placeholder="Search..." 
+        type="text" 
+        name="search"
+      >
+      <button class="btn search-button" type="submit">
+        <i class="fas fa-search"></i>
+        Search
+      </button>
+    </div>
+    <div class="filter-options">
+      <div class="filter-item">
+        <input 
+          type="checkbox" 
+          value="on" 
+          name="routes" 
+          class="checkbox-button"
+        >
+        <label for="routes">Routes</label>
+      </div>
+      <div class="filter-item">
+        <input 
+          type="checkbox" 
+          value="on" 
+          name="plans" 
+          class="checkbox-button"
+        >
+        <label for="plans">Plans</label>
+      </div>
+      <div class="filter-item">
+        <input 
+          type="checkbox" 
+          value="on" 
+          name="following" 
+          class="checkbox-button"
+        >
+        <label for="following">Following</label>
+      </div>
+    </div>
+  </form>
+</div>
+{{!-- Posts --}}
+{{#if posts.length}}
+  <div>
+    {{#each posts}}
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            {{!-- <h3>Amazing Journey Through Europe</h3> --}}
+            <h3>{{ title }}</h3>
+            <h4 class="card-type">{{ type }}</h4>
+            {{!-- <h4 class="card-type">route</h4> --}}
+          </div>
+          <div class="card-actions">
+            <button class="btn">
+              <i class="far fa-edit"></i>
+            </button>
+            <button class="btn">
+              <i class="far fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+        <p class="card-description">{{ intro }}</p>
+        {{!-- <p class="card-description">Embark on an unforgettable adventure across Europe's most iconic cities.</p> --}}
+        <div class="card-footer">
+          <div class="card-metadata">
+            <span class="metadata-item">
+              <i class="far fa-clock icon"></i>
+              {{ duration }}
+              {{!-- 14 days --}}
+            </span>
+            <span class="metadata-item">
+              <i class="far fa-map icon"></i>
+              {{ locations }}
+              {{!-- Paris, Rome, Barcelona --}}
+            </span>
+          </div>
+          <div class="card-interactions">
+            <span class="interaction-item">
+              <i class="far fa-comments icon"></i>
+              {{ comments }}
+              {{!-- 5 --}}
+            </span>
+            <span class="interaction-item">
+              <i class="far fa-thumbs-up icon"></i>
+              {{ likes }}
+              {{!-- 42 --}}
+            </span>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+{{else}}
+  <p>No posts found</p>
+{{/if}}
+
+{{!-- Comments div id: comments-div --}}

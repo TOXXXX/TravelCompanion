@@ -1,22 +1,48 @@
-<h2>Create a New Route</h2>
+<h2>Create a New Post About Your Route or Plan</h2>
 <div class="create-route-container">
   <div class="map-container">
     <!-- This div would contain the Mapbox map -->
     <p style="text-align: center; padding-top: 200px;">Mapbox Map would be embedded here</p>
   </div>
   <div class="route-form">
-    <form>
+    <form action="/post/create" method="POST" name="create-post" id="create-post">
       <div class="form-group">
-        <label for="route-name">Route Name</label>
+        <label for="Post-name">Post Name</label>
         <input type="text" id="route-name" name="route-name" required>
       </div>
       <div class="form-group">
-        <label for="route-description">Description</label>
-        <textarea id="route-description" name="route-description" rows="3"></textarea>
+        <label for="route-description">Brief Description</label>
+        <textarea id="route-description" name="route-description" rows="3" 
+        placeholder="Enter a brief description of your route/plan"
+        required></textarea>
       </div>
       <div class="form-group">
+        <label for="route-description">Post Content</label>
+        <textarea id="route-description" name="route-description" rows="10" 
+        placeholder="Tell us more about what your route/plan entails"
+         required></textarea>
+      </div>
+      {{!-- <div class="form-group">
         <label for="route-duration">Duration (days)</label>
         <input type="number" id="route-duration" name="route-duration" min="1" required>
+      </div> --}}
+      <div class="form-group">
+        <label for="route-duration">Plan/Route</label>
+        <p>If it is somewhere you plan to visit, choose "Plan"<br>
+        If it is somewhere you have visited or only hypothetical, choose "Route"
+        </p>
+        <select id="post-type" name="post-type">
+          <option value="plan">Plan</option>
+          <option value="route">Route</option>
+        </select>
+      </div>
+      <div class="form-group" id = "start-div">
+        <label for="start-date">Start Date</label>
+        <input type="date" id="start-date" name="start-date" required>
+      </div>
+      <div class="form-group" id = "end-div">
+        <label for="end-date">End Date</label>
+        <input type="date" id="end-date" name="end-date" required>
       </div>
       <div class="form-group">
         <label>Waypoints</label>

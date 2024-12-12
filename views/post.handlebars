@@ -1,0 +1,36 @@
+<h2>{{postTitle}}</h2>
+{{#if isAuthenticated}}
+    <a href="/post/edit-post/{{id}}" class="edit-post">Edit</a>
+{{/if}}
+<section class="post-content">
+    <p>{{intendedTime}}</p>
+    <p>{{intro}}</p>
+    <p>{{content}}</p>
+</section>
+<div>
+    <p>{{likes}}</p>
+</div>
+<div id="comments-div"  class="comments-box">
+    <h3>Comments</h3>
+    <ul>
+        {{#each comments}}
+        <li class="comment-box">
+            <p class="comment-content">{{this.content}}</p>
+            <p class="comment-author">{{this.author}}</p>
+            <p class="comment-lastedited">{{this.comment-lastEdited}}</p>
+        </li>
+        {{/each}}
+    </ul>
+
+    <form action="/post/{{id}}/comment" method="POST">
+        <label for="make-comment">Comment:</label>
+        <textarea name="make-comment" id="make-comment"></textarea>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+
+<div class="map-container">
+<!-- This div would contain the Mapbox map -->
+<p style="text-align: center; padding-top: 200px;">Mapbox Map would be embedded here</p>
+</div>

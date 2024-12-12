@@ -168,3 +168,16 @@ export const unfollowUser = async (currentUserId, targetUserId) => {
     throw new Error(`Unable to unfollow user: ${error.message}`);
   }
 };
+
+// Retrive following user ids from current user
+export const getFollowingUsers = async (currentUserId) => {
+  try {
+    const currentUser = await User.findById(currentUserId);
+    if (!currentUser) {
+      throw new Error("Current user not found");
+    }
+    return currentUser.following;
+  } catch (error) {
+    throw new Error(`Unable to retrive all following users: ${error.message}`);
+  }
+};

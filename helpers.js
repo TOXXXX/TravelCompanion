@@ -72,7 +72,6 @@ export function validTrimInput(input, type) {
 
   if ((typeof input === "number" && isNaN(input)) || input === null) {
     // undefined is actually already taken care of
-    console.log(input);
     throw new Error("input cannot be NaN or null");
   }
 

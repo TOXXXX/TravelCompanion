@@ -18,8 +18,8 @@ document
       });
 
       if (response.ok) {
-        document.getElementById("message").textContent =
-          response.json().message;
+        const successText = await response.text();
+        document.getElementById("message").textContent = successText;
         document.getElementById("message").style.color = "green";
       } else {
         const errorText = await response.text();

@@ -7,18 +7,18 @@
   <div class="route-form">
     <form action="/post/create" method="POST" name="create-post" id="create-post">
       <div class="form-group">
-        <label for="Post-name">Post Name</label>
-        <input type="text" id="route-name" name="route-name" required>
+        <label for="post-name">Post Name</label>
+        <input type="text" id="post-name" name="post-name" required>
       </div>
       <div class="form-group">
-        <label for="route-description">Brief Description</label>
-        <textarea id="route-description" name="route-description" rows="3" 
+        <label for="post-description">Brief Description</label>
+        <textarea id="post-description" name="post-description" rows="3" 
         placeholder="Enter a brief description of your route/plan"
         required></textarea>
       </div>
       <div class="form-group">
-        <label for="route-description">Post Content</label>
-        <textarea id="route-description" name="route-description" rows="10" 
+        <label for="post-content">Post Content</label>
+        <textarea id="post-content" name="post-content" rows="10" 
         placeholder="Tell us more about what your route/plan entails"
          required></textarea>
       </div>
@@ -27,7 +27,7 @@
         <input type="number" id="route-duration" name="route-duration" min="1" required>
       </div> --}}
       <div class="form-group">
-        <label for="route-duration">Plan/Route</label>
+        <label for="post-type">Plan/Route</label>
         <p>If it is somewhere you plan to visit, choose "Plan"<br>
         If it is somewhere you have visited or only hypothetical, choose "Route"
         </p>
@@ -45,9 +45,9 @@
         <input type="date" id="end-date" name="end-date" required>
       </div>
       <div class="form-group">
-        <label>Waypoints</label>
+        <label for="start-loc">Waypoints</label>
         <div class="waypoint">
-          <input type="text" placeholder="Enter location" required>
+          <input id="start-loc" type="text" placeholder="Enter location" required>
           <textarea placeholder="Description (optional)" rows="2"></textarea>
         </div>
         <div class="waypoint">
@@ -69,3 +69,5 @@
     </form>
   </div>
 </div>
+
+<script src="/js/editPost.js"></script>

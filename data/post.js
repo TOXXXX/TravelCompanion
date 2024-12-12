@@ -22,3 +22,13 @@ export const getUserAllPosts = async (userId) => {
     throw new Error(`Unable to get user posts: ${error.message}`);
   }
 };
+
+export const createPost = async (userId, postData) => {
+  try {
+    const newPost = new Post({ ...postData, uid: userId });
+    await newPost.save();
+    return newPost;
+  } catch (error) {
+    throw new Error(`Unable to create post: ${error.message}`);
+  }
+};

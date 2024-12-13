@@ -5,20 +5,20 @@
     <p style="text-align: center; padding-top: 200px;">Mapbox Map would be embedded here</p>
   </div>
   <div class="route-form">
-    <form action="/post/create" method="POST" name="create-post" id="create-post">
+    <form action="/post/create" method="POST" name="createPost" id="createPost">
       <div class="form-group">
-        <label for="post-name">Post Name</label>
-        <input type="text" id="post-name" name="post-name" required>
+        <label for="postTitle">Post Title</label>
+        <input type="text" id="postTitle" name="postTitle" required>
       </div>
       <div class="form-group">
-        <label for="post-description">Brief Description</label>
-        <textarea id="post-description" name="post-description" rows="3" 
+        <label for="postDescription">Brief Description</label>
+        <textarea id="postDescription" name="postDescription" rows="3" 
         placeholder="Enter a brief description of your route/plan"
         required></textarea>
       </div>
       <div class="form-group">
-        <label for="post-content">Post Content</label>
-        <textarea id="post-content" name="post-content" rows="10" 
+        <label for="postContent">Post Content</label>
+        <textarea id="postContent" name="postContent" rows="10" 
         placeholder="Tell us more about what your route/plan entails"
          required></textarea>
       </div>
@@ -27,45 +27,48 @@
         <input type="number" id="route-duration" name="route-duration" min="1" required>
       </div> --}}
       <div class="form-group">
-        <label for="post-type">Plan/Route</label>
+        <label for="postType">Plan/Route</label>
         <p>If it is somewhere you plan to visit, choose "Plan"<br>
         If it is somewhere you have visited or only hypothetical, choose "Route"
         </p>
-        <select id="post-type" name="post-type">
+        <select id="postType" name="postType">
           <option value="plan">Plan</option>
           <option value="route">Route</option>
         </select>
       </div>
       <div class="form-group" id = "start-div">
-        <label for="start-date">Start Date</label>
-        <input type="date" id="start-date" name="start-date" required>
+        <label for="startDate">Start Date</label>
+        <input type="date" id="startDate" name="startDate" required>
       </div>
       <div class="form-group" id = "end-div">
-        <label for="end-date">End Date</label>
-        <input type="date" id="end-date" name="end-date" required>
+        <label for="endDate">End Date</label>
+        <input type="date" id="endDate" name="endDate" required>
       </div>
-      <div class="form-group">
-        <label for="start-loc">Waypoints</label>
+      <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+        {{!-- Frontend validation error --}}
+      </div>
+      {{!-- <div class="form-group">
+        <label for="startLoc">Waypoints</label>
         <div class="waypoint">
-          <input id="start-loc" type="text" placeholder="Enter location" required>
+          <input id="startLoc" type="text" placeholder="Enter location" required>
           <textarea placeholder="Description (optional)" rows="2"></textarea>
         </div>
         <div class="waypoint">
-          <input type="text" placeholder="Enter location" required>
+          <input id="endLoc" type="text" placeholder="Enter location" required>
           <textarea placeholder="Description (optional)" rows="2"></textarea>
         </div>
-        <button type="button" class="btn add-waypoint">Add Waypoint</button>
+        <button id="btnAddWaypoint" type="button" class="btn add-waypoint">Add Waypoint</button>
       </div>
       <div class="form-group">
-        <label for="route-type">Route Type</label>
-        <select id="route-type" name="route-type">
+        <label for="routeType">Route Type</label>
+        <select id="routeType" name="routeType">
           <option value="road-trip">Road Trip</option>
           <option value="backpacking">Backpacking</option>
           <option value="city-tour">City Tour</option>
           <option value="nature-adventure">Nature Adventure</option>
         </select>
-      </div>
-      <button type="submit" class="btn">Create Route</button>
+      </div> --}}
+      <button type="submit" class="btn" name="submitBTN" id="submitBTN" >Create Route</button>
     </form>
   </div>
 </div>

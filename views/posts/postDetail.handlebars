@@ -1,0 +1,46 @@
+<h1>{{post.title}}</h1>
+{{#if isAuthenticated}}
+    <a href="/post/edit/{{id}}" class="edit-post">Edit This Post</a>
+{{/if}}
+<section class="post-content">
+    {{#if post.isPlan}}
+        <p>A Travel Plan of {{author}}</p>
+    {{else}}
+        <p>A Travel Route Shared by {{author}}</p>
+    {{/if}}
+    {{#if timed}}
+        <p>Start Date: {{startDate}}</p>
+        <p>End Date: {{endDate}}</p>
+    {{/if}}
+    <h2>Introduction</h2>
+    <p>{{post.intro}}</p>
+    <h2>Content</h2>
+    {{!-- This link should take user to the embedded map page for the post: --}}
+    <a href="/post/{{id}}/map" class="map-link">View Map</a>        
+    <p>{{post.content.description}}</p>
+</section>
+<div>
+    <h3>Like by {{likes}} people.</h3>
+</div>
+<hr>
+<div id="comments-div"  class="comments-box">
+    <h2>Comments</h2>
+    <ul>
+        {{#each comments}}
+        <li class="comment-box">
+            <p class="comment-content">{{this.content}}</p>
+            <p class="comment-author">{{this.author}}</p>
+            <p class="comment-lastedited">Last Edited: {{this.lastEdited}}</p>
+        </li>
+        {{/each}}
+    </ul>
+<hr>
+    <form action="/post/{{post._id}}/comment" method="POST">
+        <label for="make-comment">Comment:</label>
+        <textarea name="make-comment" id="make-comment"></textarea>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+
+

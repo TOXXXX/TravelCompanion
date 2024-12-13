@@ -2,7 +2,7 @@ import Post from "../models/posts.js";
 
 export const getPostById = async (postId) => {
   try {
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).lean();
     if (!post) {
       throw new Error("Post not found");
     }

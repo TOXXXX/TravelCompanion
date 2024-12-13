@@ -122,11 +122,15 @@ footer {
     flex: 1;
     max-width: 50%;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
   .map-container {
-    width: 800px;
-    height: 400px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .map-container img {
     border: 1px solid #ddd;
   }
   #static-map {

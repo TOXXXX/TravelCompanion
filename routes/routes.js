@@ -19,7 +19,7 @@ router.get("/create-route", (req, res) => {
 router.post("/create-route", async(req, res) => {
   const {
     'route-name': routeName,
-    'route-description': routeDescription,
+    'route-description': routeDesc,
     'route-duration': routeDuration,
     'waypoint-1-coordinates': waypoint1Coordinates,
     'waypoint-2-coordinates': waypoint2Coordinates,
@@ -79,7 +79,8 @@ router.post("/create-route", async(req, res) => {
     const steps = route.legs[0].steps;
     const instructions = steps.map(step => step.maneuver.instruction);
 
-    const pathOverlay = `path-5+f44-0.8(${encodedPolyline})`;
+    const encodedPolylineEscaped = encodeURIComponent(encodedPolyline);
+    const pathOverlay = `path-5+f44-0.8(${encodedPolylineEscaped})`;
     const startPin = `pin-s-l+FF0000(${lng1},${lat1})`;
     const endPin = `pin-s-l+00FF00(${lng2},${lat2})`;
 
@@ -101,6 +102,7 @@ router.post("/create-route", async(req, res) => {
       uid,
       pid,
       routeName,
+      routeDesc,
       tripDuration: routeDuration ? parseInt(routeDuration, 10) : undefined,
       origin: {
         name: waypoint1Name || "Origin",
@@ -120,7 +122,12 @@ router.post("/create-route", async(req, res) => {
       customCSS: "create-route",
       MAPBOX_ACCESS_TOKEN,
       instructions,
-      routeName
+      routeName,
+      routeDesc,
+      routeDuration,
+      waypoint1Description,
+      waypoint2Description,
+      routeType
     });
   } catch (error) {
     console.error("Error generating map URL:", error.message);

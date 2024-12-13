@@ -1,6 +1,7 @@
 import User from "../models/users.js";
 import Comment from "../models/comments.js";
 import Post from "../models/posts.js";
+import mongoose from "mongoose";
 
 export const createUser = async (userData) => {
   try {
@@ -172,7 +173,9 @@ export const unfollowUser = async (currentUserId, targetUserId) => {
 // Retrive following user ids from current user
 export const getFollowingUsers = async (currentUserId) => {
   try {
-    const currentUser = await User.findById(currentUserId);
+    const currentUser = await User.findById(
+      new mongoose.Types.ObjectId(currentUserId)
+    );
     if (!currentUser) {
       throw new Error("Current user not found");
     }

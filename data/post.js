@@ -35,6 +35,8 @@ export const createPost = async (userId, postData) => {
 export const getFilteredPostsWithRoute = async (
   isPlan,
   isRoute,
+  search,
+  following,
   userIds = []
 ) => {
   const matchStage = {
@@ -52,7 +54,7 @@ export const getFilteredPostsWithRoute = async (
   // Do nothing if both are true
 
   // Filter for following users
-  if (userIds.length > 0) {
+  if (following) {
     matchStage.$match.author = { $in: userIds };
   }
 
@@ -60,10 +62,15 @@ export const getFilteredPostsWithRoute = async (
     const postsWithRoutes = await Post.aggregate([
       matchStage,
       {
+        $addFields: {
+          postIDString: { $toString: "$_id" } // Convert _id (ObjectId) to string
+        }
+      },
+      {
         $lookup: {
           from: "routes",
-          localField: "routeID",
-          foreignField: "_id",
+          localField: "postIDString", // Use the string version of _id
+          foreignField: "postID",
           as: "routeInfo"
         }
       },
@@ -74,10 +81,39 @@ export const getFilteredPostsWithRoute = async (
         }
       }
     ]);
+    // Filter by search term presence in title or intro
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+      return postsWithRoutes.filter(
+        (post) => searchRegex.test(post.title) || searchRegex.test(post.intro)
+      );
+    }
     return postsWithRoutes;
   } catch (error) {
     throw new Error(
       `Unable to get filtered, route included posts: ${error.message}`
     );
+  }
+};
+
+// Like a post
+export const LikePost = async (postId, userId) => {
+  try {
+    let state = false; // The state of the like, true for liked, false for unliked
+    const post = await Post.findById(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    if (post.likeByUsers.includes(userId)) {
+      state = false;
+      post.likeByUsers.pull(userId);
+    } else {
+      state = true;
+      post.likeByUsers.push(userId);
+    }
+    await post.save();
+    return { state, likeCount: post.likeByUsers.length };
+  } catch (error) {
+    throw new Error(`Unable to like post: ${error.message}`);
   }
 };

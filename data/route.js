@@ -1,8 +1,8 @@
 import Route from "../models/routes.js";
 
-export const createRoute = async (uid, postID, routes) => {
+export const createRoute = async (routeData) => {
   try {
-    const newRoute = new Route({ uid, postID, routes });
+    const newRoute = new Route(routeData);
     await newRoute.save();
     return newRoute;
   } catch (error) {

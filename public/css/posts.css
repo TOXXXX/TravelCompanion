@@ -204,8 +204,16 @@ h3, h4 {
     align-items: center;
 }
 
+.interaction-item {
+    cursor: pointer;
+}
+
 .icon {
     margin-right: 0.25rem;
+}
+
+.red-icon {
+    color: red;
 }
 
 .search-form {
@@ -257,4 +265,14 @@ h3, h4 {
     height: 1rem;
     border: 1px solid #2563eb;
     border-radius: 0.25rem;
+}
+
+h3 a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h3 a:hover {
+    text-decoration: none;
+    color: inherit;
 }

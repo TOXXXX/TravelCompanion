@@ -88,8 +88,8 @@ router.post("/create-route", async(req, res) => {
     const base64Image = Buffer.from(response.data, 'binary').toString('base64');
     const mapDataUrl = `data:image/png;base64,${base64Image}`;
     //console.log(mapDataUrl);
-    const uid = req.user && req.user.id ? req.user.id : "tempUserId123"; // Replace with actual user ID logic
-    const pid = `post-${Date.now()}`; // Generate a post ID or get from another source
+    const uid = req.user && req.user.id ? req.user.id : "tempUserId123"; 
+    const pid = `post-${Date.now()}`; 
 
     // Save to database
     const routeDoc = new Route({
@@ -100,12 +100,12 @@ router.post("/create-route", async(req, res) => {
       origin: {
         name: waypoint1Name || "Origin",
         coordinates: [lng1, lat1],
-        description: waypoint1Description // Or have a separate origin description field if needed
+        description: waypoint1Description 
       },
       destination: {
         name: waypoint2Name || "Destination",
         coordinates: [lng2, lat2],
-        description: waypoint2Description // If you had a separate field for destination description, use it here
+        description: waypoint2Description 
       }
     });
 
@@ -122,7 +122,7 @@ router.post("/create-route", async(req, res) => {
   }
 });
 
-router.get("/route-post-route", async(res, req)=>{
+router.get("/post-route", async(res, req)=>{
   //get route posts here
 })
 

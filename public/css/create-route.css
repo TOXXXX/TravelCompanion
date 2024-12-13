@@ -118,6 +118,12 @@ footer {
     gap: 20px;
     margin: 20px;
   }
+  .map-box {
+    flex: 1;
+    max-width: 50%;
+    display: flex;
+    flex-wrap: wrap;
+  }
   .map-container {
     width: 800px;
     height: 400px;

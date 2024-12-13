@@ -1,78 +1,79 @@
-
-  <h2 style="text-align: center;">Create a New Route</h2>
-  <div class="container">
+<h2 style="text-align: center;">Create a New Route</h2>
+<div class="container">
+  <div class="map-box">
     <div class="map-container">
-     {{#if mapDataUrl}}
+      {{#if mapDataUrl}}
       <!-- Display the generated map image -->
       <img id="static-map" src="{{mapDataUrl}}" alt="Generated Map" />
-    {{else}}
+      {{else}}
       <!-- Placeholder image if no map URL is available -->
       <img id="static-map" src="https://via.placeholder.com/800x400?text=Map+will+appear+here" alt="Map Placeholder" />
-    {{/if}}
+      {{/if}}
     </div>
     {{#if instructions}}
-  <div class="instructions-container">
-    <h3>Step-by-Step Instructions</h3>
-    <ol>
-      {{#each instructions}}
+    <div class="instructions-container">
+      <h3>Step-by-Step Instructions</h3>
+      <ol>
+        {{#each instructions}}
         <li>{{this}}</li>
-      {{/each}}
-    </ol>
-  </div>
-  {{/if}}
-    <div class="route-form">
-      <form id="route-form" action="/create-route" method="POST">
-        <div class="form-group">
-          <label for="route-name">Route Name</label>
-          <input type="text" id="route-name" name="route-name" required>
-        </div>
-        <div class="form-group">
-          <label for="route-description">Description</label>
-          <textarea id="route-description" name="route-description" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="route-duration">Trip Duration (Days)</label>
-          <input type="number" id="route-duration" name="route-duration" min="1" required>
-        </div>
-        <div class="form-group">
-          <label>Waypoints</label>
-          <div class="form-group waypoint">
-            <label for="geocoder-1">Origin</label>
-            <div id="geocoder-1" class="geocoder"></div>
-            <input type="hidden" readonly="true" id="waypoint-1-coordinates" name="waypoint-1-coordinates">
-            <input type="hidden" id="waypoint-1-name" name="waypoint-1-name">
-            <textarea id="waypoint-1-description" placeholder="Description (optional)" rows="2"></textarea>
-          </div>
-          <div class="form-group waypoint">
-            <label for="geocoder-2">Destination</label>
-            <div id="geocoder-2" class="geocoder"></div>
-            <input type="hidden" readonly="true" id="waypoint-2-coordinates" name="waypoint-2-coordinates">
-            <input type="hidden" id="waypoint-2-name" name="waypoint-2-name">
-            <textarea id="waypoint-2-description" placeholder="Description (optional)" rows="2"></textarea>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="route-type">Route Type</label>
-          <select id="route-type" name="route-type" required>
-            <option value="driving">Driving</option>
-            <option value="walking">Walking</option>
-            <option value="cycling">Cycling</option>
-          </select>
-      </form>
-      <button class="btn" type="submit" >Create Route</button>
+        {{/each}}
+      </ol>
     </div>
+    {{/if}}
   </div>
-  <script>
+  <div class="route-form">
+    <form id="route-form" action="/create-route" method="POST">
+      <div class="form-group">
+        <label for="route-name">Route Name</label>
+        <input type="text" id="route-name" name="route-name" value="{{routeName}}" required>
+      </div>
+      <div class="form-group">
+        <label for="route-description">Description</label>
+        <textarea id="route-description" name="route-description" value="{{routeDesc}}" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="route-duration">Trip Duration (Days)</label>
+        <input type="number" id="route-duration" name="route-duration" value="{{routeDuration}}" min="1" required>
+      </div>
+      <div class="form-group">
+        <label>Waypoints</label>
+        <div class="form-group waypoint">
+          <label for="geocoder-1">Origin</label>
+          <div id="geocoder-1" class="geocoder"></div>
+          <input type="hidden" readonly="true" id="waypoint-1-coordinates" name="waypoint-1-coordinates">
+          <input type="hidden" id="waypoint-1-name" name="waypoint-1-name">
+          <textarea id="waypoint-1-description" placeholder="Description (optional)" rows="2"></textarea>
+        </div>
+        <div class="form-group waypoint">
+          <label for="geocoder-2">Destination</label>
+          <div id="geocoder-2" class="geocoder"></div>
+          <input type="hidden" readonly="true" id="waypoint-2-coordinates" name="waypoint-2-coordinates">
+          <input type="hidden" id="waypoint-2-name" name="waypoint-2-name">
+          <textarea id="waypoint-2-description" placeholder="Description (optional)" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="route-type">Route Type</label>
+        <select id="route-type" name="route-type" required>
+          <option value="driving">Driving</option>
+          <option value="walking">Walking</option>
+          <option value="cycling">Cycling</option>
+        </select>
+    </form>
+    <button class="btn" type="submit">Create Route</button>
+  </div>
+</div>
+<script>
   mapboxgl.accessToken = '{{MAPBOX_ACCESS_TOKEN}}';
-  
+
   const waypoints = [
-    { geocoderId: 'geocoder-1', hiddenInputId: 'waypoint-1-coordinates', nameInputId: 'waypoint-1-name'},
-    { geocoderId: 'geocoder-2', hiddenInputId: 'waypoint-2-coordinates', nameInputId: 'waypoint-2-name'},
+    { geocoderId: 'geocoder-1', hiddenInputId: 'waypoint-1-coordinates', nameInputId: 'waypoint-1-name' },
+    { geocoderId: 'geocoder-2', hiddenInputId: 'waypoint-2-coordinates', nameInputId: 'waypoint-2-name' },
   ];
 
   console.log(waypoints);
 
-  waypoints.forEach(({ geocoderId, hiddenInputId, nameInputId}) => {
+  waypoints.forEach(({ geocoderId, hiddenInputId, nameInputId }) => {
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       mapboxgl: mapboxgl,
@@ -82,11 +83,11 @@
     document.getElementById(geocoderId).appendChild(geocoder.onAdd());
 
     geocoder.on('result', (e) => {
-      const { center, place_name } = e.result; 
+      const { center, place_name } = e.result;
       //console.log("place name:", place_name);
       //console.log(typeof(place_name));
       document.getElementById(hiddenInputId).value = `${center[0]},${center[1]}`;
       document.getElementById(nameInputId).value = place_name;
     });
   });
-  </script>
+</script>

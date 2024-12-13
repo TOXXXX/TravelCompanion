@@ -11,7 +11,6 @@ const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 router.get("/create-route", (req, res) => {
   res.render("create-route", {
     title: "Create Route",
-    mapUrl: null,
     customCSS: "create-route",
     MAPBOX_ACCESS_TOKEN,
   });
@@ -30,7 +29,7 @@ router.post("/create-route", async(req, res) => {
     'waypoint-2-description': waypoint2Description,
     'route-type': routeType,
   } = req.body;
-  console.log(req.body);
+  console.log(req.body, {routeType});
   
   try {
     if (!waypoint1Coordinates || !waypoint2Coordinates) {
@@ -59,14 +58,20 @@ router.post("/create-route", async(req, res) => {
       }
     });
 
-    console.log("directionURL:", directionsUrl);
+    console.log(directionsUrl, {
+      access_token: MAPBOX_ACCESS_TOKEN,
+      steps: true,
+      geometries: 'polyline' 
+    });
+
+    //console.log("directionURL:", directionsUrl);
 
     const directionsData = directionsResponse.data;
     if (!directionsData.routes || directionsData.routes.length === 0) {
       return res.status(404).send('No routes found');
     }
 
-    console.log("direactions data :", directionsData);
+    //console.log("direactions data :", directionsData);
 
     const route = directionsData.routes[0];
     const encodedPolyline = route.geometry; 
@@ -80,10 +85,11 @@ router.post("/create-route", async(req, res) => {
 
     const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${pathOverlay},${startPin},${endPin}/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
 
-    console.log("mapUrl:", mapUrl);
+    //console.log("mapUrl:", mapUrl);
     //const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+FF0000(${lng1},${lat1}),pin-s-l+00FF00(${lng2},${lat2})/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
+    console.log({mapUrl})
     const response = await axios.get(mapUrl, { responseType: 'arraybuffer' });
-    console.log("response :", response);
+    //console.log("response :", response);
 
     const base64Image = Buffer.from(response.data, 'binary').toString('base64');
     const mapDataUrl = `data:image/png;base64,${base64Image}`;
@@ -91,7 +97,6 @@ router.post("/create-route", async(req, res) => {
     const uid = req.user && req.user.id ? req.user.id : "tempUserId123"; 
     const pid = `post-${Date.now()}`; 
 
-    // Save to database
     const routeDoc = new Route({
       uid,
       pid,
@@ -108,13 +113,14 @@ router.post("/create-route", async(req, res) => {
         description: waypoint2Description 
       }
     });
-
+    await routeDoc.save();
     res.render("create-route", {
       title: "Create Route",
       mapDataUrl,
       customCSS: "create-route",
       MAPBOX_ACCESS_TOKEN,
       instructions,
+      routeName
     });
   } catch (error) {
     console.error("Error generating map URL:", error.message);
@@ -122,7 +128,7 @@ router.post("/create-route", async(req, res) => {
   }
 });
 
-router.get("/post-route", async(res, req)=>{
+router.get("/post-routes", async(res, req)=>{
   //get route posts here
 })
 

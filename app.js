@@ -14,6 +14,7 @@ const port = process.env.PORT || 3000;
 
 app.use(express.static("public"));
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 // Set up Handlebars
 app.engine("handlebars", handlebars.engine({ defaultLayout: "main" }));
@@ -23,8 +24,6 @@ app.set("views", "./views");
 const startServer = async () => {
   try {
     await seedDatabase();
-
-    app.use(express.json());
 
     app.use(
       session({

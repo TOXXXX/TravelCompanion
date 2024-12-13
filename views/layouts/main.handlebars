@@ -1,48 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{title}}</title>
-  <link rel="stylesheet" href="/css/shared.css">
-  {{#if customCSS}}
-    <link rel="stylesheet" href="/css/{{customCSS}}.css">
-  {{/if}}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-<header>
-  <div class="container">
-    <div class="header-content">
-      <h1>Travel Companion</h1>
-      <nav>
-        <ul>
-          <li><a href="routes">Routes</a></li>
-          <li><a href="#companions">Companions</a></li>
-          <li><a href="#profile">Profile</a></li>
-          <li><a href="#login">Log in</a></li>
-          <li><a href="register" class="btn-signup">Sign Up</a></li>
-        </ul>
-      </nav>
-    </div>
-  </div>
-</header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/shared.css" />
+    {{#if customCSS}}
+    <link rel="stylesheet" href="/css/{{customCSS}}.css" />
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
+    {{/if}}
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <h1>Travel Companion</h1>
+          <nav>
+            <ul>
+              <li><a href="routes">Routes</a></li>
+              <li><a href="#companions">Companions</a></li>
+              <li><a href="#profile">Profile</a></li>
+              <li><a href="#login">Log in</a></li>
+              <li><a href="register" class="btn-signup">Sign Up</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
 
-<main>
-  {{{body}}}
-</main>
+    <main>{{{body}}}</main>
 
-<footer>
-  <div class="container">
-    <p>&copy; 2024 Travel Companion. Open-source platform for travel ideas.</p>
-    <p>
-      Contribute on
-      <a href="https://github.com/TOXXXX/TravelCompanion" class="social" aria-label="GitHub">
-        <i class="fab fa-github"></i>
-      </a>
-    </p>
-  </div>
-</footer>
-<script src="/js/main.js"></script>
-</body>
+    <footer>
+      <div class="container">
+        <p>
+          &copy; 2024 Travel Companion. Open-source platform for travel ideas.
+        </p>
+        <p>
+          Contribute on
+          <a
+            href="https://github.com/TOXXXX/TravelCompanion"
+            class="social"
+            aria-label="GitHub"
+          >
+            <i class="fab fa-github"></i>
+          </a>
+        </p>
+      </div>
+    </footer>
+    <script src="/js/main.js"></script>
+  </body>
 </html>

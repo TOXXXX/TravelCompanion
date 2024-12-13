@@ -1,11 +1,129 @@
 import express from "express";
+import axios from "axios";
+import dotenv from 'dotenv';
+import Route from '../models/routes.js';
+
+dotenv.config();
+
 const router = express.Router();
+const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 
 router.get("/create-route", (req, res) => {
   res.render("create-route", {
     title: "Create Route",
-    customCSS: "create-route"
+    mapUrl: null,
+    customCSS: "create-route",
+    MAPBOX_ACCESS_TOKEN,
   });
 });
+
+router.post("/create-route", async(req, res) => {
+  const {
+    'route-name': routeName,
+    'route-description': routeDescription,
+    'route-duration': routeDuration,
+    'waypoint-1-coordinates': waypoint1Coordinates,
+    'waypoint-2-coordinates': waypoint2Coordinates,
+    'waypoint-1-name': waypoint1Name,
+    'waypoint-2-name': waypoint2Name,
+    'waypoint-1-description': waypoint1Description,
+    'waypoint-2-description': waypoint2Description,
+    'route-type': routeType,
+  } = req.body;
+  console.log(req.body);
+  
+  try {
+    if (!waypoint1Coordinates || !waypoint2Coordinates) {
+      return res.status(400).send("Waypoints are required.");
+    }
+    if (!routeName) {
+      return res.status(400).send("Route name is required.");
+    }
+    const [lng1, lat1] = waypoint1Coordinates.split(",").map((coord) => parseFloat(coord.trim()));
+    const [lng2, lat2] = waypoint2Coordinates.split(",").map((coord) => parseFloat(coord.trim()));
+
+    const profileMapping = {
+      driving: 'mapbox/driving',
+      walking: 'mapbox/walking',
+      cycling: 'mapbox/cycling'
+    };
+    const profile = profileMapping[routeType] || 'mapbox/driving';
+    console.log("profile;", profile);
+
+    const directionsUrl = `https://api.mapbox.com/directions/v5/${profile}/${lng1},${lat1};${lng2},${lat2}`;
+    const directionsResponse = await axios.get(directionsUrl, {
+      params: {
+        access_token: MAPBOX_ACCESS_TOKEN,
+        steps: true,
+        geometries: 'polyline' 
+      }
+    });
+
+    console.log("directionURL:", directionsUrl);
+
+    const directionsData = directionsResponse.data;
+    if (!directionsData.routes || directionsData.routes.length === 0) {
+      return res.status(404).send('No routes found');
+    }
+
+    console.log("direactions data :", directionsData);
+
+    const route = directionsData.routes[0];
+    const encodedPolyline = route.geometry; 
+
+    const steps = route.legs[0].steps;
+    const instructions = steps.map(step => step.maneuver.instruction);
+
+    const pathOverlay = `path-5+f44-0.8(${encodedPolyline})`;
+    const startPin = `pin-s-l+FF0000(${lng1},${lat1})`;
+    const endPin = `pin-s-l+00FF00(${lng2},${lat2})`;
+
+    const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${pathOverlay},${startPin},${endPin}/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
+
+    console.log("mapUrl:", mapUrl);
+    //const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+FF0000(${lng1},${lat1}),pin-s-l+00FF00(${lng2},${lat2})/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
+    const response = await axios.get(mapUrl, { responseType: 'arraybuffer' });
+    console.log("response :", response);
+
+    const base64Image = Buffer.from(response.data, 'binary').toString('base64');
+    const mapDataUrl = `data:image/png;base64,${base64Image}`;
+    //console.log(mapDataUrl);
+    const uid = req.user && req.user.id ? req.user.id : "tempUserId123"; // Replace with actual user ID logic
+    const pid = `post-${Date.now()}`; // Generate a post ID or get from another source
+
+    // Save to database
+    const routeDoc = new Route({
+      uid,
+      pid,
+      routeName,
+      tripDuration: routeDuration ? parseInt(routeDuration, 10) : undefined,
+      origin: {
+        name: waypoint1Name || "Origin",
+        coordinates: [lng1, lat1],
+        description: waypoint1Description // Or have a separate origin description field if needed
+      },
+      destination: {
+        name: waypoint2Name || "Destination",
+        coordinates: [lng2, lat2],
+        description: waypoint2Description // If you had a separate field for destination description, use it here
+      }
+    });
+
+    res.render("create-route", {
+      title: "Create Route",
+      mapDataUrl,
+      customCSS: "create-route",
+      MAPBOX_ACCESS_TOKEN,
+      instructions,
+    });
+  } catch (error) {
+    console.error("Error generating map URL:", error.message);
+    res.status(500).send("Failed to generate map URL.");
+  }
+});
+
+router.get("/route-post-route", async(res, req)=>{
+  //get route posts here
+})
 
 export default router;

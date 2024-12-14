@@ -103,17 +103,20 @@ router.post(
   async (req, res) => {
     try {
       const sessionUser = await userService.getUserByUsername(
-        req.session.userName
+        req.session.userName,
+        true
       );
+      console.log("Session user:", sessionUser);
+      console.log("Password field:", sessionUser.password);
       if (!sessionUser || sessionUser.userName !== req.params.username) {
         throw new Error("Unauthorized access");
       }
 
-      const { formType } = req.body;
+      const { formType, currentPassword, newPassword, confirmPassword } =
+        req.body;
 
+      // Handle password update logic
       if (formType === "password") {
-        const { currentPassword, newPassword, confirmPassword } = req.body;
-
         if (!currentPassword || !newPassword || !confirmPassword) {
           return res.render("editPersonalPage", {
             title: "Edit Personal Page",
@@ -132,11 +135,11 @@ router.post(
           });
         }
 
-        const passwordVerified = await userService.verifyPassword(
+        const isPasswordCorrect = await userService.verifyPassword(
           sessionUser.password,
           currentPassword
         );
-        if (!passwordVerified) {
+        if (!isPasswordCorrect) {
           return res.render("editPersonalPage", {
             title: "Edit Personal Page",
             user: sessionUser,
@@ -180,7 +183,7 @@ router.post(
 
       return res.redirect(`/personal/${req.params.username}`);
     } catch (err) {
-      console.error(err.message);
+      console.error("Error in edit route:", err.message);
       res.render("editPersonalPage", {
         title: "Edit Personal Page",
         user: req.session.user,

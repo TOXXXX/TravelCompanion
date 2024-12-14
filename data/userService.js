@@ -30,19 +30,32 @@ export const getUserById = async (userId) => {
 };
 
 // get User
-export const getUserByUsername = async (username) => {
+export const getUserByUsername = async (username, includePassword = false) => {
   try {
-    const user = await User.findOne({ userName: username })
+    let query = User.findOne({ userName: username })
       .populate("posts")
       .populate("personalPageComments")
-      .select(
-        "userName bio profilePicture email phoneNumber followers following"
-      )
       .populate("followers following", "userName profilePicture");
 
+    // Dynamically add the password field if needed
+    if (includePassword) {
+      query = query.select(
+        "userName bio profilePicture email phoneNumber followers following password"
+      );
+    } else {
+      query = query.select(
+        "userName bio profilePicture email phoneNumber followers following"
+      );
+    }
+
+    const user = await query;
     if (!user) {
       throw new Error("User not found");
     }
+    console.log(
+      "Fetched user with password:",
+      includePassword ? user.password : "Password not fetched"
+    );
     return user;
   } catch (error) {
     throw new Error(`Unable to get user by username: ${error.message}`);
@@ -186,6 +199,7 @@ export const verifyPassword = async (hashedPassword, plainPassword) => {
     throw new Error("Password verification failed");
   }
 };
+
 export const hashPassword = async (password) => {
   try {
     const saltRounds = 10;

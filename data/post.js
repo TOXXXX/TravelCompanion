@@ -2,7 +2,7 @@ import Post from "../models/posts.js";
 
 export const getPostById = async (postId) => {
   try {
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).lean();
     if (!post) {
       throw new Error("Post not found");
     }
@@ -93,6 +93,36 @@ export const getFilteredPostsWithRoute = async (
     throw new Error(
       `Unable to get filtered, route included posts: ${error.message}`
     );
+  }
+};
+
+export const deletePostById = async (postId) => {
+  try {
+    const post = await Post.findByIdAndDelete(postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    return post;
+  } catch (e) {
+    throw new Error(`Unable to delete post: ${e.message}`);
+  }
+};
+
+export const updatePostById = async (postId, updateData) => {
+  try {
+    const updatedPost = await Post.findByIdAndUpdate(
+      postId,
+      { $set: updateData },
+      {
+        new: true
+      }
+    ).lean();
+    if (!updatedPost) {
+      throw new Error("Post not found");
+    }
+    return updatedPost;
+  } catch (e) {
+    throw new Error(`Unable to update post: ${e.message}`);
   }
 };
 

@@ -1,0 +1,62 @@
+<h1>{{post.title}}</h1>
+{{#if isAuthor}}
+
+    <button type="button" id="deletePost" name="deletePost">Delete Post</button>
+    <form action="/post/edit/{{post._id}}" method="GET" id="editPost" name="editPost">
+        <button type="submit" id="edit" name="edit">Edit Post</button>
+    </form>
+{{/if}}
+<section class="post-content">
+    {{#if post.isPlan}}
+        <p>A Travel Plan of {{author}}</p>
+    {{else}}
+        <p>A Travel Route Shared by {{author}}</p>
+    {{/if}}
+    {{#if timed}}
+        <p>Start Date: {{startDate}}</p>
+        <p>End Date: {{endDate}}</p>
+    {{/if}}
+    <h2>Introduction</h2>
+    <p>{{post.intro}}</p>
+    <h2>Content</h2>
+    {{!-- This link should take user to the embedded map page for the post: --}}
+    <a href="/post/{{mapId}}/map" class="map-link">View Map</a>        
+    <p>{{post.content.description}}</p>
+</section>
+<div>
+    <h3>Like by {{likes}} people.</h3>
+</div>
+<hr>
+<div id="comments-div"  class="comments-box">
+    <h2>Comments</h2>
+    <ol id="commentList" name="commentList">
+        {{#each comments}}
+        <li class="comment-box" data-commentid="{{this._id}}">
+            <h4 class="comment-author">{{this.author}}</h4>
+            <p class="comment-content">{{this.content}}</p>
+            <p class="comment-lastedited">Last Edited: {{this.lastEdited}}</p>
+            {{#if this.isAuthor}}
+                <button type="button" class="deleteComment" name="deleteComment{{this._id}}"
+                 id="deleteComment{{this._id}}">Delete My Comment</button>
+            {{/if}}
+        </li>
+        {{/each}}
+    </ol>
+<hr>
+    <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+        {{!-- Frontend validation error --}}
+    </div>
+    <div class= "form-group">
+        <form action="/post/{{post._id}}/comment" method="POST" id="postComment" name="postComment">
+        <label for="makeComment">Comment:</label>
+        <textarea name="makeComment" id="makeComment"
+        placeholder="Make a friendly comment here..."></textarea>
+        <button type="submit" id="submit" name="submit">Submit</button>
+    </form>
+    </div>
+</div>
+
+<script src="/js/postDetail.js"></script>
+
+
+

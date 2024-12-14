@@ -228,6 +228,7 @@ export const isFollowing = async (currentUserId, targetUserId) => {
     throw new Error(`Unable to check following status: ${error.message}`);
   }
 };
+ 
 
 export const getFollowingUsers = async (currentUserId) => {
   try {
@@ -344,3 +345,4 @@ export const deleteCommentsByIds = async (commentIds, userId) => {
     throw new Error(`Failed to delete selected comments: ${err.message}`);
   }
 };
+ 

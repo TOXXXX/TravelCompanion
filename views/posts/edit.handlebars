@@ -5,22 +5,24 @@
     <p style="text-align: center; padding-top: 200px;">Mapbox Map would be embedded here</p>
   </div> --}}
   <div class="route-form">
-    <form action="/post/create" method="POST" name="createPost" id="createPost">
+    <form name="editPost" id="editPost">
       <div class="form-group">
-        <label for="postTitle" class="form-labels">Post Title</label>
-        <input type="text" id="postTitle" name="postTitle" required>
+        <label for="postTitle">Post Title</label>
+        <input type="text" id="postTitle" name="postTitle"
+        value="{{post.title}}"
+         required>
       </div>
       <div class="form-group">
-        <label for="postDescription" class="form-labels">Brief Description</label><br>
+        <label for="postDescription">Brief Description</label>
         <textarea id="postDescription" name="postDescription" rows="3" 
         placeholder="Enter a brief description of your route/plan"
-        required></textarea>
+        required>{{post.intro}}</textarea>
       </div>
       <div class="form-group">
-        <label for="postContent" class="form-labels">Post Content</label><br>
+        <label for="postContent">Post Content</label>
         <textarea id="postContent" name="postContent" rows="10" 
         placeholder="Tell us more about what your route/plan entails"
-         required></textarea>
+         required>{{post.content.description}}</textarea>
       </div>
       {{!-- <div class="form-group">
         <label for="route-duration">Duration (days)</label>
@@ -30,19 +32,19 @@
         <p>If it is somewhere you plan to visit, choose "Plan"<br>
         If it is somewhere you have visited or only hypothetical, choose "Route"
         </p>
-        <label for="postType" class="form-labels">Plan/Route</label>
+        <label for="postType">Plan/Route</label>
         <select id="postType" name="postType">
-          <option value="plan">Plan</option>
-          <option value="route">Route</option>
+          <option value="plan" {{#if post.isPlan}}selected{{/if}}>Plan</option>
+          <option value="route" {{#unless post.isPlan}}selected{{/unless}}>Route</option>
         </select>
       </div>
       <div class="form-group" id = "start-div">
-        <label for="startDate" class="form-labels">Start Date</label>
-        <input type="date" id="startDate" name="startDate" required>
+        <label for="startDate">Start Date</label>
+        <input type="date" id="startDate" name="startDate" value="{{startDate}}" required>
       </div>
       <div class="form-group" id = "end-div">
-        <label for="endDate" class="form-labels">End Date</label>
-        <input type="date" id="endDate" name="endDate" required>
+        <label for="endDate">End Date</label>
+        <input type="date" id="endDate" name="endDate" value="{{endDate}}" required>
       </div>
       <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
         {{!-- Frontend validation error --}}

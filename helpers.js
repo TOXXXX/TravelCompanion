@@ -85,3 +85,24 @@ export function validTrimInput(input, type) {
 
   return input;
 }
+
+// validInputDate: function to validate the input from <input type="date">
+// only valid date format "yyyy-mm-dd"
+export function validInputDate(input) {
+  input = validTrimInput(input, "string");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+    throw new Error("Invalid date format from user post input");
+  }
+
+  let inputDate = new Date(input);
+  let today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  inputDate.setUTCHours(1, 0, 0, 0);
+  // console.log(today);
+  // console.log(inputDate);
+  if (today > inputDate) {
+    throw new Error("Plan cannot be in the past");
+  }
+
+  return input;
+}

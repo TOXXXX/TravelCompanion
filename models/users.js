@@ -11,7 +11,7 @@ const UserSchema = new Schema({
   phoneNumber: { type: String, unique: true, sparse: true },
   posts: { type: [String], default: [] },
   personalPageComments: { type: [String], default: [] },
-  profilePicture: { type: String, default: "/public/default-profile.jpg" },
+  profilePicture: { type: String, default: "/default-profile.svg" },
   bio: { type: String, default: "This user has not set a bio yet." }
 });
 

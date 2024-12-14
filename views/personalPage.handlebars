@@ -15,12 +15,20 @@
         <a href="/personal/{{user.userName}}/edit" class="btn btn-edit">Edit Profile</a>
         {{else}}
         <section class="follow-section">
-          <form action="/personal/{{user.userName}}/toggleFollow" method="POST">
-            <button type="submit" class="btn btn-follow">
-              {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
-            </button>
-          </form>
+          <button id="follow-button" class="btn btn-follow" data-username="{{user.userName}}">
+            {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+          </button>
         </section>
+
+
+        {{#if successMessage}}
+        <div class="alert alert-success">{{successMessage}}</div>
+        {{/if}}
+
+        {{#if errorMessage}}
+        <div class="alert alert-danger">{{errorMessage}}</div>
+        {{/if}}
+
         {{/if}}
 
       </div>
@@ -30,15 +38,22 @@
 
       <section class="user-stats">
         <div class="stats-item">
-          <p><strong>Followers:</strong> {{user.followers.length}}</p>
+          <p><strong>Followers:</strong> {{user.followersCount}}</p>
+          <a href="/personal/{{user.userName}}/followers" class="btn btn-view">View Followers
+            {{!-- {{#if user.followersCount}}View Followers{{else}}No Followers{{/if}} --}}
+          </a>
         </div>
         <div class="stats-item">
-          <p><strong>Following:</strong> {{user.following.length}}</p>
+          <p><strong>Following:</strong> {{user.followingCount}}</p>
+          <a href="/personal/{{user.userName}}/following" class="btn btn-view">View Following
+            {{!-- {{#if user.followingCount}}View Following{{else}}No Following{{/if}} --}}
+          </a>
         </div>
         <div class="stats-item">
           <p><strong>Posts:</strong> {{posts.length}}</p>
         </div>
       </section>
+
 
       <section class="posts">
         <h2>Travel Plans & Routes</h2>
@@ -65,8 +80,8 @@
         <ul>
           {{#each user.personalPageComments}}
           <li>
-            <strong>{{this.author}}</strong>: {{this.commentText}}
-            <small>({{this.createdAt}})</small>
+            <strong>{{this.uid}}</strong>: {{this.content}} <!-- Ensure fields match schema -->
+            <small>({{this.created}})</small>
           </li>
           {{/each}}
         </ul>
@@ -75,7 +90,7 @@
         {{/if}}
 
         {{#unless isCurrentUser}}
-        <form action="/comments/{{user.userName}}" method="POST">
+        <form action="/personal/{{user.userName}}/comment" method="POST"> <!-- Ensure action matches route -->
           <textarea name="commentText" placeholder="Write a comment..." required></textarea>
           <button type="submit" class="btn btn-comment">Post Comment</button>
         </form>
@@ -83,6 +98,44 @@
       </section>
 
 
+
     </div>
   </section>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const followButton = document.getElementById("follow-button");
+
+    if (followButton) {
+      followButton.addEventListener("click", async () => {
+        const username = followButton.getAttribute("data-username");
+
+        try {
+          const response = await fetch(`/personal/${username}/toggleFollow`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Update button text and class based on follow state
+            followButton.textContent = data.isFollowing ? "Unfollow" : "Follow";
+            followButton.classList.toggle("btn-unfollow", data.isFollowing);
+            followButton.classList.toggle("btn-follow", !data.isFollowing);
+          } else {
+            console.error("Failed to toggle follow:", data.error);
+            alert(data.error || "An unexpected error occurred.");
+          }
+        } catch (error) {
+          console.error("Error toggling follow:", error);
+          alert("An error occurred. Please try again.");
+        }
+      });
+    }
+  });
+
+</script>

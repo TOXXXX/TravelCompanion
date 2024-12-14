@@ -44,13 +44,16 @@ router.get("/:username", isAuthenticated, async (req, res) => {
 
     if (!user) {
       return res.status(401).redirect("/login");
-      // throw new Error("User not found")
     }
+
     let isFollowing = false;
     if (!isCurrentUser) {
       isFollowing = await userService.isFollowing(req.session.userId, user._id);
     }
+
     const posts = [];
+    const followersCount = user.followers?.length || 0;
+    const followingCount = user.following?.length || 0;
 
     res.render("personalPage", {
       title: `${user.userName}'s Personal Page`,
@@ -58,13 +61,16 @@ router.get("/:username", isAuthenticated, async (req, res) => {
         userName: user.userName,
         bio: user.bio || "This user has not set a bio yet.",
         profilePicture: user.profilePicture || "/default-profile.svg",
-        // backgroundPicture: user.backgroundPicture || "/default-background.jpg",
         email: user.email,
-        phoneNumber: user.phoneNumber
+        phoneNumber: user.phoneNumber,
+        followersCount,
+        followingCount
       },
       posts,
       isCurrentUser,
       isFollowing,
+      successMessage: req.flash("successMessage"),
+      errorMessage: req.flash("errorMessage"),
       customCSS: "personalPage"
     });
   } catch (err) {
@@ -191,7 +197,7 @@ router.post("/:username/toggleFollow", isAuthenticated, async (req, res) => {
     const targetUser = await userService.getUserByUsername(req.params.username);
 
     if (!targetUser) {
-      throw new Error("Target user not found");
+      return res.status(404).json({ error: "Target user not found" });
     }
 
     const result = await userService.toggleFollowUser(
@@ -199,10 +205,65 @@ router.post("/:username/toggleFollow", isAuthenticated, async (req, res) => {
       targetUser._id
     );
 
-    res.status(200).json(result);
+    return res.status(200).json({
+      isFollowing: result.isFollowing,
+      message: result.message
+    });
   } catch (err) {
     console.error("Error in follow route:", err.message);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/:username/followers", isAuthenticated, async (req, res) => {
+  try {
+    const targetUser = await userService.getUserByUsername(req.params.username);
+    if (!targetUser) {
+      throw new Error("User not found");
+    }
+
+    const followers = await userService.getUserDetailsByIds(
+      targetUser.followers
+    );
+    // const recommendedUsers = await userService.getRecommendedUsers(req.session.userId);
+    res.render("followersPage", {
+      title: `${targetUser.userName}'s Followers`,
+      user: targetUser,
+      followers,
+      // recommendedUsers,
+      customCSS: "followersPage"
+    });
+  } catch (err) {
+    console.error("Error in followers route:", err.message);
+    res.status(500).render("error", { message: "Unable to fetch followers." });
+  }
+});
+
+router.get("/:username/following", isAuthenticated, async (req, res) => {
+  try {
+    const targetUser = await userService.getUserByUsername(req.params.username);
+    if (!targetUser) {
+      throw new Error("User not found");
+    }
+
+    const following = await userService.getUserDetailsByIds(
+      targetUser.following
+    );
+    const recommendedUsers = await userService.getRecommendedUsers(
+      req.session.userId
+    );
+    res.render("followingPage", {
+      title: `${targetUser.userName}'s Following`,
+      user: targetUser,
+      following,
+      recommendedUsers,
+      customCSS: "followingPage"
+    });
+  } catch (err) {
+    console.error("Error in following route:", err.message);
+    res
+      .status(500)
+      .render("error", { message: "Unable to fetch following users." });
   }
 });
 
@@ -212,8 +273,8 @@ router.post("/:username/comment", isAuthenticated, async (req, res) => {
     if (!targetUser) throw new Error("User not found");
 
     const commentData = {
-      userId: req.session.userId,
-      content: req.body.comment
+      uid: req.session.userId,
+      content: req.body.commentText
     };
 
     await userService.addCommentToUser(targetUser._id, commentData);

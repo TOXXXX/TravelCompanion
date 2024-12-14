@@ -1,0 +1,32 @@
+<div class="container">
+  <h1>{{user.userName}}'s Following</h1>
+  {{#if following.length}}
+  <ul class="user-list">
+    {{#each following}}
+      <li>
+        <img src="{{this.profilePicture}}" alt="{{this.userName}}'s profile picture" class="user-avatar">
+        <a href="/personal/{{this.userName}}" class="user-link">{{this.userName}}</a>
+        <p class="user-bio">{{this.bio}}</p>
+      </li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <p class="no-following">Not following anyone yet.</p>
+  {{/if}}
+  <section class="recommended-users">
+    <h2>Users You May Know</h2>
+    {{#if recommendedUsers.length}}
+      <ul>
+        {{#each recommendedUsers}}
+          <li>
+            <img src="{{profilePicture}}" alt="{{userName}}'s Profile Picture" class="profile-pic">
+            <a href="/personal/{{userName}}">{{userName}}</a>
+            <p>{{bio}}</p>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p>No recommendations available at the moment.</p>
+    {{/if}}
+  </section>
+</div>

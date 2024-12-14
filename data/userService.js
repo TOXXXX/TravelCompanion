@@ -32,7 +32,12 @@ export const getUserByUsername = async (username) => {
   try {
     const user = await User.findOne({ userName: username })
       .populate("posts")
-      .populate("personalPageComments");
+      .populate("personalPageComments")
+      .select(
+        "userName bio profilePicture email phoneNumber followers following"
+      )
+      .populate("followers following", "userName profilePicture");
+
     if (!user) {
       throw new Error("User not found");
     }
@@ -93,11 +98,11 @@ export const deleteUserById = async (userId) => {
 export const addCommentToUser = async (userId, commentData) => {
   try {
     const comment = new Comment(commentData);
-    await comment.save();
+    await comment.save(); // Save the full comment object
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { $push: { personalPageComments: comment._id } },
+      { $push: { personalPageComments: comment._id } }, // Push only the comment ID
       { new: true }
     ).populate("personalPageComments");
 
@@ -133,38 +138,36 @@ export const toggleFollowUser = async (currentUserId, targetUserId) => {
     const currentUser = await User.findById(currentUserId);
     const targetUser = await User.findById(targetUserId);
 
-    if (!currentUser) {
-      throw new Error("Current user not found");
-    }
-    if (!targetUser) {
-      throw new Error("Target user not found");
+    if (!currentUser || !targetUser) {
+      throw new Error("Invalid user(s) provided.");
     }
 
     const isFollowing = currentUser.following.includes(targetUserId);
 
     if (isFollowing) {
+      // Unfollow logic
       currentUser.following = currentUser.following.filter(
-        (id) => id !== targetUserId
+        (id) => id.toString() !== targetUserId.toString()
       );
       targetUser.followers = targetUser.followers.filter(
-        (id) => id !== currentUserId
+        (id) => id.toString() !== currentUserId.toString()
       );
-      await currentUser.save();
-      await targetUser.save();
-      return {
-        action: "unfollowed",
-        message: `You have unfollowed ${targetUser.userName}.`
-      };
     } else {
+      // Follow logic
       currentUser.following.push(targetUserId);
       targetUser.followers.push(currentUserId);
-      await currentUser.save();
-      await targetUser.save();
-      return {
-        action: "followed",
-        message: `You are now following ${targetUser.userName}.`
-      };
     }
+
+    // Save updates
+    await currentUser.save();
+    await targetUser.save();
+
+    return {
+      isFollowing: !isFollowing,
+      message: isFollowing
+        ? `You have unfollowed ${targetUser.userName}.`
+        : `You are now following ${targetUser.userName}.`
+    };
   } catch (error) {
     throw new Error(`Error toggling follow status: ${error.message}`);
   }
@@ -192,6 +195,19 @@ export const hashPassword = async (password) => {
 };
 
 // Retrive following user ids from current user
+// CheckFollowing
+export const isFollowing = async (currentUserId, targetUserId) => {
+  try {
+    const currentUser = await User.findById(currentUserId);
+    if (!currentUser) {
+      throw new Error("Current user not found");
+    }
+    return currentUser.following.includes(targetUserId.toString());
+  } catch (error) {
+    throw new Error(`Unable to check following status: ${error.message}`);
+  }
+};
+
 export const getFollowingUsers = async (currentUserId) => {
   try {
     const currentUser = await User.findById(
@@ -203,5 +219,35 @@ export const getFollowingUsers = async (currentUserId) => {
     return currentUser.following;
   } catch (error) {
     throw new Error(`Unable to retrive all following users: ${error.message}`);
+  }
+};
+export const getUserDetailsByIds = async (userIds) => {
+  try {
+    const users = await User.find({ _id: { $in: userIds } }).select(
+      "userName profilePicture bio"
+    );
+    return users;
+  } catch (error) {
+    throw new Error(`Unable to fetch user details: ${error.message}`);
+  }
+};
+export const getRecommendedUsers = async (currentUserId) => {
+  try {
+    const currentUser = await User.findById(currentUserId);
+    if (!currentUser) {
+      throw new Error("Current user not found");
+    }
+
+    const following = currentUser.following;
+
+    const recommendedUsers = await User.find({
+      _id: { $nin: [currentUserId, ...following] }
+    })
+      .limit(3)
+      .select("userName profilePicture bio");
+
+    return recommendedUsers;
+  } catch (error) {
+    throw new Error(`Unable to fetch recommended users: ${error.message}`);
   }
 };

@@ -1,0 +1,57 @@
+{{!-- Filter Form --}}
+<div class="card">
+  <form class="search-form">
+    <div class="search-bar-container">
+      <input 
+        class="search-input" 
+        placeholder="Search..." 
+        type="text" 
+        name="search" 
+        value=""
+      >
+      <button class="btn search-button" type="submit">
+        <i class="fas fa-search"></i>
+        Search
+      </button>
+    </div>
+    <div class="filter-options">
+      <div class="filter-item">
+        <input 
+          type="checkbox" 
+          value="true" 
+          name="isRoute" 
+          class="checkbox-button"
+          checked
+        >
+        <label for="isRoute">Routes</label>
+      </div>
+      <div class="filter-item">
+        <input 
+          type="checkbox" 
+          value="true" 
+          name="isPlan" 
+          class="checkbox-button"
+          checked
+        >
+        <label for="isPlan">Plans</label>
+      </div>
+      <div class="filter-item">
+        <input 
+          type="checkbox" 
+          value="true" 
+          name="following" 
+          class="checkbox-button"
+        >
+        <label for="following">Following</label>
+      </div>
+    </div>
+  </form>
+</div>
+
+{{!-- Posts --}}
+<div id="posts-container" data-user="{{ user }}">
+  <p>Loading posts...</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="/js/posts.js"></script>

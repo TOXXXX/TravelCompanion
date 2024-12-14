@@ -18,6 +18,14 @@ router.post("/register", async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).send("Passwords do not match");
     }
+    const existingUser = await User.findOne({
+      $or: [{ email }, { userName }]
+    });
+    if (existingUser) {
+      return res
+        .status(400)
+        .send("User already exists with this email or username");
+    }
     const newUser = new User({ userName, password, email });
     await newUser.save();
     res.status(201).send("User registered successfully");

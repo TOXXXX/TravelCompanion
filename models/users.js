@@ -2,16 +2,16 @@ import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 
 const UserSchema = new Schema({
-  userName: { type: String, required: true },
+  userName: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   accountCreated: { type: Date, default: Date.now },
   followers: { type: [String], default: [] },
   following: { type: [String], default: [] },
   email: { type: String, required: true, unique: true },
-  phoneNumber: { type: String, unique: true },
+  phoneNumber: { type: String, unique: true, sparse: true },
   posts: { type: [String], default: [] },
   personalPageComments: { type: [String], default: [] },
-  profilePicture: { type: String, default: "/public/default-profile.jpg" },
+  profilePicture: { type: String, default: "/default-profile.svg" },
   bio: { type: String, default: "This user has not set a bio yet." }
 });
 

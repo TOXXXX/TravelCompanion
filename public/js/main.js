@@ -1,6 +1,7 @@
-document
-  .getElementById("logoutButton")
-  .addEventListener("click", async function (event) {
+const logoutButton = document.getElementById("logoutButton");
+
+if (logoutButton) {
+  logoutButton.addEventListener("click", async function (event) {
     event.preventDefault();
 
     try {
@@ -18,3 +19,4 @@ document
       console.error(`Error logging out: ${error.message}`);
     }
   });
+}

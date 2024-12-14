@@ -1,52 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{title}}</title>
   <link rel="stylesheet" href="/css/shared.css">
   {{#if customCSS}}
-    <link rel="stylesheet" href="/css/{{customCSS}}.css">
+  <link rel="stylesheet" href="/css/{{customCSS}}.css">
   {{/if}}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
-<header>
-  <div class="container">
-    <div class="header-content">
-      <h1><a href="/">Travel Companion</a></h1>
-      <nav>
-        <ul>
-          <li><a href="post">Posts</a></li>
-          <li><a href="#companions">Companions</a></li>
-          <li><a href="#profile">Profile</a></li>
+
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <h1><a href="/">Travel Companion</a></h1>
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="post">Posts</a></li>
+            <li><a href="#companions">Companions</a></li>
+            {{#if isAuthenticated}}
+            <li><a href="/personal/{{session.userName}}">Profile</a></li>
           {{#if isAuthenticated}}
             <li><a href="#" id="logoutButton">Log out</a></li>
-          {{else}}
+            {{else}}
             <li><a href="login">Log in</a></li>
             <li><a href="register" class="btn-signup">Sign Up</a></li>
-          {{/if}}
-        </ul>
-      </nav>
+            {{/if}}
+          </ul>
+        </nav>
+      </div>
     </div>
-  </div>
-</header>
-<script src="/js/main.js"></script>
+  </header>
+  <script src="/js/main.js"></script>
 
-<main>
-  {{{body}}}
-</main>
+  <main>
+    {{{body}}}
+  </main>
 
-<footer>
-  <div class="container">
-    <p>&copy; 2024 Travel Companion. Open-source platform for travel ideas.</p>
-    <p>
-      Contribute on
-      <a href="https://github.com/TOXXXX/TravelCompanion" class="social" aria-label="GitHub">
-        <i class="fab fa-github"></i>
-      </a>
-    </p>
-  </div>
-</footer>
+  <footer>
+    <div class="container">
+      <p>&copy; 2024 Travel Companion. Open-source platform for travel ideas.</p>
+      <p>
+        Contribute on
+        <a href="https://github.com/TOXXXX/TravelCompanion" class="social" aria-label="GitHub">
+          <i class="fab fa-github"></i>
+        </a>
+      </p>
+    </div>
+  </footer>
 </body>
+
 </html>

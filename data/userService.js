@@ -1,6 +1,8 @@
 import User from "../models/users.js";
 import Comment from "../models/comments.js";
 import Post from "../models/posts.js";
+
+import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
 export const createUser = async (userData) => {
@@ -60,9 +62,13 @@ export const updateUserById = async (userId, updateData) => {
 // update Username
 export const updateUserByUsername = async (username, updateData) => {
   try {
-    const user = await User.findOneAndUpdate({ username }, updateData, {
-      new: true
-    });
+    const user = await User.findOneAndUpdate(
+      { userName: username },
+      updateData,
+      {
+        new: true
+      }
+    );
     if (!user) {
       throw new Error("User not found");
     }
@@ -123,50 +129,82 @@ export const getFollowingPosts = async (userId) => {
   }
 };
 
-// CheckFollowing
-export const isFollowing = async (currentUserId, targetUserId) => {
+// Follow or Unfollow Logic
+export const toggleFollowUser = async (currentUserId, targetUserId) => {
   try {
     const currentUser = await User.findById(currentUserId);
+    const targetUser = await User.findById(targetUserId);
+
     if (!currentUser) {
       throw new Error("Current user not found");
     }
-    return currentUser.following.includes(targetUserId);
-  } catch (error) {
-    throw new Error(`Unable to check following status: ${error.message}`);
-  }
-};
-
-// Follow
-export const followUser = async (currentUserId, targetUserId) => {
-  try {
-    const currentUser = await User.findById(currentUserId);
-    if (!currentUser) {
-      throw new Error("Current user not found");
+    if (!targetUser) {
+      throw new Error("Target user not found");
     }
 
-    if (!currentUser.following.includes(targetUserId)) {
-      currentUser.following.push(targetUserId);
+    const isFollowing = currentUser.following.includes(targetUserId);
+
+    if (isFollowing) {
+      currentUser.following = currentUser.following.filter(
+        (id) => id !== targetUserId
+      );
+      targetUser.followers = targetUser.followers.filter(
+        (id) => id !== currentUserId
+      );
       await currentUser.save();
+      await targetUser.save();
+      return {
+        action: "unfollowed",
+        message: `You have unfollowed ${targetUser.userName}.`
+      };
+    } else {
+      currentUser.following.push(targetUserId);
+      targetUser.followers.push(currentUserId);
+      await currentUser.save();
+      await targetUser.save();
+      return {
+        action: "followed",
+        message: `You are now following ${targetUser.userName}.`
+      };
     }
   } catch (error) {
-    throw new Error(`Unable to follow user: ${error.message}`);
+    throw new Error(`Error toggling follow status: ${error.message}`);
   }
 };
 
-// Unfollow
-export const unfollowUser = async (currentUserId, targetUserId) => {
+export const verifyPassword = async (hashedPassword, plainPassword) => {
   try {
-    const currentUser = await User.findById(currentUserId);
+    console.log("Hashed Password:", hashedPassword);
+    console.log("Plain Password:", plainPassword);
+
+    return await bcrypt.compare(plainPassword, hashedPassword);
+  } catch (err) {
+    console.error("Error in verifyPassword:", err.message);
+    throw new Error("Password verification failed");
+  }
+};
+export const hashPassword = async (password) => {
+  try {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+  } catch (error) {
+    throw new Error(`Error hashing password: ${error.message}`);
+  }
+};
+
+// Retrive following user ids from current user
+export const getFollowingUsers = async (currentUserId) => {
+  try {
+    const currentUser = await User.findById(
+      new mongoose.Types.ObjectId(currentUserId)
+    );
     if (!currentUser) {
       throw new Error("Current user not found");
     }
-
-    currentUser.following = currentUser.following.filter(
-      (id) => id.toString() !== targetUserId.toString()
-    );
-    await currentUser.save();
+    return currentUser.following;
   } catch (error) {
-    throw new Error(`Unable to unfollow user: ${error.message}`);
+    throw new Error(`Unable to retrive all following users: ${error.message}`);
   }
 };
 

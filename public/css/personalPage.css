@@ -65,7 +65,8 @@ body {
 
 .btn-edit,
 .btn-view,
-.btn-follow {
+.btn-follow,
+.btn-unfollow {
   padding: 10px 20px;
   border-radius: 5px;
   text-decoration: none;
@@ -74,7 +75,7 @@ body {
 }
 
 .btn-edit {
-  background-color: #007bff;
+  background-color: #3498D8;
   color: #fff;
 }
 
@@ -91,8 +92,9 @@ body {
   background-color: #218838;
 }
 
-.btn-follow {
-  background-color: #007bff;
+.btn-follow,
+.btn-unfollow {
+  background-color: #3498D8;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -102,10 +104,7 @@ body {
   border-radius: 5px;
 }
 
-.btn-follow:hover {
-  background-color: #0056b3;
-}
-
+ 
 .content {
   padding: 20px;
 }
@@ -219,23 +218,16 @@ body {
 }
 
 .btn-edit {
-  background-color: #007bff;
+  background-color: #3498D8;
   color: #fff;
 }
 
 .btn-edit:hover {
   background-color: #0056b3;
 }
+ 
 
-.btn-follow {
-  background-color: #ffc107;
-  color: #fff;
-}
-
-.btn-follow:hover {
-  background-color: #e0a800;
-}
-
+ 
 .btn-comment {
   background-color: #28a745;
   color: #fff;
@@ -253,6 +245,67 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+.error-message {
+  color: red;
+  margin-top: 10px;
+  background-color: #ffe6e6;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid red;
+}
+
+
+.success-message {
+  color: #28a745;
+  margin-top: 10px;
+  background-color: #83f29d3d;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #28a745;
+  /* display: none; */
+}
+.comments {
+  margin-top: 20px;
+}
+
+.comments ul {
+  list-style: none;
+  padding: 0;
+}
+
+.comments li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.comments li p {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.comments li small {
+  color: #888;
+  font-size: 0.9em;
+}
+
+ 
+.btn-delete {
+  background-color:transparent;
+  border: transparent;
+  color: #f44336;
+}
+
+.btn-danger {
+  background-color:transparent;
+  border: transparent;
+  color: #f44336;
+}
+ 
+
+ 
 
 /* @media (max-width: 768px) {
   .post-list {

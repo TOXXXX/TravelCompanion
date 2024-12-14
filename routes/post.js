@@ -2,7 +2,17 @@ import express from "express";
 import { isAuthenticated } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
 import { getFollowingUsers, getUserById } from "../data/userService.js";
-import { getFilteredPostsWithRoute, getPostById } from "../data/post.js";
+import {
+  getFilteredPostsWithRoute,
+  getPostById,
+  deletePostById,
+  updatePostById
+} from "../data/post.js";
+import {
+  getPostComments,
+  createComment,
+  deleteCommentById
+} from "../data/comment.js";
 import Post from "../models/posts.js";
 import Comment from "../models/comments.js";
 
@@ -96,8 +106,6 @@ router.post("/create", isAuthenticated, async (req, res) => {
     let postData;
     let now = new Date();
 
-    // console.log(req.session.userId);
-
     if (postType === "route") {
       let intendedTime = [];
       if (startDate && endDate) {
@@ -149,13 +157,18 @@ router.post("/create", isAuthenticated, async (req, res) => {
 router.get("/:postId", async (req, res) => {
   try {
     const post = await getPostById(req.params.postId);
-    let comments = await Comment.find({ postId: req.params.postId });
-    if (!comments) {
-      comments = [];
+    let comments = await getPostComments(req.params.postId); //tested
+    for (let i = 0; i < comments.length; i++) {
+      comments[i] = {
+        _id: comments[i]._id,
+        isAuthor: comments[i].uid == req.session.userId,
+        author: (await getUserById(comments[i].uid)).userName,
+        content: comments[i].content,
+        created: comments[i].created,
+        lastEdited: comments[i].lastEdited.toDateString()
+      };
     }
-    console.log(post);
-    // console.log(req.session.userId);
-
+    const isAuthor = post.uid == req.session.userId;
     const postUserName = (await getUserById(post.uid)).userName;
     const numOfLikes = post.likeByUsers.length;
     const timed = post.intendedTime.length === 2;
@@ -175,8 +188,114 @@ router.get("/:postId", async (req, res) => {
       likes: numOfLikes,
       timed: timed,
       startDate: startDate,
-      endDate: endDate
+      endDate: endDate,
+      isAuthor: isAuthor
     });
+  } catch (e) {
+    return res.status(404).render("error", {
+      message: e.message
+    });
+  }
+});
+
+router.delete("/delete/:postId", isAuthenticated, async (req, res) => {
+  try {
+    const deletedPost = await deletePostById(req.params.postId);
+    if (!deletedPost) {
+      throw new Error(`Could not delete post with id ${req.params.postId}`);
+    }
+    return res.status(204).json({ message: "Post deleted" });
+  } catch (e) {
+    return res.status(400).render("error", {
+      message: e.message
+    });
+  }
+});
+
+router.get("/edit/:postId", isAuthenticated, async (req, res) => {
+  try {
+    const post = await getPostById(req.params.postId);
+
+    if (!post) {
+      throw new Error(`Could not find post with id ${req.params.postId}`);
+    }
+    if (post.intendedTime.length !== 2) {
+      res.render("posts/edit", {
+        title: "Edit Post",
+        customCSS: "posts",
+        post: post
+      });
+    } else {
+      const offset = new Date().getTimezoneOffset();
+      let sdStr = new Date(post.intendedTime[0].getTime() - offset * 60 * 1000)
+        .toISOString()
+        .split("T")[0];
+      let edStr = new Date(post.intendedTime[1].getTime() - offset * 60 * 1000)
+        .toISOString()
+        .split("T")[0];
+      res.render("posts/edit", {
+        title: "Edit Post",
+        customCSS: "posts",
+        post: post,
+        startDate: sdStr,
+        endDate: edStr
+      });
+    }
+  } catch (e) {
+    return res.status(400).render("error", {
+      message: e.message
+    });
+  }
+});
+
+router.patch("/edit/:postId", isAuthenticated, async (req, res) => {
+  try {
+    let {
+      postTitle,
+      postDescription,
+      postContent,
+      postType,
+      startDate,
+      endDate
+    } = req.body;
+    postTitle = validTrimInput(postTitle, "string");
+    postDescription = validTrimInput(postDescription, "string");
+    postContent = validTrimInput(postContent, "string");
+    postType = validTrimInput(postType, "string");
+    let postData;
+    let now = new Date();
+    if (postType === "route") {
+      let intendedTime = [];
+      if (startDate && endDate) {
+        intendedTime = [startDate, endDate];
+      }
+      postData = {
+        title: postTitle,
+        intro: postDescription,
+        content: { description: postContent },
+        isPlan: false,
+        intendedTime: intendedTime,
+        lastEdited: now
+      };
+    } else if (postType === "plan") {
+      startDate = validInputDate(startDate);
+      endDate = validInputDate(endDate);
+      postData = {
+        title: postTitle,
+        intro: postDescription,
+        content: { description: postContent },
+        isPlan: true,
+        intendedTime: [startDate, endDate],
+        lastEdited: now
+      };
+    } else {
+      throw new Error("Invalid post type");
+    }
+    const updatedPost = await updatePostById(req.params.postId, postData);
+    if (!updatedPost) {
+      throw new Error(`Could not update post with id ${req.params.postId}`);
+    }
+    return res.status(200).json({ message: "Post updated successfully" });
   } catch (e) {
     return res.status(400).render("error", {
       message: e.message
@@ -185,7 +304,47 @@ router.get("/:postId", async (req, res) => {
 });
 
 router.post("/:postId/comment", isAuthenticated, async (req, res) => {
-  // TODO: Add a comment to the posts
+  try {
+    let { makeComment } = req.body;
+    makeComment = validTrimInput(makeComment, "string");
+    if (!makeComment) {
+      throw new Error("Comment cannot be empty");
+    }
+    const now = new Date();
+    const newComment = {
+      uid: req.session.userId,
+      postId: req.params.postId,
+      content: makeComment,
+      created: now,
+      lastEdited: now
+    };
+    const mongoNewComment = await createComment(newComment);
+    return res.redirect(`/post/${req.params.postId}`);
+  } catch (e) {
+    return res.status(400).render("error", {
+      message: e.message
+    });
+  }
 });
+
+router.delete(
+  "/comment/delete/:commentId",
+  isAuthenticated,
+  async (req, res) => {
+    try {
+      const deletedComment = await deleteCommentById(req.params.commentId);
+      if (!deletedComment) {
+        throw new Error(
+          `Could not delete comment with id ${req.params.commentId}`
+        );
+      }
+      return res.status(204).json({ message: "Comment deleted" });
+    } catch (e) {
+      return res.status(400).render("error", {
+        message: e.message
+      });
+    }
+  }
+);
 
 export default router;

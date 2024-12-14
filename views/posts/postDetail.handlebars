@@ -1,6 +1,10 @@
 <h1>{{post.title}}</h1>
-{{#if isAuthenticated}}
-    <a href="/post/edit/{{id}}" class="edit-post">Edit This Post</a>
+{{#if isAuthor}}
+
+    <button type="button" id="deletePost" name="deletePost">Delete Post</button>
+    <form action="/post/edit/{{post._id}}" method="GET" id="editPost" name="editPost">
+        <button type="submit" id="edit" name="edit">Edit Post</button>
+    </form>
 {{/if}}
 <section class="post-content">
     {{#if post.isPlan}}
@@ -16,7 +20,7 @@
     <p>{{post.intro}}</p>
     <h2>Content</h2>
     {{!-- This link should take user to the embedded map page for the post: --}}
-    <a href="/post/{{id}}/map" class="map-link">View Map</a>        
+    <a href="/post/{{mapId}}/map" class="map-link">View Map</a>        
     <p>{{post.content.description}}</p>
 </section>
 <div>
@@ -25,22 +29,34 @@
 <hr>
 <div id="comments-div"  class="comments-box">
     <h2>Comments</h2>
-    <ul>
+    <ol id="commentList" name="commentList">
         {{#each comments}}
-        <li class="comment-box">
+        <li class="comment-box" data-commentid="{{this._id}}">
+            <h4 class="comment-author">{{this.author}}</h4>
             <p class="comment-content">{{this.content}}</p>
-            <p class="comment-author">{{this.author}}</p>
             <p class="comment-lastedited">Last Edited: {{this.lastEdited}}</p>
+            {{#if this.isAuthor}}
+                <button type="button" class="deleteComment" name="deleteComment{{this._id}}"
+                 id="deleteComment{{this._id}}">Delete My Comment</button>
+            {{/if}}
         </li>
         {{/each}}
-    </ul>
+    </ol>
 <hr>
-    <form action="/post/{{post._id}}/comment" method="POST">
-        <label for="make-comment">Comment:</label>
-        <textarea name="make-comment" id="make-comment"></textarea>
-        <button type="submit">Submit</button>
+    <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+        {{!-- Frontend validation error --}}
+    </div>
+    <div class= "form-group">
+        <form action="/post/{{post._id}}/comment" method="POST" id="postComment" name="postComment">
+        <label for="makeComment">Comment:</label>
+        <textarea name="makeComment" id="makeComment"
+        placeholder="Make a friendly comment here..."></textarea>
+        <button type="submit" id="submit" name="submit">Submit</button>
     </form>
+    </div>
 </div>
+
+<script src="/js/postDetail.js"></script>
 
 
 

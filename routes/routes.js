@@ -17,7 +17,7 @@ router.get("/create-route", (req, res) => {
 });
 
 router.post("/create-route", async(req, res) => {
-  const {
+  let {
     'route-name': routeName,
     'route-description': routeDesc,
     'route-duration': routeDuration,
@@ -29,9 +29,56 @@ router.post("/create-route", async(req, res) => {
     'waypoint-2-description': waypoint2Description,
     'route-type': routeType,
   } = req.body;
+
   //console.log(req.body, {routeType});
-  
-  try {
+    routeName = routeName.trim();
+    routeDesc = routeDesc.trim();
+    routeDuration = routeDuration.trim();
+    waypoint1Description = waypoint1Description.trim();
+    waypoint2Description = waypoint2Description.trim();
+    waypoint1Name = waypoint1Name.trim();
+    waypoint2Name = waypoint2Name.trim();
+    routeType = routeType.trim();
+
+    // Server-Side Validation
+    if (!routeName) {
+      return res.status(400).send("Route name is required and cannot be empty.");
+    }
+
+    if (!routeDuration) {
+      return res.status(400).send("Trip duration is required and cannot be empty.");
+    }
+
+    if (!routeType) {
+      return res.status(400).send("Route type is required and cannot be empty.");
+    }
+
+    if (!waypoint1Coordinates || !waypoint2Coordinates) {
+      return res.status(400).send("Both origin and destination waypoints are required.");
+    }
+
+    const routeNameRegex = /^[A-Za-z_]+$/;
+    if (!routeNameRegex.test(routeName)) {
+      return res.status(400).send("Invalid Route Name. Only letters and spaces are allowed.");
+    }
+
+    if (routeDesc && !/^[A-Za-z0-9\s.,!?-]*$/.test(routeDesc)) {
+      return res.status(400).send("Invalid Route Description. Only letters, numbers, spaces, and common punctuation (.,!?-) are allowed.");
+    }
+
+    const durationNumber = Number(routeDuration);
+    if (isNaN(durationNumber) || durationNumber < 1) {
+      return res.status(400).send("Invalid Trip Duration. It must be a number greater than or equal to 1.");
+    }
+
+    if (waypoint1Description && !/^[A-Za-z0-9\s.,!?-]*$/.test(waypoint1Description)) {
+      return res.status(400).send("Invalid Waypoint 1 Description. Only letters, numbers, spaces, and common punctuation (.,!?-) are allowed.");
+    }
+
+    if (waypoint2Description && !/^[A-Za-z0-9\s.,!?-]*$/.test(waypoint2Description)) {
+      return res.status(400).send("Invalid Waypoint 2 Description. Only letters, numbers, spaces, and common punctuation (.,!?-) are allowed.");
+    }
+
     if (!waypoint1Coordinates || !waypoint2Coordinates) {
       return res.status(400).send("Waypoints are required.");
     }
@@ -41,6 +88,9 @@ router.post("/create-route", async(req, res) => {
     if(!routeType){
       return res.status(400).send("Route type is required");
     }
+  
+  try {
+
     const [lng1, lat1] = waypoint1Coordinates.split(",").map((coord) => parseFloat(coord.trim()));
     const [lng2, lat2] = waypoint2Coordinates.split(",").map((coord) => parseFloat(coord.trim()));
 
@@ -79,14 +129,11 @@ router.post("/create-route", async(req, res) => {
     const route = directionsData.routes[0];
     const encodedPolyline = route.geometry; 
 
-    // Extract distance and duration
-    const distanceInMeters = route.distance; // in meters
-    const durationInSeconds = route.duration; // in seconds
+    const distanceInMeters = route.distance; 
+    const durationInSeconds = route.duration; 
 
-    // Convert distance to kilometers and format to 2 decimal places
     const distanceInKm = (distanceInMeters / 1000).toFixed(2);
 
-    // Convert duration to minutes and hours
     const durationInMinutes = Math.floor(durationInSeconds / 60);
     const durationInHours = Math.floor(durationInMinutes / 60);
     const remainingMinutes = durationInMinutes % 60;

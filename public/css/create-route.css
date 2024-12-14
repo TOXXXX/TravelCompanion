@@ -156,49 +156,47 @@ footer {
     cursor: pointer;
     margin-top: 15px;
   }
-  #routeDuration{
+  #route-duration{
     padding: 8px; 
     border: 1px solid #ccc; 
     border-radius: 4px; 
   }
 
   .instructions-container {
-    background-color: #f9f9f9; /* Alice Blue background for subtle contrast */
-    border: 1px solid #dcdcdc; /* Light gray border */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    padding: 20px; /* Adequate padding for content spacing */
-    margin-top: 20px; /* Space above the container */
-    max-height: 400px; /* Maximum height to prevent overflow */
-    overflow-y: auto; /* Scrollbar for overflowing content */
+    background-color: #f9f9f9; 
+    border: 1px solid #dcdcdc; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    padding: 20px; 
+    margin-top: 20px;
+    max-height: 400px; 
+    overflow-y: auto; 
 }
 
 .instructions-container h3 {
-    font-size: 1.5rem; /* Increased font size for the heading */
-    color: #2c3e50; /* Darker color for emphasis */
-    margin-bottom: 15px; /* Space below the heading */
-    text-align: center; /* Centered heading */
+    font-size: 1.5rem; 
+    color: #2c3e50; 
+    margin-bottom: 15px;
+    text-align: center; 
 }
 
 .instructions-container ol {
-    padding-left: 20px; /* Indentation for ordered list */
-    color: #34495e; /* Slightly darker text for better readability */
+    padding-left: 20px; 
+    color: #34495e; 
 }
 
 .instructions-container ol li {
-    margin-bottom: 10px; /* Space between list items */
-    line-height: 1.6; /* Improved line spacing */
-    font-size: 1.1rem; /* Slightly larger font for readability */
-    position: relative; /* For potential icon placement */
-    padding-left: 25px; /* Space for custom list numbers or icons */
+    margin-bottom: 10px; 
+    line-height: 1.6; 
+    font-size: 1.1rem; 
+    padding-left: 25px;
+    position: relative; 
 }
 
-/* Custom List Number Styling */
 .instructions-container ol {
-    counter-reset: step-counter; /* Initialize counter */
+    counter-reset: step-counter; 
 }
 
-/* Scrollbar Styling (Webkit Browsers) */
 .instructions-container::-webkit-scrollbar {
     width: 8px;
 }
@@ -217,11 +215,10 @@ footer {
     background: #a8a8a8; 
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .instructions-container {
-        max-height: 300px; /* Reduced height for smaller screens */
-        padding: 15px; /* Reduced padding */
+        max-height: 300px; 
+        padding: 15px; 
     }
 
     .instructions-container h3 {
@@ -242,27 +239,53 @@ footer {
 }
 
 .route-details-container {
-    background-color: #e8f5e9; /* Light green background for a fresh look */
-    border: 1px solid #c8e6c9; /* Matching green border */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-    padding: 20px; /* Adequate padding */
-    margin-top: 20px; /* Space above the container */
+    background-color: #e8f5e9; 
+    border: 1px solid #c8e6c9; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); 
+    padding: 20px; 
+    margin-top: 20px; 
 }
 
 .route-details-container h3 {
-    font-size: 1.5rem; /* Consistent font size with instructions */
-    color: #2c3e50; /* Darker color for emphasis */
-    margin-bottom: 15px; /* Space below the heading */
-    text-align: center; /* Centered heading */
+    font-size: 1.5rem; 
+    color: #2c3e50; 
+    margin-bottom: 15px;
+    text-align: center; 
 }
 
 .route-details-container p {
-    font-size: 1.1rem; /* Slightly larger font for readability */
-    color: #34495e; /* Matching text color */
-    margin-bottom: 10px; /* Space between paragraphs */
+    font-size: 1.1rem; 
+    color: #34495e; 
+    margin-bottom: 10px; 
 }
 
 .route-details-container strong {
-    color: #2c3e50; /* Emphasize the labels */
+    color: #2c3e50; 
+}
+
+.error-message {
+    color: #e74c3c; 
+    font-size: 0.9rem;
+    margin-top: 5px;
+    display: none; 
+}
+
+.error-message.active {
+    display: block;
+}
+
+input.invalid,
+textarea.invalid,
+select.invalid {
+    border-color: #e74c3c; 
+    background-color: #fdecea; 
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+input.invalid:focus,
+textarea.invalid:focus,
+select.invalid:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.5); 
 }

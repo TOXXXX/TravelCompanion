@@ -123,8 +123,9 @@ export const updatePostById = async (postId, updateData) => {
     return updatedPost;
   } catch (e) {
     throw new Error(`Unable to update post: ${e.message}`);
+  }
 };
-  
+
 // Like a post
 export const LikePost = async (postId, userId) => {
   try {

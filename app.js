@@ -21,6 +21,10 @@ const hbs = handlebars.create({
     json: (context) => {
       return JSON.stringify(context);
     }
+  },
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
   }
 });
 app.engine("handlebars", hbs.engine);
@@ -52,8 +56,11 @@ const startServer = async () => {
         name: "sessionId"
       })
     );
-
-    // Use the setAuth middleware to set isAuthenticated for all routes
+    app.use((req, res, next) => {
+      res.locals.isAuthenticated = req.session.isAuthenticated || false;
+      res.locals.session = req.session || {};
+      next();
+    });
     app.use(setAuth);
 
     registerRoutes(app);

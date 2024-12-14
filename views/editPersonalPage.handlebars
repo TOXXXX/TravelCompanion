@@ -1,7 +1,52 @@
-<form action="/personal/{{user.username}}/edit" method="POST">
-  <label for="bio">Personal Bio:</label>
-  <textarea name="bio" id="bio">{{user.bio}}</textarea>
-  <label for="profilePicture">Profile Picture:</label>
-  <input type="file" name="profilePicture" id="profilePicture" />
-  <button type="submit">Save Changes</button>
-</form>
+<div class="edit-personal-page">
+  <h1>Edit Personal Information</h1>
+  {{#if errorMessage}}
+  <div class="error-message">{{errorMessage}}</div>
+  {{/if}}
+
+  {{#if successMessage}}
+  <div class="success-message">{{successMessage}}</div>
+  {{/if}}
+  <!-- Update Bio and Profile Picture -->
+  <form class="edit-form" action="/personal/{{user.userName}}/edit" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="formType" value="profile">
+    <div class="form-group">
+      <label for="bio">Personal Bio:</label>
+      <textarea name="bio" id="bio" placeholder="Enter your bio">{{user.bio}}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="profilePicture">Profile Picture:</label>
+      <input type="file" name="profilePicture" id="profilePicture" accept="image/jpeg, image/png">
+    </div>
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-success">Save Changes</button>
+    </div>
+  </form>
+
+  <!-- Update Password -->
+  <form id="password-form" action="/personal/{{user.userName}}/edit" method="POST">
+    <input type="hidden" name="formType" value="password">
+    <div class="form-group">
+      <label for="currentPassword">Current Password:</label>
+      <input type="password" name="currentPassword" id="currentPassword">
+    </div>
+
+    <div class="form-group">
+      <label for="newPassword">New Password:</label>
+      <input type="password" name="newPassword" id="newPassword">
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirm New Password:</label>
+      <input type="password" name="confirmPassword" id="confirmPassword">
+    </div>
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-success">Save Password</button>
+    </div>
+  </form>
+
+ 
+</div>

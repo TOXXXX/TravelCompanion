@@ -123,33 +123,72 @@ const seedDatabase = async () => {
     const routeData = [
       {
         routes: {
-          start: "Base Camp",
-          end: "Mountain Summit",
-          waypoints: ["Point A", "Point B"]
-        }
-      },
-      {
-        routes: { start: "Hotel", end: "Beach", waypoints: ["Cafe", "Market"] }
-      },
-      {
-        routes: {
-          start: "City Center",
-          end: "Museum",
-          waypoints: ["Park", "Restaurant"]
-        }
-      },
-      {
-        routes: {
-          start: "Cabin",
-          end: "Lake",
-          waypoints: ["Trailhead", "Waterfall"]
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [-122.4194, 37.7749],
+              [-122.4194, 37.8],
+              [-122.4194, 37.85]
+            ]
+          },
+          distance: 15.5, // in kilometers
+          duration: 120 // in minutes
         }
       },
       {
         routes: {
-          start: "Rafting Base",
-          end: "Finish Line",
-          waypoints: ["Checkpoint 1", "Checkpoint 2"]
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [-118.2437, 34.0522],
+              [-118.2437, 34.06],
+              [-118.2437, 34.07]
+            ]
+          },
+          distance: 10.2,
+          duration: 90
+        }
+      },
+      {
+        routes: {
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [-74.006, 40.7128],
+              [-74.006, 40.72],
+              [-74.006, 40.73]
+            ]
+          },
+          distance: 8.7,
+          duration: 75
+        }
+      },
+      {
+        routes: {
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [-77.0369, 38.9072],
+              [-77.0369, 38.91],
+              [-77.0369, 38.92]
+            ]
+          },
+          distance: 12.3,
+          duration: 105
+        }
+      },
+      {
+        routes: {
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [-122.6784, 45.5231],
+              [-122.6784, 45.53],
+              [-122.6784, 45.54]
+            ]
+          },
+          distance: 20.1,
+          duration: 180
         }
       }
     ];
@@ -158,7 +197,15 @@ const seedDatabase = async () => {
     for (let i = 0; i < postData.length; i++) {
       const userId = `user${i + 1}`;
       const post = await createPost(userId, postData[i]);
-      const route = await createRoute(userId, post._id, routeData[i].routes);
+
+      // Add postID and uid to the route data
+      const routeToCreate = {
+        uid: userId,
+        postID: post._id,
+        ...routeData[i]
+      };
+
+      const route = await createRoute(routeToCreate);
     }
 
     console.log("Sample posts and routes added successfully");

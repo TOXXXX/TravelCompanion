@@ -1,42 +1,88 @@
 <div class="container">
-<section class="personal-page">
+  <section class="personal-page">
 
-  <div class="header" style="background-image: url({{default user.backgroundPicture '/default-background.jpg'}})">
-    <img class="profile-picture" src="{{default user.profilePicture '/default-profile.jpg'}}"
-      alt="{{user.userName}}'s Profile Picture">
+    <div class="header">
+      <div class="profile-info">
+        <img class="profile-picture"
+          src="{{#if user.profilePicture}}{{user.profilePicture}}{{else}}/default-profile.svg{{/if}}"
+          alt="{{user.userName}}'s Profile Picture">
+        <h1>{{user.userName}}</h1>
+        <p class="bio">{{user.bio}}</p>
+        <p class="contact-info">Email: {{user.email}}</p>
+        <p class="contact-info">Phone: {{user.phoneNumber}}</p>
+        {{!-- <p class="account-created">Account Created: {{user.accountCreated}}</p> --}}
+        {{#if isCurrentUser}}
+        <a href="/personal/{{user.userName}}/edit" class="btn btn-edit">Edit Profile</a>
+        {{else}}
+        <section class="follow-section">
+          <form action="/personal/{{user.userName}}/toggleFollow" method="POST">
+            <button type="submit" class="btn btn-follow">
+              {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+            </button>
+          </form>
+        </section>
+        {{/if}}
 
-    <h1>{{user.userName}}</h1>
-    <p class="bio">{{user.bio}}</p>
-    <a href="/personal/{{user.userName}}/edit" class="btn btn-edit">Edit Profile</a>
-  </div>
-  </div>
-
-
-  <div class="content">
-    <section class="posts">
-      <h2>Travel Plans & Routes</h2>
-      {{#if posts.length}}
-      <div class="post-list">
-        {{#each posts}}
-        <article class="post">
-          <h3>{{this.title}}</h3>
-          <p>{{this.summary}}</p>
-          <a href="/routes/{{this._id}}" class="btn btn-view">View Details</a>
-        </article>
-        {{/each}}
       </div>
-      {{else}}
-      <p class="no-posts">No travel plans or routes to display yet.</p>
-      {{/if}}
-    </section>
+    </div>
 
-    <section class="follow-section">
-      <form action="/personal/{{user.userName}}/follow" method="POST">
-        <button type="submit" class="btn btn-follow">
-          {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
-        </button>
-      </form>
-    </section>
-  </div>
-</section>
+    <div class="content">
+
+      <section class="user-stats">
+        <div class="stats-item">
+          <p><strong>Followers:</strong> {{user.followers.length}}</p>
+        </div>
+        <div class="stats-item">
+          <p><strong>Following:</strong> {{user.following.length}}</p>
+        </div>
+        <div class="stats-item">
+          <p><strong>Posts:</strong> {{posts.length}}</p>
+        </div>
+      </section>
+
+      <section class="posts">
+        <h2>Travel Plans & Routes</h2>
+        {{#if posts.length}}
+        <div class="post-list">
+          {{#each posts}}
+          <article class="post">
+            <h3>{{this.title}}</h3>
+            <p>{{this.summary}}</p>
+            <a href="/routes/{{this._id}}" class="btn btn-view">View Details</a>
+          </article>
+          {{/each}}
+        </div>
+        {{else}}
+        <p class="no-posts">No travel plans or routes to display yet.</p>
+        {{/if}}
+      </section>
+
+
+
+      <section class="comments">
+        <h2>Comments</h2>
+        {{#if user.personalPageComments.length}}
+        <ul>
+          {{#each user.personalPageComments}}
+          <li>
+            <strong>{{this.author}}</strong>: {{this.commentText}}
+            <small>({{this.createdAt}})</small>
+          </li>
+          {{/each}}
+        </ul>
+        {{else}}
+        <p>No comments yet. Be the first to comment!</p>
+        {{/if}}
+
+        {{#unless isCurrentUser}}
+        <form action="/comments/{{user.userName}}" method="POST">
+          <textarea name="commentText" placeholder="Write a comment..." required></textarea>
+          <button type="submit" class="btn btn-comment">Post Comment</button>
+        </form>
+        {{/unless}}
+      </section>
+
+
+    </div>
+  </section>
 </div>

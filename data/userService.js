@@ -1,10 +1,8 @@
 import User from "../models/users.js";
 import Comment from "../models/comments.js";
 import Post from "../models/posts.js";
-
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-
 export const createUser = async (userData) => {
   try {
     const user = new User(userData);

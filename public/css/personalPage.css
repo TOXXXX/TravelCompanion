@@ -264,6 +264,45 @@ textarea {
   border: 1px solid #28a745;
   /* display: none; */
 }
+.comments {
+  margin-top: 20px;
+}
+
+.comments ul {
+  list-style: none;
+  padding: 0;
+}
+
+.comments li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.comments li p {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.comments li small {
+  color: #888;
+  font-size: 0.9em;
+}
+
+ 
+.btn-delete {
+  background-color:transparent;
+  border: transparent;
+  color: #f44336;
+}
+
+.btn-danger {
+  background-color:transparent;
+  border: transparent;
+  color: #f44336;
+}
  
 
  

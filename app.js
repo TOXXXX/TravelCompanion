@@ -21,7 +21,11 @@ const hbs = handlebars.create({
     },
     json: (context) => {
       return JSON.stringify(context);
-    }
+    },
+    eq: (a, b) => a === b,
+    or: (a, b) => a || b,
+    and: (a, b) => a && b,
+    not: (a) => !a
   },
   runtimeOptions: {
     allowProtoPropertiesByDefault: true,

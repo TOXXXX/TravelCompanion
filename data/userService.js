@@ -34,7 +34,11 @@ export const getUserByUsername = async (username, includePassword = false) => {
   try {
     let query = User.findOne({ userName: username })
       .populate("posts")
-      .populate("personalPageComments")
+      // .populate("personalPageComments")
+      .populate({
+        path: "personalPageComments",
+        populate: { path: "uid", select: "userName profilePicture" }
+      })
       .populate("followers following", "userName profilePicture");
 
     // Dynamically add the password field if needed
@@ -56,6 +60,7 @@ export const getUserByUsername = async (username, includePassword = false) => {
       "Fetched user with password:",
       includePassword ? user.password : "Password not fetched"
     );
+    console.log("Fetched user with comments:", user);
     return user;
   } catch (error) {
     throw new Error(`Unable to get user by username: ${error.message}`);
@@ -265,5 +270,77 @@ export const getRecommendedUsers = async (currentUserId) => {
     return recommendedUsers;
   } catch (error) {
     throw new Error(`Unable to fetch recommended users: ${error.message}`);
+  }
+};
+
+export const getCommentById = async (commentId) => {
+  try {
+    const comment = await Comment.findById(commentId).populate(
+      "uid",
+      "userName"
+    );
+    if (!comment) throw new Error("Comment not found");
+    return comment;
+  } catch (error) {
+    console.error("Error fetching comment by ID:", error.message);
+    throw new Error(`Unable to get comment: ${error.message}`);
+  }
+};
+export const deleteCommentById = async (commentId) => {
+  try {
+    const comment = await Comment.findByIdAndDelete(commentId);
+    if (!comment) throw new Error("Comment not found");
+    await User.updateMany(
+      { personalPageComments: commentId },
+      { $pull: { personalPageComments: commentId } }
+    );
+
+    return comment;
+  } catch (error) {
+    throw new Error(`Unable to delete comment: ${error.message}`);
+  }
+};
+// export const deleteCommentById = async (commentId, userId) => {
+//   try {
+//     console.log("Attempting to delete comment with ID:", commentId);
+//     const comment = await Comment.findById(commentId);
+
+//     if (!comment) throw new Error("Comment not found");
+//     console.log("Deleting comment:", comment);
+//     // Ensure the user owns the comment or it's on their personal page
+//     if (comment.uid.toString() !== userId.toString()) {
+//       throw new Error("Unauthorized to delete this comment");
+//     }
+
+//     await Comment.findByIdAndDelete(commentId);
+
+//     // Remove the comment from the user's personalPageComments array
+//     await User.updateOne({ _id: userId }, { $pull: { personalPageComments: commentId } });
+//   } catch (err) {
+//     throw new Error(`Failed to delete comment: ${err.message}`);
+//   }
+// };
+
+export const deleteCommentsByIds = async (commentIds, userId) => {
+  try {
+    console.log("Attempting to delete comments with IDs:", commentIds);
+    const comments = await Comment.find({ _id: { $in: commentIds } });
+
+    // Ensure all comments belong to the user or their page
+    for (const comment of comments) {
+      if (comment.uid.toString() !== userId.toString()) {
+        throw new Error("Unauthorized to delete some comments");
+      }
+    }
+
+    await Comment.deleteMany({ _id: { $in: commentIds } });
+    console.log("Comments to delete:", comments);
+    // Remove the comments from the user's personalPageComments array
+    await User.updateOne(
+      { _id: userId },
+      { $pull: { personalPageComments: { $in: commentIds } } }
+    );
+  } catch (err) {
+    throw new Error(`Failed to delete selected comments: ${err.message}`);
   }
 };

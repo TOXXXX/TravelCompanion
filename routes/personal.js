@@ -41,7 +41,7 @@ router.get("/:username", isAuthenticated, async (req, res) => {
     const user = await userService.getUserByUsername(req.params.username);
     const isCurrentUser = req.session.userName === req.params.username;
     console.log("Fetched user:", user);
-
+    console.log("Comments fetched for user:", user.personalPageComments);
     if (!user) {
       return res.status(401).redirect("/login");
     }
@@ -64,7 +64,8 @@ router.get("/:username", isAuthenticated, async (req, res) => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         followersCount,
-        followingCount
+        followingCount,
+        personalPageComments: user.personalPageComments
       },
       posts,
       isCurrentUser,
@@ -286,6 +287,52 @@ router.post("/:username/comment", isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error("Error in /personal/:username/comment:", err.message);
     res.status(500).render("error", { message: "Failed to add comment" });
+  }
+});
+// Delete selected comments
+router.post("/:username/delete-comments", isAuthenticated, async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { commentId, selectedComments } = req.body;
+    console.log("Delete Request Received:");
+    console.log("commentId:", commentId);
+    console.log("selectedComments:", selectedComments);
+    const sessionUser = await userService.getUserByUsername(
+      req.session.userName
+    );
+    if (!sessionUser) {
+      throw new Error("Unauthorized access - User not found");
+    }
+    console.log("Session User:", sessionUser);
+    const targetUser = await userService.getUserByUsername(username);
+    console.log("Target User:", targetUser);
+    // if (!sessionUser || sessionUser.userName !== username) {
+    //   throw new Error("Unauthorized access");
+    // }
+    if (!targetUser) throw new Error("Target user not found");
+    console.log(
+      `Checking authorization for session user: ${sessionUser.userName}, target user: ${targetUser.userName}`
+    );
+    if (commentId) {
+      const comment = await userService.getCommentById(commentId);
+
+      if (
+        comment.uid.userName === sessionUser.userName ||
+        sessionUser.userName === targetUser.userName
+        // username !== sessionUser.userName
+      ) {
+        await userService.deleteCommentById(commentId);
+      } else {
+        throw new Error("Unauthorized access - Cannot delete comment");
+      }
+    }
+
+    // req.flash("successMessage", "Comment(s) deleted successfully.");
+    return res.redirect(`/personal/${username}`);
+  } catch (err) {
+    console.error("Error in /delete-comments route:", err.message);
+    req.flash("errorMessage", "Failed to delete comments. Please try again.");
+    return res.redirect(`/personal/${req.params.username}`);
   }
 });
 

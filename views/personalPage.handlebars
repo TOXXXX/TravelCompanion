@@ -76,26 +76,41 @@
 
       <section class="comments">
         <h2>Comments</h2>
+
         {{#if user.personalPageComments.length}}
-        <ul>
-          {{#each user.personalPageComments}}
-          <li>
-            <strong>{{this.uid}}</strong>: {{this.content}} <!-- Ensure fields match schema -->
-            <small>({{this.created}})</small>
-          </li>
-          {{/each}}
-        </ul>
+        <form action="/personal/{{user.userName}}/delete-comments" method="POST">
+          <ul>
+            {{#each user.personalPageComments}}
+            <li>
+              <p>{{this.content}}</p>
+              <small>By {{this.uid.userName}} on {{this.created}}</small>
+              {{#if (or (eq this.uid.userName ../session.userName) ../isCurrentUser)}}
+              <button type="submit" name="commentId" value="{{this._id}}" class="btn btn-delete">Delete</button>
+
+              {{!-- {{#if isCurrentUser}} --}}
+              {{!-- <input type="checkbox" name="selectedComments" value="{{this._id}}" /> --}}
+              {{/if}}
+            </li>
+            {{/each}}
+          </ul>
+
+          {{!-- {{#if isCurrentUser}}
+          <button type="submit" class="btn btn-danger">Delete Selected Comments</button>
+          {{/if}} --}}
+        </form>
         {{else}}
         <p>No comments yet. Be the first to comment!</p>
         {{/if}}
 
         {{#unless isCurrentUser}}
-        <form action="/personal/{{user.userName}}/comment" method="POST"> <!-- Ensure action matches route -->
+        <form action="/personal/{{user.userName}}/comment" method="POST">
           <textarea name="commentText" placeholder="Write a comment..." required></textarea>
           <button type="submit" class="btn btn-comment">Post Comment</button>
         </form>
         {{/unless}}
       </section>
+
+
 
 
 
@@ -135,6 +150,13 @@
           alert("An error occurred. Please try again.");
         }
       });
+    }
+  });
+  document.getElementById("commentForm").addEventListener("submit", (e) => {
+    const commentContent = document.getElementById("commentContent").value.trim();
+    if (!commentContent) {
+      e.preventDefault();
+      alert("Comment cannot be empty!");
     }
   });
 

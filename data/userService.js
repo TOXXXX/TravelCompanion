@@ -1,8 +1,10 @@
 import User from "../models/users.js";
 import Comment from "../models/comments.js";
 import Post from "../models/posts.js";
+
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+
 export const createUser = async (userData) => {
   try {
     const user = new User(userData);
@@ -188,6 +190,21 @@ export const hashPassword = async (password) => {
     return hashedPassword;
   } catch (error) {
     throw new Error(`Error hashing password: ${error.message}`);
+  }
+};
+
+// Retrive following user ids from current user
+export const getFollowingUsers = async (currentUserId) => {
+  try {
+    const currentUser = await User.findById(
+      new mongoose.Types.ObjectId(currentUserId)
+    );
+    if (!currentUser) {
+      throw new Error("Current user not found");
+    }
+    return currentUser.following;
+  } catch (error) {
+    throw new Error(`Unable to retrive all following users: ${error.message}`);
   }
 };
 

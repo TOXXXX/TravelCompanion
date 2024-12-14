@@ -29,7 +29,7 @@ router.post("/create-route", async(req, res) => {
     'waypoint-2-description': waypoint2Description,
     'route-type': routeType,
   } = req.body;
-  console.log(req.body, {routeType});
+  //console.log(req.body, {routeType});
   
   try {
     if (!waypoint1Coordinates || !waypoint2Coordinates) {
@@ -37,6 +37,9 @@ router.post("/create-route", async(req, res) => {
     }
     if (!routeName) {
       return res.status(400).send("Route name is required.");
+    }
+    if(!routeType){
+      return res.status(400).send("Route type is required");
     }
     const [lng1, lat1] = waypoint1Coordinates.split(",").map((coord) => parseFloat(coord.trim()));
     const [lng2, lat2] = waypoint2Coordinates.split(",").map((coord) => parseFloat(coord.trim()));
@@ -47,7 +50,7 @@ router.post("/create-route", async(req, res) => {
       cycling: 'mapbox/cycling'
     };
     const profile = profileMapping[routeType] || 'mapbox/driving';
-    console.log("profile;", profile);
+    //console.log("profile;", profile);
 
     const directionsUrl = `https://api.mapbox.com/directions/v5/${profile}/${lng1},${lat1};${lng2},${lat2}`;
     const directionsResponse = await axios.get(directionsUrl, {
@@ -58,11 +61,11 @@ router.post("/create-route", async(req, res) => {
       }
     });
 
-    console.log(directionsUrl, {
-      access_token: MAPBOX_ACCESS_TOKEN,
-      steps: true,
-      geometries: 'polyline' 
-    });
+    // console.log(directionsUrl, {
+    //   access_token: MAPBOX_ACCESS_TOKEN,
+    //   steps: true,
+    //   geometries: 'polyline' 
+    // });
 
     //console.log("directionURL:", directionsUrl);
 
@@ -76,19 +79,42 @@ router.post("/create-route", async(req, res) => {
     const route = directionsData.routes[0];
     const encodedPolyline = route.geometry; 
 
+    // Extract distance and duration
+    const distanceInMeters = route.distance; // in meters
+    const durationInSeconds = route.duration; // in seconds
+
+    // Convert distance to kilometers and format to 2 decimal places
+    const distanceInKm = (distanceInMeters / 1000).toFixed(2);
+
+    // Convert duration to minutes and hours
+    const durationInMinutes = Math.floor(durationInSeconds / 60);
+    const durationInHours = Math.floor(durationInMinutes / 60);
+    const remainingMinutes = durationInMinutes % 60;
+
+    let formattedDuration = "";
+    if (durationInHours > 0) {
+      formattedDuration += `${durationInHours} hour${durationInHours > 1 ? 's' : ''} `;
+    }
+    if (remainingMinutes > 0) {
+      formattedDuration += `${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`;
+    }
+    if (formattedDuration === "") {
+      formattedDuration = "Less than a minute";
+    }
+
     const steps = route.legs[0].steps;
     const instructions = steps.map(step => step.maneuver.instruction);
 
     const encodedPolylineEscaped = encodeURIComponent(encodedPolyline);
     const pathOverlay = `path-5+f44-0.8(${encodedPolylineEscaped})`;
-    const startPin = `pin-s-l+FF0000(${lng1},${lat1})`;
-    const endPin = `pin-s-l+00FF00(${lng2},${lat2})`;
+    const startPin = `pin-s+FF0000(${lng1},${lat1})`;
+    const endPin = `pin-s+00FF00(${lng2},${lat2})`;
 
     const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${pathOverlay},${startPin},${endPin}/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
 
     //console.log("mapUrl:", mapUrl);
     //const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+FF0000(${lng1},${lat1}),pin-s-l+00FF00(${lng2},${lat2})/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
-    console.log({mapUrl})
+    //console.log({mapUrl})
     const response = await axios.get(mapUrl, { responseType: 'arraybuffer' });
     //console.log("response :", response);
 
@@ -113,8 +139,11 @@ router.post("/create-route", async(req, res) => {
         name: waypoint2Name || "Destination",
         coordinates: [lng2, lat2],
         description: waypoint2Description 
-      }
+      },
+      routeType
     });
+
+    console.log(routeDoc);
     await routeDoc.save();
     res.render("create-route", {
       title: "Create Route",
@@ -125,9 +154,13 @@ router.post("/create-route", async(req, res) => {
       routeName,
       routeDesc,
       routeDuration,
+      waypoint1Name,
+      waypoint2Name,
       waypoint1Description,
       waypoint2Description,
-      routeType
+      routeType,
+      distance: `${distanceInKm} km`,
+      duration: formattedDuration
     });
   } catch (error) {
     console.error("Error generating map URL:", error.message);

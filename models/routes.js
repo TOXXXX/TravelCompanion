@@ -4,11 +4,12 @@ const RouteSchema = new Schema({
   uid: { type: String, required: true },
   pid: { type: String, required: true },
   routeName: { type: String, required: true },
-  tripDuration: { type: Number }, // not required
+  routeDesc: {type: String},
+  tripDuration: { type: Number }, 
   origin: {
     name: { type: String, required: true },
     coordinates: {
-      type: [Number], // [longitude, latitude]
+      type: [Number], 
       required: true
     },
     description: { type: String }
@@ -20,7 +21,8 @@ const RouteSchema = new Schema({
       required: true
     },
     description: { type: String }
-  }
+  },
+  routeType: {type: String, required: true}
 }, { timestamps: true });
 
 export default model('Route', RouteSchema);

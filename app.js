@@ -16,8 +16,17 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+const hbs = handlebars.engine({
+  defaultLayout: "main",
+  helpers: {
+    ifEquals: function(arg1, arg2, options) {
+      return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
+    }
+  }
+});
+
 // Set up Handlebars
-app.engine("handlebars", handlebars.engine({ defaultLayout: "main" }));
+app.engine("handlebars", hbs);
 app.set("view engine", "handlebars");
 app.set("views", "./views");
 

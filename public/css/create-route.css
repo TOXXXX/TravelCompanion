@@ -129,6 +129,7 @@ footer {
     display: flex;
     justify-content: center;
     align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   .map-container img {
     border: 1px solid #ddd;
@@ -139,6 +140,7 @@ footer {
   }
   .route-form {
     flex: 1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   .form-group {
     margin-bottom: 15px;
@@ -154,8 +156,113 @@ footer {
     cursor: pointer;
     margin-top: 15px;
   }
-  #route-duration{
-    padding: 8px; /* Optional: Add padding for better spacing inside */
-    border: 1px solid #ccc; /* Optional: Adjust border styling */
-    border-radius: 4px; /* Optional: Add rounded corners */
+  #routeDuration{
+    padding: 8px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
   }
+
+  .instructions-container {
+    background-color: #f9f9f9; /* Alice Blue background for subtle contrast */
+    border: 1px solid #dcdcdc; /* Light gray border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    padding: 20px; /* Adequate padding for content spacing */
+    margin-top: 20px; /* Space above the container */
+    max-height: 400px; /* Maximum height to prevent overflow */
+    overflow-y: auto; /* Scrollbar for overflowing content */
+}
+
+.instructions-container h3 {
+    font-size: 1.5rem; /* Increased font size for the heading */
+    color: #2c3e50; /* Darker color for emphasis */
+    margin-bottom: 15px; /* Space below the heading */
+    text-align: center; /* Centered heading */
+}
+
+.instructions-container ol {
+    padding-left: 20px; /* Indentation for ordered list */
+    color: #34495e; /* Slightly darker text for better readability */
+}
+
+.instructions-container ol li {
+    margin-bottom: 10px; /* Space between list items */
+    line-height: 1.6; /* Improved line spacing */
+    font-size: 1.1rem; /* Slightly larger font for readability */
+    position: relative; /* For potential icon placement */
+    padding-left: 25px; /* Space for custom list numbers or icons */
+}
+
+/* Custom List Number Styling */
+.instructions-container ol {
+    counter-reset: step-counter; /* Initialize counter */
+}
+
+/* Scrollbar Styling (Webkit Browsers) */
+.instructions-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.instructions-container::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 8px;
+}
+
+.instructions-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1; 
+    border-radius: 8px;
+}
+
+.instructions-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8; 
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .instructions-container {
+        max-height: 300px; /* Reduced height for smaller screens */
+        padding: 15px; /* Reduced padding */
+    }
+
+    .instructions-container h3 {
+        font-size: 1.3rem;
+    }
+
+    .instructions-container ol li {
+        font-size: 1rem;
+    }
+}
+
+.mapboxgl-ctrl-geocoder--icon-search{
+    display: none !important;
+}
+
+.mapboxgl-ctrl-geocoder--input{
+    box-shadow: none !important;
+}
+
+.route-details-container {
+    background-color: #e8f5e9; /* Light green background for a fresh look */
+    border: 1px solid #c8e6c9; /* Matching green border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+    padding: 20px; /* Adequate padding */
+    margin-top: 20px; /* Space above the container */
+}
+
+.route-details-container h3 {
+    font-size: 1.5rem; /* Consistent font size with instructions */
+    color: #2c3e50; /* Darker color for emphasis */
+    margin-bottom: 15px; /* Space below the heading */
+    text-align: center; /* Centered heading */
+}
+
+.route-details-container p {
+    font-size: 1.1rem; /* Slightly larger font for readability */
+    color: #34495e; /* Matching text color */
+    margin-bottom: 10px; /* Space between paragraphs */
+}
+
+.route-details-container strong {
+    color: #2c3e50; /* Emphasize the labels */
+}

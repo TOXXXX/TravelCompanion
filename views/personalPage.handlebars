@@ -57,20 +57,23 @@
 
       <section class="posts">
         <h2>Travel Plans & Routes</h2>
-        {{#if posts.length}}
-        <div class="post-list">
-          {{#each posts}}
-          <article class="post">
-            <h3>{{this.title}}</h3>
-            <p>{{this.summary}}</p>
-            <a href="/routes/{{this._id}}" class="btn btn-view">View Details</a>
-          </article>
+        {{#if user.posts.length}}
+        <ul>
+          {{#each user.posts}}
+          <li>
+            <a href="/post/{{this.id}}" class="post-link">
+              <h3>{{this.title}}</h3>
+              <p>{{this.intro}}</p>
+              <small>Created on {{this.created}}</small>
+            </a>
+          </li>
           {{/each}}
-        </div>
+        </ul>
         {{else}}
-        <p class="no-posts">No travel plans or routes to display yet.</p>
+        <p>No posts available yet.</p>
         {{/if}}
       </section>
+
 
 
 
@@ -118,46 +121,4 @@
   </section>
 </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const followButton = document.getElementById("follow-button");
-
-    if (followButton) {
-      followButton.addEventListener("click", async () => {
-        const username = followButton.getAttribute("data-username");
-
-        try {
-          const response = await fetch(`/personal/${username}/toggleFollow`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-
-          const data = await response.json();
-
-          if (response.ok) {
-            // Update button text and class based on follow state
-            followButton.textContent = data.isFollowing ? "Unfollow" : "Follow";
-            followButton.classList.toggle("btn-unfollow", data.isFollowing);
-            followButton.classList.toggle("btn-follow", !data.isFollowing);
-          } else {
-            console.error("Failed to toggle follow:", data.error);
-            alert(data.error || "An unexpected error occurred.");
-          }
-        } catch (error) {
-          console.error("Error toggling follow:", error);
-          alert("An error occurred. Please try again.");
-        }
-      });
-    }
-  });
-  document.getElementById("commentForm").addEventListener("submit", (e) => {
-    const commentContent = document.getElementById("commentContent").value.trim();
-    if (!commentContent) {
-      e.preventDefault();
-      alert("Comment cannot be empty!");
-    }
-  });
-
-</script>
+<script src="/js/personal.js"></script>

@@ -3,7 +3,9 @@ import multer from "multer";
 import path from "path";
 import sharp from "sharp";
 import * as userService from "../data/userService.js";
+import * as postService from "../data/post.js";
 import { isAuthenticated } from "../middleware/auth.js";
+import Post from "../models/posts.js";
 
 const router = express.Router();
 
@@ -36,12 +38,14 @@ const upload = multer({
 
 router.get("/:username", isAuthenticated, async (req, res) => {
   try {
-    console.log("Requested username:", req.params.username);
+    // console.log("Requested username:", req.params.username);
 
     const user = await userService.getUserByUsername(req.params.username);
-    const isCurrentUser = req.session.userName === req.params.username;
-    console.log("Fetched user:", user);
-    console.log("Comments fetched for user:", user.personalPageComments);
+    // const isCurrentUser = req.session.userName === req.params.username;
+    const isCurrentUser = req.session.userId === user._id.toString();
+
+    // console.log("Fetched user:", user);
+    // console.log("Comments fetched for user:", user.personalPageComments);
     if (!user) {
       return res.status(401).redirect("/login");
     }
@@ -51,7 +55,8 @@ router.get("/:username", isAuthenticated, async (req, res) => {
       isFollowing = await userService.isFollowing(req.session.userId, user._id);
     }
 
-    const posts = [];
+    // const posts = await postService.getUserAllPosts(user._id);
+    const userPosts = await Post.find({ uid: user._id }).lean();
     const followersCount = user.followers?.length || 0;
     const followingCount = user.following?.length || 0;
 
@@ -61,13 +66,13 @@ router.get("/:username", isAuthenticated, async (req, res) => {
         userName: user.userName,
         bio: user.bio || "This user has not set a bio yet.",
         profilePicture: user.profilePicture || "/default-profile.svg",
-        email: user.email,
-        phoneNumber: user.phoneNumber,
+        email: user.email || "This user has not set email yet.",
+        phoneNumber: user.phoneNumber || "This user has not set number yet.",
         followersCount,
         followingCount,
-        personalPageComments: user.personalPageComments
+        personalPageComments: user.personalPageComments,
+        posts: userPosts
       },
-      posts,
       isCurrentUser,
       isFollowing,
       successMessage: req.flash("successMessage"),
@@ -116,7 +121,6 @@ router.post(
       const { formType, currentPassword, newPassword, confirmPassword } =
         req.body;
 
-      // Handle password update logic
       if (formType === "password") {
         if (!currentPassword || !newPassword || !confirmPassword) {
           return res.render("editPersonalPage", {
@@ -174,11 +178,36 @@ router.post(
 
       const updatedData = {
         bio: req.body.bio || "",
+        email: req.body.email || "",
+        phoneNumber: req.body.phoneNumber || "",
         profilePicture:
           profilePicturePath ||
           req.body.profilePicture ||
           "/default-profile.svg"
       };
+      if (
+        updatedData.email &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedData.email)
+      ) {
+        return res.render("editPersonalPage", {
+          title: "Edit Personal Page",
+          user: sessionUser,
+          customCSS: "editPersonalPage",
+          errorMessage: "Invalid email format."
+        });
+      }
+
+      if (
+        updatedData.phoneNumber &&
+        !/^[0-9\-+()\s]{7,15}$/.test(updatedData.phoneNumber)
+      ) {
+        return res.render("editPersonalPage", {
+          title: "Edit Personal Page",
+          user: sessionUser,
+          customCSS: "editPersonalPage",
+          errorMessage: "Invalid phone number format."
+        });
+      }
 
       await userService.updateUserByUsername(req.params.username, updatedData);
 
@@ -327,11 +356,9 @@ router.post("/:username/delete-comments", isAuthenticated, async (req, res) => {
       }
     }
 
-    // req.flash("successMessage", "Comment(s) deleted successfully.");
     return res.redirect(`/personal/${username}`);
   } catch (err) {
     console.error("Error in /delete-comments route:", err.message);
-    req.flash("errorMessage", "Failed to delete comments. Please try again.");
     return res.redirect(`/personal/${req.params.username}`);
   }
 });

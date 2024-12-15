@@ -162,74 +162,84 @@ const seedDatabase = async () => {
 
     const routeData = [
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-122.4194, 37.7749],
-              [-122.4194, 37.8],
-              [-122.4194, 37.85]
-            ]
-          },
-          distance: 15.5, // in kilometers
-          duration: 120 // in minutes
-        }
+        routeName: "San Francisco Route",
+        routeDesc: "A scenic route through San Francisco.",
+        tripDuration: 120, // in minutes
+        origin: {
+          name: "Start Point",
+          coordinates: [-122.4194, 37.7749],
+          description: "Starting point in San Francisco."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-122.4194, 37.85],
+          description: "Ending point in San Francisco."
+        },
+        routeType: "Scenic"
       },
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-118.2437, 34.0522],
-              [-118.2437, 34.06],
-              [-118.2437, 34.07]
-            ]
-          },
-          distance: 10.2,
-          duration: 90
-        }
+        routeName: "Los Angeles Route",
+        routeDesc: "A popular route through Los Angeles.",
+        tripDuration: 90,
+        origin: {
+          name: "Start Point",
+          coordinates: [-118.2437, 34.0522],
+          description: "Starting point in Los Angeles."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-118.2437, 34.07],
+          description: "Ending point in Los Angeles."
+        },
+        routeType: "Urban"
       },
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-74.006, 40.7128],
-              [-74.006, 40.72],
-              [-74.006, 40.73]
-            ]
-          },
-          distance: 8.7,
-          duration: 75
-        }
+        routeName: "New York Route",
+        routeDesc: "A bustling route through New York City.",
+        tripDuration: 75,
+        origin: {
+          name: "Start Point",
+          coordinates: [-74.006, 40.7128],
+          description: "Starting point in New York City."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-74.006, 40.73],
+          description: "Ending point in New York City."
+        },
+        routeType: "Urban"
       },
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-77.0369, 38.9072],
-              [-77.0369, 38.91],
-              [-77.0369, 38.92]
-            ]
-          },
-          distance: 12.3,
-          duration: 105
-        }
+        routeName: "Washington D.C. Route",
+        routeDesc: "A historic route through Washington D.C.",
+        tripDuration: 105,
+        origin: {
+          name: "Start Point",
+          coordinates: [-77.0369, 38.9072],
+          description: "Starting point in Washington D.C."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-77.0369, 38.92],
+          description: "Ending point in Washington D.C."
+        },
+        routeType: "Historic"
       },
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-122.6784, 45.5231],
-              [-122.6784, 45.53],
-              [-122.6784, 45.54]
-            ]
-          },
-          distance: 20.1,
-          duration: 180
-        }
+        routeName: "Portland Route",
+        routeDesc: "A beautiful route through Portland.",
+        tripDuration: 180,
+        origin: {
+          name: "Start Point",
+          coordinates: [-122.6784, 45.5231],
+          description: "Starting point in Portland."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-122.6784, 45.54],
+          description: "Ending point in Portland."
+        },
+        routeType: "Scenic"
       }
     ];
 
@@ -244,7 +254,7 @@ const seedDatabase = async () => {
       // Add postID and uid to the route data
       const routeToCreate = {
         uid: userId,
-        postID: post._id,
+        pid: post._id,
         ...routeData[i]
       };
 

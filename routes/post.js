@@ -73,11 +73,10 @@ router
         // Post may not have route, so check if it exists
         let routes;
         if (item.routeInfo) {
-          routes = item.routeInfo.routes;
+          routes = item.routeInfo;
         } else {
           routes = {
-            distance: "N/A",
-            duration: "N/A"
+            tripDuration: "N/A"
           };
         }
 
@@ -91,8 +90,9 @@ router
           liked: req.session.userId
             ? item.likeByUsers.includes(req.session.userId)
             : false,
-          distance: routes.distance || "N/A",
-          duration: routes.duration || "N/A",
+          // TODO: Distance is currently not available
+          distance: "N/A",
+          duration: routes.tripDuration || "N/A",
           // TODO: Location is currently not available
           locations: "N/A"
         };

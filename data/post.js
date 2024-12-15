@@ -81,7 +81,7 @@ export const getFilteredPostsWithRoute = async (
         $lookup: {
           from: "routes",
           localField: "postIDString", // Use the string version of _id
-          foreignField: "postID",
+          foreignField: "pid",
           as: "routeInfo"
         }
       },

@@ -66,13 +66,13 @@ h1, h2 {
     margin-right: 15px;
   }
   
-  a {
+  .userList {
     font-weight: bold;
     margin-right: 10px;
     text-decoration: none;
     color: #007bff;
   }
   
-  a:hover {
+  .userList:hover {
     text-decoration: underline;
   }

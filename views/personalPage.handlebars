@@ -61,10 +61,10 @@
         <ul>
           {{#each user.posts}}
           <li>
-            <a href="/post/{{this.id}}" class="post-link">
+            <a href="/post/{{this._id}}" class="post-link">
               <h3>{{this.title}}</h3>
               <p>{{this.intro}}</p>
-              <small>Created on {{this.created}}</small>
+              <small>Created on  {{formatDate this.created}}</small>
             </a>
           </li>
           {{/each}}
@@ -87,11 +87,11 @@
             <li class="comment-item">
               <p class="comment-content">{{this.content}}</p>
               <small class="comment-meta">
-                By {{#if this.uid}}<a href="/personal/{{this.uid.userName}}" class="comment-author-link">{{this.uid.userName}}</a>{{else}}Unknown User{{/if}} on {{this.created}}
+                By {{#if this.uid}}<a href="/personal/{{this.uid.userName}}" class="comment-author-link">{{this.uid.userName}}</a>{{else}}Unknown User{{/if}} on  {{formatDate this.created}}
               </small>
               {{#if (or (eq this.uid.userName ../session.userName) ../isCurrentUser)}}
-              <button type="submit" name="commentId" value="{{this._id}}" class="btn btn-delete">
-                <i class="far fa-trash-can"></i>
+              <button type="submit" name="commentId" value="{{this._id}}" class=" btn-delete ">
+                <i class="far fa-trash-can" ></i>
               </button>
               {{/if}}
             </li>

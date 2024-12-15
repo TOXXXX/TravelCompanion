@@ -50,7 +50,7 @@
           </a>
         </div>
         <div class="stats-item">
-          <p><strong>Posts:</strong> {{posts.length}}</p>
+          <p><strong>Posts:</strong> {{user.posts.length}}</p>
         </div>
       </section>
 
@@ -61,10 +61,10 @@
         <ul>
           {{#each user.posts}}
           <li>
-            <a href="/post/{{this.id}}" class="post-link">
+            <a href="/post/{{this._id}}" class="post-link">
               <h3>{{this.title}}</h3>
               <p>{{this.intro}}</p>
-              <small>Created on {{this.created}}</small>
+              <small>Created on  {{formatDate this.created}}</small>
             </a>
           </li>
           {{/each}}
@@ -82,36 +82,36 @@
 
         {{#if user.personalPageComments.length}}
         <form action="/personal/{{user.userName}}/delete-comments" method="POST">
-          <ul>
+          <ul class="comments-list">
             {{#each user.personalPageComments}}
-            <li>
-              <p>{{this.content}}</p>
-              <small>By {{this.uid.userName}} on {{this.created}}</small>
+            <li class="comment-item">
+              <p class="comment-content">{{this.content}}</p>
+              <small class="comment-meta">
+                By {{#if this.uid}}<a href="/personal/{{this.uid.userName}}" class="comment-author-link">{{this.uid.userName}}</a>{{else}}Unknown User{{/if}} on  {{formatDate this.created}}
+              </small>
               {{#if (or (eq this.uid.userName ../session.userName) ../isCurrentUser)}}
-              <button type="submit" name="commentId" value="{{this._id}}" class="btn btn-delete">Delete</button>
-
-              {{!-- {{#if isCurrentUser}} --}}
-              {{!-- <input type="checkbox" name="selectedComments" value="{{this._id}}" /> --}}
+              <button type="submit" name="commentId" value="{{this._id}}" class=" btn-delete ">
+                <i class="far fa-trash-can" ></i>
+              </button>
               {{/if}}
             </li>
             {{/each}}
           </ul>
-
-          {{!-- {{#if isCurrentUser}}
-          <button type="submit" class="btn btn-danger">Delete Selected Comments</button>
-          {{/if}} --}}
         </form>
         {{else}}
         <p>No comments yet. Be the first to comment!</p>
         {{/if}}
 
         {{#unless isCurrentUser}}
-        <form action="/personal/{{user.userName}}/comment" method="POST">
-          <textarea name="commentText" placeholder="Write a comment..." required></textarea>
+        <form id="commentForm" action="/personal/{{user.userName}}/comment" method="POST">
+          <textarea id="commentContent" name="commentText" placeholder="Write a comment..." maxlength="150"
+            required></textarea>
           <button type="submit" class="btn btn-comment">Post Comment</button>
         </form>
         {{/unless}}
       </section>
+
+
 
 
 

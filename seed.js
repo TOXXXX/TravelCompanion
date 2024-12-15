@@ -1,7 +1,13 @@
-import { createUser } from "./data/userService.js";
+import {
+  createUser,
+  toggleFollowUser,
+  addCommentToUser
+} from "./data/userService.js";
 import { createPost } from "./data/post.js";
 import { createRoute } from "./data/route.js";
+import { createComment } from "./data/comment.js";
 import { dropDB, disconnectDB } from "./config/db.js";
+import mongoose from "mongoose";
 
 const seedDatabase = async () => {
   try {
@@ -11,7 +17,7 @@ const seedDatabase = async () => {
     const sampleUsers = [
       {
         userName: "maheshs85",
-        password: "1234",
+        password: "Maheshs85",
         email: "maheshs85@example.com",
         phoneNumber: "123-456-7890",
         followers: [],
@@ -20,8 +26,8 @@ const seedDatabase = async () => {
         personalPageComments: []
       },
       {
-        userName: "TOXXXX",
-        password: "1234",
+        userName: "toxxxx",
+        password: "Toxxxxx1",
         email: "TOXXXX@example.com",
         phoneNumber: "123-456-7891",
         followers: [],
@@ -30,8 +36,8 @@ const seedDatabase = async () => {
         personalPageComments: []
       },
       {
-        userName: "ChenHaolinOlym",
-        password: "1234",
+        userName: "chenhaolinolym",
+        password: "Chenhaolinolym1",
         email: "ChenHaolinOlym@example.com",
         phoneNumber: "123-456-7892",
         followers: [],
@@ -40,9 +46,9 @@ const seedDatabase = async () => {
         personalPageComments: []
       },
       {
-        userName: "Junran Tao",
-        password: "1234",
-        email: "Junran Tao@example.com",
+        userName: "junrantao",
+        password: "Junrantao1",
+        email: "JunranTao@example.com",
         phoneNumber: "123-456-7893",
         followers: [],
         following: [],
@@ -50,9 +56,9 @@ const seedDatabase = async () => {
         personalPageComments: []
       },
       {
-        userName: "Arman Singh",
-        password: "1234",
-        email: "Arman Singh@example.com",
+        userName: "armansingh",
+        password: "Armansingh1",
+        email: "ArmanSingh@example.com",
         phoneNumber: "123-456-7894",
         followers: [],
         following: [],
@@ -61,8 +67,42 @@ const seedDatabase = async () => {
       }
     ];
 
+    const createdUsers = [];
+
     for (const userData of sampleUsers) {
-      await createUser(userData);
+      const user = await createUser(userData);
+      createdUsers.push(user);
+    }
+
+    for (let i = 0; i < createdUsers.length; i++) {
+      for (let j = i; j < createdUsers.length; j++) {
+        if (i !== j) {
+          toggleFollowUser(createdUsers[i]._id, createdUsers[j]._id);
+        }
+      }
+    }
+
+    // Comments posted on the personal page
+    const userComments = [
+      {
+        uid: createdUsers[0]._id,
+        content: "Great post! Keep it up!",
+        postID: null
+      },
+      {
+        uid: createdUsers[1]._id,
+        content: "Nice photo!",
+        postID: null
+      },
+      {
+        uid: createdUsers[2]._id,
+        content: "I love this!",
+        postID: null
+      }
+    ];
+
+    for (const commentData of userComments) {
+      await addCommentToUser(createdUsers[0]._id, commentData);
     }
 
     console.log("Sample users added successfully");
@@ -122,90 +162,139 @@ const seedDatabase = async () => {
 
     const routeData = [
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-122.4194, 37.7749],
-              [-122.4194, 37.8],
-              [-122.4194, 37.85]
-            ]
-          },
-          distance: 15.5, // in kilometers
-          duration: 120 // in minutes
-        }
+        routeName: "San Francisco Route",
+        routeDesc: "A scenic route through San Francisco.",
+        tripDuration: 120, // in minutes
+        origin: {
+          name: "Start Point",
+          coordinates: [-122.4194, 37.7749],
+          description: "Starting point in San Francisco."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-122.4194, 37.85],
+          description: "Ending point in San Francisco."
+        },
+        routeType: "Scenic"
       },
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-118.2437, 34.0522],
-              [-118.2437, 34.06],
-              [-118.2437, 34.07]
-            ]
-          },
-          distance: 10.2,
-          duration: 90
-        }
+        routeName: "Los Angeles Route",
+        routeDesc: "A popular route through Los Angeles.",
+        tripDuration: 90,
+        origin: {
+          name: "Start Point",
+          coordinates: [-118.2437, 34.0522],
+          description: "Starting point in Los Angeles."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-118.2437, 34.07],
+          description: "Ending point in Los Angeles."
+        },
+        routeType: "Urban"
       },
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-74.006, 40.7128],
-              [-74.006, 40.72],
-              [-74.006, 40.73]
-            ]
-          },
-          distance: 8.7,
-          duration: 75
-        }
+        routeName: "New York Route",
+        routeDesc: "A bustling route through New York City.",
+        tripDuration: 75,
+        origin: {
+          name: "Start Point",
+          coordinates: [-74.006, 40.7128],
+          description: "Starting point in New York City."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-74.006, 40.73],
+          description: "Ending point in New York City."
+        },
+        routeType: "Urban"
       },
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-77.0369, 38.9072],
-              [-77.0369, 38.91],
-              [-77.0369, 38.92]
-            ]
-          },
-          distance: 12.3,
-          duration: 105
-        }
+        routeName: "Washington D.C. Route",
+        routeDesc: "A historic route through Washington D.C.",
+        tripDuration: 105,
+        origin: {
+          name: "Start Point",
+          coordinates: [-77.0369, 38.9072],
+          description: "Starting point in Washington D.C."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-77.0369, 38.92],
+          description: "Ending point in Washington D.C."
+        },
+        routeType: "Historic"
       },
       {
-        routes: {
-          geometry: {
-            type: "LineString",
-            coordinates: [
-              [-122.6784, 45.5231],
-              [-122.6784, 45.53],
-              [-122.6784, 45.54]
-            ]
-          },
-          distance: 20.1,
-          duration: 180
-        }
+        routeName: "Portland Route",
+        routeDesc: "A beautiful route through Portland.",
+        tripDuration: 180,
+        origin: {
+          name: "Start Point",
+          coordinates: [-122.6784, 45.5231],
+          description: "Starting point in Portland."
+        },
+        destination: {
+          name: "End Point",
+          coordinates: [-122.6784, 45.54],
+          description: "Ending point in Portland."
+        },
+        routeType: "Scenic"
       }
     ];
 
+    let createdPosts = [];
+
     // Create Posts and Routes in a one-to-one relationship
     for (let i = 0; i < postData.length; i++) {
-      const userId = `user${i + 1}`;
+      const userId = createdUsers[i]._id;
       const post = await createPost(userId, postData[i]);
+      createdPosts.push(post);
 
       // Add postID and uid to the route data
       const routeToCreate = {
         uid: userId,
-        postID: post._id,
+        pid: post._id,
         ...routeData[i]
       };
 
-      const route = await createRoute(routeToCreate);
+      // Last post does not have a route
+      if (i !== postData.length - 1) {
+        const route = await createRoute(routeToCreate);
+      }
+    }
+
+    // Comments on the posts
+    const postComments = [
+      {
+        uid: createdUsers[1]._id,
+        content: "This is amazing!",
+        postId: createdPosts[0]._id
+      },
+      {
+        uid: createdUsers[2]._id,
+        content: "Great work!",
+        postId: createdPosts[1]._id
+      },
+      {
+        uid: createdUsers[3]._id,
+        content: "I love this place!",
+        postId: createdPosts[2]._id
+      },
+      {
+        uid: createdUsers[4]._id,
+        content: "Fantastic view!",
+        postId: createdPosts[3]._id
+      },
+      {
+        uid: createdUsers[0]._id,
+        content: "Beautiful scenery!",
+        postId: createdPosts[4]._id
+      }
+    ];
+
+    for (const commentData of postComments) {
+      await createComment(commentData);
     }
 
     console.log("Sample posts and routes added successfully");

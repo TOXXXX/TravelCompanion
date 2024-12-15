@@ -83,6 +83,13 @@ $(document).ready(function () {
   $(".search-form").on("submit", function (event) {
     event.preventDefault();
 
+    // Validate search input, it can be empty signaling no search term should be used
+    const search = $('input[name="search"]').val();
+    if (typeof search !== "string") {
+      alert("Search term must be a string.");
+      return;
+    }
+
     const formData = {
       isPlan: $('input[name="isPlan"]').is(":checked"),
       isRoute: $('input[name="isRoute"]').is(":checked"),

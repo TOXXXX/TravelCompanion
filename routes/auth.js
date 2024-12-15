@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import User from "../models/users.js";
 import { isAuthenticated } from "../middleware/auth.js";
+import xss from "xss";
 
 const router = express.Router();
 
@@ -14,7 +15,11 @@ router.get("/register", (req, res) => {
 
 router.post("/register", async (req, res) => {
   try {
-    const { userName, password, confirmPassword, email } = req.body;
+    let { userName, password, confirmPassword, email } = req.body;
+    // Prevent XSS attacks
+    // Passwords are omitted because they are hashed before being stored
+    userName = xss(userName);
+    email = xss(email);
     if (password !== confirmPassword) {
       return res.status(400).send("Passwords do not match");
     }
@@ -60,7 +65,10 @@ router.get("/login", (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { userName, password } = req.body;
+    let { userName, password } = req.body;
+    // Password omitted
+    userName = xss(userName);
+
     const user = await User.findOne({ userName });
     if (!user) {
       return res.status(401).send("User does not exist");

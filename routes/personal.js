@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import sharp from "sharp";
+import xss from "xss";
 import * as userService from "../data/userService.js";
 import { isAuthenticated } from "../middleware/auth.js";
 import Post from "../models/posts.js";
@@ -37,8 +38,8 @@ const upload = multer({
 
 router.get("/:username", isAuthenticated, async (req, res) => {
   try {
-    const user = await userService.getUserByUsername(req.params.username);
-    const isCurrentUser = req.session.userName === req.params.username;
+    const user = await userService.getUserByUsername(xss(req.params.username));
+    const isCurrentUser = req.session.userName === xss(req.params.username);
     if (!user) {
       return res.status(401).redirect("/login");
     }
@@ -79,7 +80,7 @@ router.get("/:username", isAuthenticated, async (req, res) => {
 
 router.get("/:username/edit", isAuthenticated, async (req, res) => {
   try {
-    const user = await userService.getUserByUsername(req.params.username);
+    const user = await userService.getUserByUsername(xss(req.params.username));
     if (!user) {
       throw new Error("User not found");
     }
@@ -104,12 +105,15 @@ router.post(
         true
       );
 
-      if (!sessionUser || sessionUser.userName !== req.params.username) {
+      if (!sessionUser || sessionUser.userName !== xss(req.params.username)) {
         throw new Error("Unauthorized access");
       }
 
-      const { formType, currentPassword, newPassword, confirmPassword } =
+      let { formType, currentPassword, newPassword, confirmPassword } =
         req.body;
+
+      // Passwords are omitted
+      formType = xss(formType);
 
       const renderWithError = (errorMessage) => {
         res.render("editPersonalPage", {
@@ -152,7 +156,7 @@ router.post(
         }
 
         const hashedPassword = await userService.hashPassword(newPassword);
-        await userService.updateUserByUsername(req.params.username, {
+        await userService.updateUserByUsername(xss(req.params.username), {
           password: hashedPassword
         });
 
@@ -174,12 +178,12 @@ router.post(
       }
 
       const updatedData = {
-        bio: req.body.bio || "",
-        email: req.body.email || "",
-        phoneNumber: req.body.phoneNumber || "",
+        bio: xss(req.body.bio) || "",
+        email: xss(req.body.email) || "",
+        phoneNumber: xss(req.body.phoneNumber) || "",
         profilePicture:
           profilePicturePath ||
-          req.body.profilePicture ||
+          xss(req.body.profilePicture) ||
           "/default-profile.svg"
       };
 
@@ -210,8 +214,11 @@ router.post(
         return renderWithError(validationError);
       }
 
-      await userService.updateUserByUsername(req.params.username, updatedData);
-      return res.redirect(`/personal/${req.params.username}`);
+      await userService.updateUserByUsername(
+        xss(req.params.username),
+        updatedData
+      );
+      return res.redirect(`/personal/${xss(req.params.username)}`);
     } catch (err) {
       res.render("editPersonalPage", {
         title: "Edit Personal Page",
@@ -225,7 +232,9 @@ router.post(
 router.post("/:username/toggleFollow", isAuthenticated, async (req, res) => {
   try {
     const currentUserId = req.session.userId;
-    const targetUser = await userService.getUserByUsername(req.params.username);
+    const targetUser = await userService.getUserByUsername(
+      xss(req.params.username)
+    );
 
     if (!targetUser) {
       return res.status(404).json({ error: "Target user not found" });
@@ -247,7 +256,9 @@ router.post("/:username/toggleFollow", isAuthenticated, async (req, res) => {
 
 router.get("/:username/followers", isAuthenticated, async (req, res) => {
   try {
-    const targetUser = await userService.getUserByUsername(req.params.username);
+    const targetUser = await userService.getUserByUsername(
+      xss(req.params.username)
+    );
     if (!targetUser) {
       throw new Error("User not found");
     }
@@ -270,7 +281,9 @@ router.get("/:username/followers", isAuthenticated, async (req, res) => {
 
 router.get("/:username/following", isAuthenticated, async (req, res) => {
   try {
-    const targetUser = await userService.getUserByUsername(req.params.username);
+    const targetUser = await userService.getUserByUsername(
+      xss(req.params.username)
+    );
     if (!targetUser) {
       throw new Error("User not found");
     }
@@ -297,9 +310,11 @@ router.get("/:username/following", isAuthenticated, async (req, res) => {
 
 router.post("/:username/comment", isAuthenticated, async (req, res) => {
   try {
-    const targetUser = await userService.getUserByUsername(req.params.username);
+    const targetUser = await userService.getUserByUsername(
+      xss(req.params.username)
+    );
     if (!targetUser) throw new Error("User not found");
-    const commentText = req.body.commentText;
+    const commentText = xss(req.body.commentText);
 
     if (!commentText || commentText.length > 150) {
       return res.status(400).render("error", {
@@ -313,7 +328,7 @@ router.post("/:username/comment", isAuthenticated, async (req, res) => {
 
     await userService.addCommentToUser(targetUser._id, commentData);
 
-    res.redirect(`/personal/${req.params.username}`);
+    res.redirect(`/personal/${xss(req.params.username)}`);
   } catch (err) {
     res.status(500).render("error", { message: "Failed to add comment" });
   }
@@ -321,8 +336,11 @@ router.post("/:username/comment", isAuthenticated, async (req, res) => {
 // Delete selected comments
 router.post("/:username/delete-comments", isAuthenticated, async (req, res) => {
   try {
-    const { username } = req.params;
-    const { commentId, selectedComments } = req.body;
+    const { username } = xss(req.params);
+    let { commentId, selectedComments } = req.body;
+    commentId = xss(commentId);
+    selectedComments = xss(selectedComments);
+
     const sessionUser = await userService.getUserByUsername(
       req.session.userName
     );
@@ -346,7 +364,7 @@ router.post("/:username/delete-comments", isAuthenticated, async (req, res) => {
 
     return res.redirect(`/personal/${username}`);
   } catch (err) {
-    return res.redirect(`/personal/${req.params.username}`);
+    return res.redirect(`/personal/${xss(req.params.username)}`);
   }
 });
 

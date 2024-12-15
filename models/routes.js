@@ -1,9 +1,14 @@
 import { Schema, model } from "mongoose";
+import mongoose from "mongoose";
 
 const RouteSchema = new Schema(
   {
-    uid: { type: String, required: true },
-    pid: { type: String, required: true },
+    uid: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    postId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+      required: true
+    },
     routeName: { type: String, required: true },
     routeDesc: { type: String },
     tripDuration: { type: Number },
@@ -23,7 +28,8 @@ const RouteSchema = new Schema(
       },
       description: { type: String }
     },
-    routeType: { type: String, required: true }
+    routeType: { type: String, required: true },
+    mapDataUrl: { type: String, required: true }
   },
   { timestamps: true }
 );

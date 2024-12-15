@@ -14,7 +14,6 @@ const PostSchema = new Schema({
   title: { type: String, required: true },
   intro: { type: String },
   content: { type: mongoose.Schema.Types.Mixed, required: true },
-  routeID: { type: String },
   created: { type: Date, default: Date.now },
   lastEdited: { type: Date, default: Date.now },
   comments: { type: [String], default: [] },

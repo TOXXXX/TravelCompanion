@@ -1,0 +1,278 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+header {
+    background-color: #3498db;
+    color: #fff;
+    padding: 1rem;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 20px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h2 {
+    color: #2c3e50;
+}
+
+.create-route-container {
+    display: flex;
+    gap: 20px;
+}
+
+.map-container {
+    flex: 1;
+    height: 500px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.route-form {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+textarea,
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+}
+
+.waypoint {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.add-waypoint {
+    background-color: #2ecc71;
+}
+
+footer {
+    background-color: #34495e;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .create-route-container {
+        flex-direction: column;
+    }
+
+    .map-container {
+        height: 300px;
+    }
+}
+
+h3, h4 {
+    margin: 0;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+  
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+.card-title h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+  
+.card-type {
+    color: #6b7280;
+    padding-left: 0.75rem;
+}
+  
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+  
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+  
+.card-description {
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+  
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.875rem;
+}
+  
+.card-metadata,
+.card-interactions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+  
+.metadata-item,
+.interaction-item {
+    display: flex;
+    align-items: center;
+}
+
+.interaction-item {
+    cursor: pointer;
+}
+
+.icon {
+    margin-right: 0.25rem;
+}
+
+.red-icon {
+    color: red;
+}
+
+.search-form {
+    display: flex;
+    flex-direction: column;
+}
+  
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+  
+.search-input {
+    flex-grow: 1;
+    height: 2.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+  
+.search-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.filter-options {
+    display: flex;
+    gap: 1rem;
+}
+  
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+  
+.checkbox-button {
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid #2563eb;
+    border-radius: 0.25rem;
+}
+
+h3 a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h3 a:hover {
+    text-decoration: none;
+    color: inherit;
+}

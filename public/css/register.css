@@ -2,16 +2,19 @@ form {
     display: flex;
     flex-direction: column;
 }
+
 label {
     margin-top: 10px;
     font-weight: bold;
 }
+
 input {
     padding: 8px;
     margin-top: 5px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+
 button {
     background-color: #3498db;
     color: #fff;
@@ -21,17 +24,21 @@ button {
     cursor: pointer;
     margin-top: 20px;
 }
+
 button:hover {
     background-color: #2980b9;
 }
+
 .login-link {
     text-align: center;
     margin-top: 20px;
 }
+
 .login-link a {
     color: #3498db;
     text-decoration: none;
 }
+
 .login-link a:hover {
     text-decoration: underline;
 }

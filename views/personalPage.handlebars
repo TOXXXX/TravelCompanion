@@ -1,0 +1,124 @@
+<div class="container">
+  <section class="personal-page">
+
+    <div class="header">
+      <div class="profile-info">
+        <img class="profile-picture"
+          src="{{#if user.profilePicture}}{{user.profilePicture}}{{else}}/default-profile.svg{{/if}}"
+          alt="{{user.userName}}'s Profile Picture">
+        <h1>{{user.userName}}</h1>
+        <p class="bio">{{user.bio}}</p>
+        <p class="contact-info">Email: {{user.email}}</p>
+        <p class="contact-info">Phone: {{user.phoneNumber}}</p>
+        {{!-- <p class="account-created">Account Created: {{user.accountCreated}}</p> --}}
+        {{#if isCurrentUser}}
+        <a href="/personal/{{user.userName}}/edit" class="btn btn-edit">Edit Profile</a>
+        {{else}}
+        <section class="follow-section">
+          <button id="follow-button" class="btn btn-follow" data-username="{{user.userName}}">
+            {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+          </button>
+        </section>
+
+
+        {{#if successMessage}}
+        <div class="alert alert-success">{{successMessage}}</div>
+        {{/if}}
+
+        {{#if errorMessage}}
+        <div class="alert alert-danger">{{errorMessage}}</div>
+        {{/if}}
+
+        {{/if}}
+
+      </div>
+    </div>
+
+    <div class="content">
+
+      <section class="user-stats">
+        <div class="stats-item">
+          <p><strong>Followers:</strong> {{user.followersCount}}</p>
+          <a href="/personal/{{user.userName}}/followers" class="btn btn-view">View Followers
+            {{!-- {{#if user.followersCount}}View Followers{{else}}No Followers{{/if}} --}}
+          </a>
+        </div>
+        <div class="stats-item">
+          <p><strong>Following:</strong> {{user.followingCount}}</p>
+          <a href="/personal/{{user.userName}}/following" class="btn btn-view">View Following
+            {{!-- {{#if user.followingCount}}View Following{{else}}No Following{{/if}} --}}
+          </a>
+        </div>
+        <div class="stats-item">
+          <p><strong>Posts:</strong> {{posts.length}}</p>
+        </div>
+      </section>
+
+
+      <section class="posts">
+        <h2>Travel Plans & Routes</h2>
+        {{#if user.posts.length}}
+        <ul>
+          {{#each user.posts}}
+          <li>
+            <a href="/post/{{this.id}}" class="post-link">
+              <h3>{{this.title}}</h3>
+              <p>{{this.intro}}</p>
+              <small>Created on {{this.created}}</small>
+            </a>
+          </li>
+          {{/each}}
+        </ul>
+        {{else}}
+        <p>No posts available yet.</p>
+        {{/if}}
+      </section>
+
+
+
+
+      <section class="comments">
+        <h2>Comments</h2>
+
+        {{#if user.personalPageComments.length}}
+        <form action="/personal/{{user.userName}}/delete-comments" method="POST">
+          <ul>
+            {{#each user.personalPageComments}}
+            <li>
+              <p>{{this.content}}</p>
+              <small>By {{this.uid.userName}} on {{this.created}}</small>
+              {{#if (or (eq this.uid.userName ../session.userName) ../isCurrentUser)}}
+              <button type="submit" name="commentId" value="{{this._id}}" class="btn btn-delete">Delete</button>
+
+              {{!-- {{#if isCurrentUser}} --}}
+              {{!-- <input type="checkbox" name="selectedComments" value="{{this._id}}" /> --}}
+              {{/if}}
+            </li>
+            {{/each}}
+          </ul>
+
+          {{!-- {{#if isCurrentUser}}
+          <button type="submit" class="btn btn-danger">Delete Selected Comments</button>
+          {{/if}} --}}
+        </form>
+        {{else}}
+        <p>No comments yet. Be the first to comment!</p>
+        {{/if}}
+
+        {{#unless isCurrentUser}}
+        <form action="/personal/{{user.userName}}/comment" method="POST">
+          <textarea name="commentText" placeholder="Write a comment..." required></textarea>
+          <button type="submit" class="btn btn-comment">Post Comment</button>
+        </form>
+        {{/unless}}
+      </section>
+
+
+
+
+
+    </div>
+  </section>
+</div>
+
+<script src="/js/personal.js"></script>

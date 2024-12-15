@@ -1,0 +1,57 @@
+<h2>Create a New Post About Your Route or Plan</h2>
+<div class="create-route-container">
+  {{!-- <div class="map-container">
+    <!-- This div would contain the Mapbox map -->
+    <p style="text-align: center; padding-top: 200px;">Mapbox Map would be embedded here</p>
+  </div> --}}
+  <div class="route-form">
+    <form name="editPost" id="editPost">
+      <div class="form-group">
+        <label for="postTitle">Post Title</label>
+        <input type="text" id="postTitle" name="postTitle"
+        value="{{post.title}}"
+         required>
+      </div>
+      <div class="form-group">
+        <label for="postDescription">Brief Description</label>
+        <textarea id="postDescription" name="postDescription" rows="3" 
+        placeholder="Enter a brief description of your route/plan"
+        required>{{post.intro}}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="postContent">Post Content</label>
+        <textarea id="postContent" name="postContent" rows="10" 
+        placeholder="Tell us more about what your route/plan entails"
+         required>{{post.content.description}}</textarea>
+      </div>
+      {{!-- <div class="form-group">
+        <label for="route-duration">Duration (days)</label>
+        <input type="number" id="route-duration" name="route-duration" min="1" required>
+      </div> --}}
+      <div class="form-group">
+        <p>If it is somewhere you plan to visit, choose "Plan"<br>
+        If it is somewhere you have visited or only hypothetical, choose "Route"
+        </p>
+        <label for="postType">Plan/Route</label>
+        <select id="postType" name="postType">
+          <option value="plan" {{#if post.isPlan}}selected{{/if}}>Plan</option>
+          <option value="route" {{#unless post.isPlan}}selected{{/unless}}>Route</option>
+        </select>
+      </div>
+      <div class="form-group" id = "start-div">
+        <label for="startDate">Start Date</label>
+        <input type="date" id="startDate" name="startDate" value="{{startDate}}" required>
+      </div>
+      <div class="form-group" id = "end-div">
+        <label for="endDate">End Date</label>
+        <input type="date" id="endDate" name="endDate" value="{{endDate}}" required>
+      </div>
+      <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+        {{!-- Frontend validation error --}}
+      </div>
+      <button type="submit" class="btn" name="submitBTN" id="submitBTN" >Create Route</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/editPost.js"></script>

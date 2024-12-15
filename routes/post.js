@@ -91,7 +91,9 @@ router
             ? item.likeByUsers.includes(req.session.userId)
             : false,
           distance: routes.distance || "N/A",
-          duration: routes.duration || "N/A"
+          duration: routes.duration || "N/A",
+          // TODO: Location is currently not available
+          locations: "N/A"
         };
       });
 

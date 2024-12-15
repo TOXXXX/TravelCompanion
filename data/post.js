@@ -65,7 +65,7 @@ export const getFilteredPostsWithRoute = async (
 
   // Filter for following users
   if (following) {
-    matchStage.$match.author = { $in: userIds };
+    matchStage.$match.uid = { $in: userIds };
   }
 
   try {

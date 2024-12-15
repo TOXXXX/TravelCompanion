@@ -313,3 +313,13 @@ export const deleteCommentsByIds = async (commentIds, userId) => {
     throw new Error(`Failed to delete selected comments: ${err.message}`);
   }
 };
+
+// Randomly select 3 users
+export const getRandomUsers = async () => {
+  try {
+    const users = await User.aggregate([{ $sample: { size: 3 } }]);
+    return users;
+  } catch (error) {
+    throw new Error(`Unable to get random users: ${error.message}`);
+  }
+};

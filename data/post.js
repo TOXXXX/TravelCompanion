@@ -165,3 +165,34 @@ export const LikePost = async (postId, userId) => {
     throw new Error(`Unable to like post: ${error.message}`);
   }
 };
+
+// Randomly select 3 posts
+export const getRandomPosts = async () => {
+  try {
+    const posts = await Post.aggregate([
+      { $sample: { size: 3 } },
+      {
+        $addFields: {
+          postIDString: { $toString: "$_id" } // Convert _id (ObjectId) to string
+        }
+      },
+      {
+        $lookup: {
+          from: "routes",
+          localField: "postIDString", // Use the string version of _id
+          foreignField: "pid",
+          as: "routeInfo"
+        }
+      },
+      {
+        $unwind: {
+          path: "$routeInfo",
+          preserveNullAndEmptyArrays: true // Keep posts without routes
+        }
+      }
+    ]);
+    return posts;
+  } catch (error) {
+    throw new Error(`Unable to get random posts: ${error.message}`);
+  }
+};

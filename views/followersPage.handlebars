@@ -1,0 +1,37 @@
+<div class="container">
+  <a href="/personal/{{session.userName}}">Back</a> 
+  <h1>{{user.userName}}'s Followers</h1>
+
+  <section class="followers-list">
+    {{#if followers.length}}
+      <ul>
+        {{#each followers}}
+          <li>
+            <img src="{{profilePicture}}" alt="{{userName}}'s Profile Picture" class="profile-pic">
+            <a href="/personal/{{userName}}">{{userName}}</a>
+            <p>{{bio}}</p>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="no-following">No followers yet.</p>
+    {{/if}}
+  </section>
+
+  {{!-- <section class="recommended-users">
+    <h2>Users You May Know</h2>
+    {{#if recommendedUsers.length}}
+      <ul>
+        {{#each recommendedUsers}}
+          <li>
+            <img src="{{profilePicture}}" alt="{{userName}}'s Profile Picture" class="profile-pic">
+            <a href="/personal/{{userName}}">{{userName}}</a>
+            <p>{{bio}}</p>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p>No recommendations available at the moment.</p>
+    {{/if}}
+  </section> --}}
+</div>

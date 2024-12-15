@@ -4,6 +4,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import registerRoutes from "./routes/index.js";
 import seedDatabase from "./seed.js";
+import flash from "connect-flash";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import { setAuth } from "./middleware/auth.js";
@@ -20,7 +21,11 @@ const hbs = handlebars.create({
     },
     json: (context) => {
       return JSON.stringify(context);
-    }
+    },
+    eq: (a, b) => a === b,
+    or: (a, b) => a || b,
+    and: (a, b) => a && b,
+    not: (a) => !a
   },
   runtimeOptions: {
     allowProtoPropertiesByDefault: true,
@@ -63,7 +68,7 @@ const startServer = async () => {
       next();
     });
     app.use(setAuth);
-
+    app.use(flash());
     registerRoutes(app);
 
     app.listen(port, async () => {

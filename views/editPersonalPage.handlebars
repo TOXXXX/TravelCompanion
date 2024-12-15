@@ -1,4 +1,5 @@
 <div class="edit-personal-page">
+   <a href="/personal/{{session.userName}}">Back</a> 
   <h1>Edit Personal Information</h1>
   {{#if errorMessage}}
   <div class="error-message">{{errorMessage}}</div>
@@ -12,9 +13,34 @@
     <input type="hidden" name="formType" value="profile">
     <div class="form-group">
       <label for="bio">Personal Bio:</label>
-      <textarea name="bio" id="bio" placeholder="Enter your bio">{{user.bio}}</textarea>
+      <textarea name="bio" id="bio" maxlength="100"
+        placeholder="Enter your bio">{{user.bio}}</textarea>
     </div>
-
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input
+      type="email"
+      name="email"
+      id="email"
+      value="{{user.email}}"
+      placeholder="Enter your email"
+       
+    />
+     <small class="error-message hidden" id="emailError">Invalid email address</small>
+    </div>
+    <div class="form-group">
+      <label for="phoneNumber">Phone Number:</label>
+      <input
+      type="text"
+      name="phoneNumber"
+      id="phoneNumber"
+      value="{{user.phoneNumber}}"
+      placeholder="Enter your phone number"
+      title="Phone number must be 7-15 digits and can include dashes or spaces"
+      required
+    />
+    <small class="error-message hidden" id="phoneError">Invalid phone number</small>
+    </div>
     <div class="form-group">
       <label for="profilePicture">Profile Picture:</label>
       <input type="file" name="profilePicture" id="profilePicture" accept="image/jpeg, image/png">
@@ -27,26 +53,28 @@
 
   <!-- Update Password -->
   <form id="password-form" action="/personal/{{user.userName}}/edit" method="POST">
-    <input type="hidden" name="formType" value="password">
+    <input type="hidden" name="formType" value="password" >
     <div class="form-group">
       <label for="currentPassword">Current Password:</label>
-      <input type="password" name="currentPassword" id="currentPassword">
+      <input type="password" name="currentPassword" id="currentPassword" class="pwdInput" required>
     </div>
 
     <div class="form-group">
       <label for="newPassword">New Password:</label>
-      <input type="password" name="newPassword" id="newPassword">
+      <input type="password" name="newPassword" id="newPassword" class="pwdInput" required>
     </div>
 
     <div class="form-group">
       <label for="confirmPassword">Confirm New Password:</label>
-      <input type="password" name="confirmPassword" id="confirmPassword">
+      <input type="password" name="confirmPassword" id="confirmPassword" class="pwdInput"  required>
     </div>
 
     <div class="form-group">
-      <button type="submit" class="btn btn-success">Save Password</button>
+      <button type="submit" class="btn btn-success pwdSubmit">Save Password</button>
     </div>
   </form>
 
- 
+
 </div>
+
+<script src="/js/editPersonalPage.js"></script>

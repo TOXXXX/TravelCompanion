@@ -1,8 +1,6 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
-import Post from "./posts.js";
-import Comment from "./comments.js";
-import Route from "./routes.js";
+import mongoose from "mongoose";
 
 const UserSchema = new Schema({
   userName: { type: String, required: true, unique: true },
@@ -13,7 +11,9 @@ const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   phoneNumber: { type: String, unique: true, sparse: true },
   posts: { type: [String], default: [] },
-  personalPageComments: { type: [String], default: [] },
+  personalPageComments: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "Comment" }
+  ],
   profilePicture: { type: String, default: "/default-profile.svg" },
   bio: { type: String, default: "This user has not set a bio yet." },
   role: { type: String, default: "User" },

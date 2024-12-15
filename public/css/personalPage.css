@@ -65,7 +65,8 @@ body {
 
 .btn-edit,
 .btn-view,
-.btn-follow{
+.btn-follow,
+.btn-unfollow {
   padding: 10px 20px;
   border-radius: 5px;
   text-decoration: none;
@@ -84,7 +85,7 @@ body {
 }
 
 .btn-edit {
-  background-color: #007bff;
+  background-color: #3498D8;
   color: #fff;
 }
 
@@ -101,8 +102,9 @@ body {
   background-color: #218838;
 }
 
-.btn-follow {
-  background-color: #007bff;
+.btn-follow,
+.btn-unfollow {
+  background-color: #3498D8;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -112,10 +114,7 @@ body {
   border-radius: 5px;
 }
 
-.btn-follow:hover {
-  background-color: #0056b3;
-}
-
+ 
 .content {
   padding: 20px;
 }
@@ -123,11 +122,11 @@ body {
 .user-stats {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 20px;
-  padding: 10px 0;
-  background-color: #f4f4f4;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .user-stats .stats-item {
@@ -143,7 +142,13 @@ body {
   font-size: 1.4rem;
   color: #000;
 }
-
+.posts{
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
 .posts h2 {
   font-size: 1.8rem;
   margin-bottom: 15px;
@@ -179,12 +184,17 @@ body {
 }
 
 .comments {
-  margin-top: 30px;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
 
 .comments h2 {
-  font-size: 1.8rem;
   margin-bottom: 15px;
+  font-size: 18px;
+  color: #333;
 }
 
 .comments ul {
@@ -205,6 +215,30 @@ body {
 .comments li small {
   color: #888;
   font-size: 0.85rem;
+}
+
+textarea#commentContent {
+  width: 95%;
+  max-width: 95%;  
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+}
+.comment-item {
+  word-wrap: break-word; 
+  overflow-wrap: break-word; 
+  white-space: pre-wrap;  
+  max-width: 100%; 
+  box-sizing: border-box;  
+}
+
+.comment-content {
+
+  word-wrap: break-word;  
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 .personal-header {
   display: flex;
@@ -229,26 +263,20 @@ body {
 }
 
 .btn-edit {
-  background-color: #007bff;
+  background-color: #3498D8;
   color: #fff;
 }
 
 .btn-edit:hover {
   background-color: #0056b3;
 }
+ 
 
-.btn-follow {
-  background-color: #ffc107;
-  color: #fff;
-}
-
-.btn-follow:hover {
-  background-color: #e0a800;
-}
-
+ 
 .btn-comment {
   background-color: #28a745;
   color: #fff;
+  border: transparent;
 }
 
 .btn-comment:hover {
@@ -263,6 +291,67 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+.error-message {
+  color: red;
+  margin-top: 10px;
+  background-color: #ffe6e6;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid red;
+}
+
+
+.success-message {
+  color: #28a745;
+  margin-top: 10px;
+  background-color: #83f29d3d;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #28a745;
+  /* display: none; */
+}
+.comments {
+  margin-top: 20px;
+}
+
+.comments ul {
+  list-style: none;
+  padding: 0;
+}
+
+.comments li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.comments li p {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.comments li small {
+  color: #888;
+  font-size: 0.9em;
+}
+
+ 
+.btn-delete {
+  background-color:transparent;
+  border: transparent;
+  color: #f44336;
+}
+
+.btn-danger {
+  background-color:transparent;
+  border: transparent;
+  color: #f44336;
+}
+ 
+
+ 
 
 /* @media (max-width: 768px) {
   .post-list {

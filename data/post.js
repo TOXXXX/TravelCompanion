@@ -1,4 +1,6 @@
 import Post from "../models/posts.js";
+import User from "../models/users.js";
+import mongoose from "mongoose";
 
 export const getPostById = async (postId) => {
   try {
@@ -25,6 +27,14 @@ export const createPost = async (userId, postData) => {
   try {
     const newPost = new Post({ ...postData, uid: userId });
     await newPost.save();
+
+    const objectIdUserId = mongoose.Types.ObjectId(userId);
+    await User.findByIdAndUpdate(
+      objectIdUserId,
+      { $push: { posts: newPost._id } },
+      { new: true }
+    );
+
     return newPost;
   } catch (error) {
     throw new Error(`Unable to create post: ${error.message}`);
@@ -125,8 +135,8 @@ export const updatePostById = async (postId, updateData) => {
     throw new Error(`Unable to update post: ${e.message}`);
   }
 };
-
 // Like a post
+
 export const LikePost = async (postId, userId) => {
   try {
     let state = false; // The state of the like, true for liked, false for unliked

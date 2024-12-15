@@ -6,7 +6,7 @@ import {
   getFilteredPostsWithRoute,
   getPostById,
   deletePostById,
-  updatePostById, 
+  updatePostById,
   LikePost
 } from "../data/post.js";
 import {
@@ -69,6 +69,17 @@ router
       );
 
       posts = posts.map((item) => {
+        // Post may not have route, so check if it exists
+        let routes;
+        if (item.routeInfo) {
+          routes = item.routeInfo.routes;
+        } else {
+          routes = {
+            distance: "N/A",
+            duration: "N/A"
+          };
+        }
+
         return {
           id: item._id,
           title: item.title,
@@ -79,8 +90,8 @@ router
           liked: req.session.userId
             ? item.likeByUsers.includes(req.session.userId)
             : false,
-          distance: item.routeInfo.routes.distance || "N/A",
-          duration: item.routeInfo.routes.duration || "N/A"
+          distance: routes.distance || "N/A",
+          duration: routes.duration || "N/A"
         };
       });
 

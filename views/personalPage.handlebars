@@ -15,13 +15,21 @@
         <a href="/personal/{{user.userName}}/edit" class="btn btn-edit">Edit Profile</a>
         {{else}}
         <section class="follow-section">
-          <form action="/personal/{{user.userName}}/toggleFollow" method="POST">
-            <button type="submit" class="btn btn-follow">
-              {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
-            </button>
-          </form>
+          <button id="follow-button" class="btn btn-follow" data-username="{{user.userName}}">
+            {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+          </button>
         </section>
         <a href="/report/{{user.userName}}" class="btn btn-report">Report User</a>
+
+
+        {{#if successMessage}}
+        <div class="alert alert-success">{{successMessage}}</div>
+        {{/if}}
+
+        {{#if errorMessage}}
+        <div class="alert alert-danger">{{errorMessage}}</div>
+        {{/if}}
+
         {{/if}}
       </div>
     </div>
@@ -30,59 +38,87 @@
 
       <section class="user-stats">
         <div class="stats-item">
-          <p><strong>Followers:</strong> {{user.followers.length}}</p>
+          <p><strong>Followers:</strong> {{user.followersCount}}</p>
+          <a href="/personal/{{user.userName}}/followers" class="btn btn-view">View Followers
+            {{!-- {{#if user.followersCount}}View Followers{{else}}No Followers{{/if}} --}}
+          </a>
         </div>
         <div class="stats-item">
-          <p><strong>Following:</strong> {{user.following.length}}</p>
+          <p><strong>Following:</strong> {{user.followingCount}}</p>
+          <a href="/personal/{{user.userName}}/following" class="btn btn-view">View Following
+            {{!-- {{#if user.followingCount}}View Following{{else}}No Following{{/if}} --}}
+          </a>
         </div>
         <div class="stats-item">
-          <p><strong>Posts:</strong> {{posts.length}}</p>
+          <p><strong>Posts:</strong> {{user.posts.length}}</p>
         </div>
       </section>
 
+
       <section class="posts">
         <h2>Travel Plans & Routes</h2>
-        {{#if posts.length}}
-        <div class="post-list">
-          {{#each posts}}
-          <article class="post">
-            <h3>{{this.title}}</h3>
-            <p>{{this.summary}}</p>
-            <a href="/routes/{{this._id}}" class="btn btn-view">View Details</a>
-          </article>
+        {{#if user.posts.length}}
+        <ul>
+          {{#each user.posts}}
+          <li>
+            <a href="/post/{{this.id}}" class="post-link">
+              <h3>{{this.title}}</h3>
+              <p>{{this.intro}}</p>
+              <small>Created on {{this.created}}</small>
+            </a>
+          </li>
           {{/each}}
-        </div>
+        </ul>
         {{else}}
-        <p class="no-posts">No travel plans or routes to display yet.</p>
+        <p>No posts available yet.</p>
         {{/if}}
       </section>
+
 
 
 
       <section class="comments">
         <h2>Comments</h2>
+
         {{#if user.personalPageComments.length}}
-        <ul>
-          {{#each user.personalPageComments}}
-          <li>
-            <strong>{{this.author}}</strong>: {{this.commentText}}
-            <small>({{this.createdAt}})</small>
-          </li>
-          {{/each}}
-        </ul>
+        <form action="/personal/{{user.userName}}/delete-comments" method="POST">
+          <ul class="comments-list">
+            {{#each user.personalPageComments}}
+            <li class="comment-item">
+              <p class="comment-content">{{this.content}}</p>
+              <small class="comment-meta">
+                By {{#if this.uid}}<a href="/personal/{{this.uid.userName}}" class="comment-author-link">{{this.uid.userName}}</a>{{else}}Unknown User{{/if}} on {{this.created}}
+              </small>
+              {{#if (or (eq this.uid.userName ../session.userName) ../isCurrentUser)}}
+              <button type="submit" name="commentId" value="{{this._id}}" class="btn btn-delete">
+                <i class="far fa-trash-can"></i>
+              </button>
+              {{/if}}
+            </li>
+            {{/each}}
+          </ul>
+        </form>
         {{else}}
         <p>No comments yet. Be the first to comment!</p>
         {{/if}}
 
         {{#unless isCurrentUser}}
-        <form action="/comments/{{user.userName}}" method="POST">
-          <textarea name="commentText" placeholder="Write a comment..." required></textarea>
+        <form id="commentForm" action="/personal/{{user.userName}}/comment" method="POST">
+          <textarea id="commentContent" name="commentText" placeholder="Write a comment..." maxlength="150"
+            required></textarea>
           <button type="submit" class="btn btn-comment">Post Comment</button>
         </form>
         {{/unless}}
       </section>
 
 
+
+
+
+
+
     </div>
   </section>
 </div>
+
+<script src="/js/personal.js"></script>

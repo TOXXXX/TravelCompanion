@@ -43,9 +43,9 @@ const seedDatabase = async () => {
         role: "Moderator"
       },
       {
-        userName: "Junran Tao",
+        userName: "JunranTao",
         password: "1234",
-        email: "Junran Tao@example.com",
+        email: "JunranTao@example.com",
         phoneNumber: "123-456-7893",
         followers: [],
         following: [],
@@ -54,9 +54,9 @@ const seedDatabase = async () => {
         role: "Moderator"
       },
       {
-        userName: "Arman Singh",
+        userName: "ArmanSingh",
         password: "1234",
-        email: "Arman Singh@example.com",
+        email: "ArmanSingh@example.com",
         phoneNumber: "123-456-7894",
         followers: [],
         following: [],

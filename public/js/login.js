@@ -6,6 +6,13 @@ document
     const userName = document.getElementById("userName").value;
     const password = document.getElementById("password").value;
 
+    if (!userName || !password) {
+      document.getElementById("message").textContent =
+        "Username and password are required.";
+      document.getElementById("message").style.color = "red";
+      return;
+    }
+
     try {
       const response = await fetch("/login", {
         method: "POST",
@@ -16,8 +23,8 @@ document
       });
 
       if (response.ok) {
-        document.getElementById("message").textContent =
-          response.json().message;
+        const data = await response.json();
+        document.getElementById("message").textContent = data.message;
         document.getElementById("message").style.color = "green";
         window.location.href = "/"; // Redirect to home page
       } else {

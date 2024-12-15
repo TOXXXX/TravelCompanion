@@ -75,7 +75,17 @@ body {
 
 .btn-success {
   background-color: #28a745;
+  border: transparent;
   color: #ffffff;
+  display: inline-block;
+  padding: 10px 15px;
+  font-size: 14px;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
 }
 
 .btn-success:hover {
@@ -123,5 +133,16 @@ body {
 }
 
 .password-section {
+  margin-top: 20px;
+}
+.pwdInput{
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.pwdSubmit{
   margin-top: 20px;
 }

@@ -2,6 +2,7 @@ import authRoutes from "./auth.js";
 import homeRoutes from "./home.js";
 import postRoutes from "./post.js";
 import personalRoutes from "./personal.js";
+import compDiscRoutes from "./compDisc.js";
 import mapRoutes from "./routes.js";
 
 // Wrapper function to register routes
@@ -10,6 +11,7 @@ const registerRoutes = (app) => {
   app.use("/", authRoutes);
   app.use("/post", postRoutes);
   app.use("/personal", personalRoutes);
+  app.use("/companions", compDiscRoutes);
   app.use("/route", mapRoutes);
 };
 

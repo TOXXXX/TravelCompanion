@@ -39,7 +39,6 @@ export const getUserByUsername = async (username, includePassword = false) => {
       })
       .populate("followers following", "userName profilePicture");
 
-    // Dynamically add the password field if needed
     if (includePassword) {
       query = query.select(
         "userName bio profilePicture email phoneNumber followers following password"
@@ -54,11 +53,7 @@ export const getUserByUsername = async (username, includePassword = false) => {
     if (!user) {
       throw new Error("User not found");
     }
-    console.log(
-      "Fetched user with password:",
-      includePassword ? user.password : "Password not fetched"
-    );
-    console.log("Fetched user with comments:", user);
+
     return user;
   } catch (error) {
     throw new Error(`Unable to get user by username: ${error.message}`);
@@ -116,11 +111,11 @@ export const deleteUserById = async (userId) => {
 export const addCommentToUser = async (userId, commentData) => {
   try {
     const comment = new Comment(commentData);
-    await comment.save(); // Save the full comment object
+    await comment.save();
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { $push: { personalPageComments: comment._id } }, // Push only the comment ID
+      { $push: { personalPageComments: comment._id } },
       { new: true }
     ).populate("personalPageComments");
 
@@ -163,7 +158,6 @@ export const toggleFollowUser = async (currentUserId, targetUserId) => {
     const isFollowing = currentUser.following.includes(targetUserId);
 
     if (isFollowing) {
-      // Unfollow logic
       currentUser.following = currentUser.following.filter(
         (id) => id.toString() !== targetUserId.toString()
       );
@@ -171,12 +165,10 @@ export const toggleFollowUser = async (currentUserId, targetUserId) => {
         (id) => id.toString() !== currentUserId.toString()
       );
     } else {
-      // Follow logic
       currentUser.following.push(targetUserId);
       targetUser.followers.push(currentUserId);
     }
 
-    // Save updates
     await currentUser.save();
     await targetUser.save();
 
@@ -193,12 +185,8 @@ export const toggleFollowUser = async (currentUserId, targetUserId) => {
 
 export const verifyPassword = async (hashedPassword, plainPassword) => {
   try {
-    console.log("Hashed Password:", hashedPassword);
-    console.log("Plain Password:", plainPassword);
-
     return await bcrypt.compare(plainPassword, hashedPassword);
   } catch (err) {
-    console.error("Error in verifyPassword:", err.message);
     throw new Error("Password verification failed");
   }
 };
@@ -213,8 +201,6 @@ export const hashPassword = async (password) => {
   }
 };
 
-// Retrive following user ids from current user
-// CheckFollowing
 export const isFollowing = async (currentUserId, targetUserId) => {
   try {
     const currentUser = await User.findById(currentUserId);
@@ -280,7 +266,6 @@ export const getCommentById = async (commentId) => {
     if (!comment) throw new Error("Comment not found");
     return comment;
   } catch (error) {
-    console.error("Error fetching comment by ID:", error.message);
     throw new Error(`Unable to get comment: ${error.message}`);
   }
 };
@@ -292,39 +277,16 @@ export const deleteCommentById = async (commentId) => {
       { personalPageComments: commentId },
       { $pull: { personalPageComments: commentId } }
     );
-
     return comment;
   } catch (error) {
     throw new Error(`Unable to delete comment: ${error.message}`);
   }
 };
-// export const deleteCommentById = async (commentId, userId) => {
-//   try {
-//     console.log("Attempting to delete comment with ID:", commentId);
-//     const comment = await Comment.findById(commentId);
-
-//     if (!comment) throw new Error("Comment not found");
-//     console.log("Deleting comment:", comment);
-//     // Ensure the user owns the comment or it's on their personal page
-//     if (comment.uid.toString() !== userId.toString()) {
-//       throw new Error("Unauthorized to delete this comment");
-//     }
-
-//     await Comment.findByIdAndDelete(commentId);
-
-//     // Remove the comment from the user's personalPageComments array
-//     await User.updateOne({ _id: userId }, { $pull: { personalPageComments: commentId } });
-//   } catch (err) {
-//     throw new Error(`Failed to delete comment: ${err.message}`);
-//   }
-// };
 
 export const deleteCommentsByIds = async (commentIds, userId) => {
   try {
-    console.log("Attempting to delete comments with IDs:", commentIds);
     const comments = await Comment.find({ _id: { $in: commentIds } });
 
-    // Ensure all comments belong to the user or their page
     for (const comment of comments) {
       if (comment.uid.toString() !== userId.toString()) {
         throw new Error("Unauthorized to delete some comments");
@@ -332,13 +294,21 @@ export const deleteCommentsByIds = async (commentIds, userId) => {
     }
 
     await Comment.deleteMany({ _id: { $in: commentIds } });
-    console.log("Comments to delete:", comments);
-    // Remove the comments from the user's personalPageComments array
     await User.updateOne(
       { _id: userId },
       { $pull: { personalPageComments: { $in: commentIds } } }
     );
   } catch (err) {
     throw new Error(`Failed to delete selected comments: ${err.message}`);
+  }
+};
+
+// Randomly select 3 users
+export const getRandomUsers = async () => {
+  try {
+    const users = await User.aggregate([{ $sample: { size: 3 } }]);
+    return users;
+  } catch (error) {
+    throw new Error(`Unable to get random users: ${error.message}`);
   }
 };

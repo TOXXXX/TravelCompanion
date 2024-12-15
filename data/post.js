@@ -28,12 +28,12 @@ export const createPost = async (userId, postData) => {
     const newPost = new Post({ ...postData, uid: userId });
     await newPost.save();
 
-    // const objectIdUserId = mongoose.Types.ObjectId(userId);
-    // await User.findByIdAndUpdate(
-    //   objectIdUserId,
-    //   { $push: { posts: newPost._id } },
-    //   { new: true }
-    // );
+    const objectIdUserId = mongoose.Types.ObjectId(userId);
+    await User.findByIdAndUpdate(
+      objectIdUserId,
+      { $push: { posts: newPost._id } },
+      { new: true }
+    );
 
     return newPost;
   } catch (error) {

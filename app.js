@@ -19,6 +19,9 @@ const hbs = handlebars.create({
     default: (value, defaultValue) => {
       return value || defaultValue;
     },
+    ifEquals: function(arg1, arg2, options) {
+      return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
+    },
     json: (context) => {
       return JSON.stringify(context);
     },
@@ -44,7 +47,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Set up Handlebars
-// app.engine("handlebars", handlebars.engine({ defaultLayout: "main" }));
+//app.engine("handlebars", handlebars.engine({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 app.set("views", "./views");
 

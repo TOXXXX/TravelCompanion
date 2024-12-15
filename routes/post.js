@@ -173,7 +173,9 @@ router.post("/create", isAuthenticated, async (req, res) => {
     const newPost = new Post(postData);
     await newPost.save();
     // Redirect to display the new post
-    return res.status(201).redirect(`/post/${newPost._id}`);
+    console.log(newPost);
+    //return res.status(201).redirect(`/post/${newPost._id}`);
+    return res.status(201).redirect(`/route/new/${newPost._id}`);
   } catch (e) {
     return res.status(400).render("error", {
       message: e.message
@@ -216,7 +218,8 @@ router.get("/:postId", async (req, res) => {
       timed: timed,
       startDate: startDate,
       endDate: endDate,
-      isAuthor: isAuthor
+      isAuthor: isAuthor,
+      routes
     });
   } catch (e) {
     return res.status(404).render("error", {

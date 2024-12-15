@@ -148,29 +148,61 @@ footer {
   .geocoder {
     margin-bottom: 10px;
   }
-  .btn {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin-top: 15px;
-  }
-  #route-duration{
-    padding: 8px; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-  }
 
-  .instructions-container {
-    background-color: #f9f9f9; 
-    border: 1px solid #dcdcdc; 
-    border-radius: 8px; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-    padding: 20px; 
-    margin-top: 20px;
-    max-height: 400px; 
-    overflow-y: auto; 
+.button-container {
+  display: flex;
+  justify-content: flex-start; 
+  gap: 10px; 
+  margin-top: 20px; 
+}
+
+  
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.create-btn {
+  background-color: #4CAF50; 
+  color: white;
+}
+
+.save-btn {
+  background-color: #008CBA; 
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+  
+@media (max-width: 600px) {
+  .button-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .button-container .btn {
+    width: 100%;
+  }
+}
+
+#route-duration{
+  padding: 8px; 
+  border: 1px solid #ccc; 
+  border-radius: 4px; 
+}
+.instructions-container {
+  background-color: #f9f9f9; 
+  border: 1px solid #dcdcdc; 
+  border-radius: 8px; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  padding: 20px; 
+  margin-top: 20px;
+  max-height: 400px; 
+  overflow-y: auto; 
 }
 
 .instructions-container h3 {

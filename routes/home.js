@@ -28,9 +28,6 @@ router.get("/", async (req, res) => {
       };
     });
 
-    console.log("posts", posts);
-    console.log("users", users);
-
     res.render("home", { title: "Home Page", customCSS: "home", posts, users });
   } catch (e) {
     return res.status(400).render("error", {

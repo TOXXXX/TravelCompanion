@@ -6,7 +6,7 @@ import {
   getFilteredPostsWithRoute,
   getPostById,
   deletePostById,
-  updatePostById, 
+  updatePostById,
   LikePost
 } from "../data/post.js";
 import {

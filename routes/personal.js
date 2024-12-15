@@ -48,7 +48,7 @@ router.get("/:username", isAuthenticated, async (req, res) => {
     }
     let isFollowing = false;
     if (!isCurrentUser) {
-      isFollowing = await userService.isFollowing(req.session.userId, user._id);
+      // isFollowing = await userService.isFollowing(req.session.userId, user._id);
     }
     const posts = [];
 

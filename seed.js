@@ -17,7 +17,8 @@ const seedDatabase = async () => {
         followers: [],
         following: [],
         posts: [],
-        personalPageComments: []
+        personalPageComments: [],
+        role: "Moderator"
       },
       {
         userName: "TOXXXX",
@@ -27,7 +28,8 @@ const seedDatabase = async () => {
         followers: [],
         following: [],
         posts: [],
-        personalPageComments: []
+        personalPageComments: [],
+        role: "Moderator"
       },
       {
         userName: "ChenHaolinOlym",
@@ -37,7 +39,8 @@ const seedDatabase = async () => {
         followers: [],
         following: [],
         posts: [],
-        personalPageComments: []
+        personalPageComments: [],
+        role: "Moderator"
       },
       {
         userName: "Junran Tao",
@@ -47,7 +50,8 @@ const seedDatabase = async () => {
         followers: [],
         following: [],
         posts: [],
-        personalPageComments: []
+        personalPageComments: [],
+        role: "Moderator"
       },
       {
         userName: "Arman Singh",
@@ -57,7 +61,8 @@ const seedDatabase = async () => {
         followers: [],
         following: [],
         posts: [],
-        personalPageComments: []
+        personalPageComments: [],
+        role: "Moderator"
       }
     ];
 

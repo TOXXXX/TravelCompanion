@@ -1,5 +1,8 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
+import Post from "./posts.js";
+import Comment from "./comments.js";
+import Route from "./routes.js";
 
 const UserSchema = new Schema({
   userName: { type: String, required: true, unique: true },
@@ -12,7 +15,9 @@ const UserSchema = new Schema({
   posts: { type: [String], default: [] },
   personalPageComments: { type: [String], default: [] },
   profilePicture: { type: String, default: "/default-profile.svg" },
-  bio: { type: String, default: "This user has not set a bio yet." }
+  bio: { type: String, default: "This user has not set a bio yet." },
+  role: { type: String, default: "User" },
+  isHidden: { type: Boolean, default: false }
 });
 
 UserSchema.pre("save", async function (next) {

@@ -21,9 +21,9 @@ export const setAuth = (req, res, next) => {
   next();
 };
 
-const requireRole = (role) => {
+export const requireRole = (role) => {
   return (req, res, next) => {
-    if (req.session.userRole === role) {
+    if (req.session.role === role) {
       next();
     } else {
       res.status(403).json({ message: "Unauthorized" });

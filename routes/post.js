@@ -106,7 +106,7 @@ router
 
 router.post("/:id/like", isAuthenticatedAPI, async (req, res) => {
   try {
-    const id = validTrimInput(req.params.id, "string");
+    const id = validTrimInput(xss(req.params.id), "string");
     const user_id = req.session.userId;
     const { state, likeCount } = await LikePost(id, user_id);
     return res.status(200).json({ state, likes: likeCount });
@@ -204,8 +204,8 @@ router.post("/create", isAuthenticated, async (req, res) => {
 
 router.get("/:postId", async (req, res) => {
   try {
-    const post = await getPostById(req.params.postId);
-    let comments = await getPostComments(req.params.postId); //tested
+    const post = await getPostById(xss(req.params.postId));
+    let comments = await getPostComments(xss(req.params.postId)); //tested
     for (let i = 0; i < comments.length; i++) {
       comments[i] = {
         _id: comments[i]._id,
@@ -249,9 +249,11 @@ router.get("/:postId", async (req, res) => {
 
 router.delete("/delete/:postId", isAuthenticated, async (req, res) => {
   try {
-    const deletedPost = await deletePostById(req.params.postId);
+    const deletedPost = await deletePostById(xss(req.params.postId));
     if (!deletedPost) {
-      throw new Error(`Could not delete post with id ${req.params.postId}`);
+      throw new Error(
+        `Could not delete post with id ${xss(req.params.postId)}`
+      );
     }
     return res.status(204).json({ message: "Post deleted" });
   } catch (e) {
@@ -263,10 +265,10 @@ router.delete("/delete/:postId", isAuthenticated, async (req, res) => {
 
 router.get("/edit/:postId", isAuthenticated, async (req, res) => {
   try {
-    const post = await getPostById(req.params.postId);
+    const post = await getPostById(xss(req.params.postId));
 
     if (!post) {
-      throw new Error(`Could not find post with id ${req.params.postId}`);
+      throw new Error(`Could not find post with id ${xss(req.params.postId)}`);
     }
     if (post.intendedTime.length !== 2) {
       res.render("posts/edit", {
@@ -340,9 +342,11 @@ router.patch("/edit/:postId", isAuthenticated, async (req, res) => {
     } else {
       throw new Error("Invalid post type");
     }
-    const updatedPost = await updatePostById(req.params.postId, postData);
+    const updatedPost = await updatePostById(xss(req.params.postId), postData);
     if (!updatedPost) {
-      throw new Error(`Could not update post with id ${req.params.postId}`);
+      throw new Error(
+        `Could not update post with id ${xss(req.params.postId)}`
+      );
     }
     return res.status(200).json({ message: "Post updated successfully" });
   } catch (e) {
@@ -362,13 +366,13 @@ router.post("/:postId/comment", isAuthenticated, async (req, res) => {
     const now = new Date();
     const newComment = {
       uid: req.session.userId,
-      postId: req.params.postId,
+      postId: xss(req.params.postId),
       content: makeComment,
       created: now,
       lastEdited: now
     };
     const mongoNewComment = await createComment(newComment);
-    return res.redirect(`/post/${req.params.postId}`);
+    return res.redirect(`/post/${xss(req.params.postId)}`);
   } catch (e) {
     return res.status(400).render("error", {
       message: e.message
@@ -381,10 +385,10 @@ router.delete(
   isAuthenticated,
   async (req, res) => {
     try {
-      const deletedComment = await deleteCommentById(req.params.commentId);
+      const deletedComment = await deleteCommentById(xss(req.params.commentId));
       if (!deletedComment) {
         throw new Error(
-          `Could not delete comment with id ${req.params.commentId}`
+          `Could not delete comment with id ${xss(req.params.commentId)}`
         );
       }
       return res.status(204).json({ message: "Comment deleted" });

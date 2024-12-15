@@ -1,11 +1,6 @@
 import express from "express";
-import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
-import { validTrimInput, validInputDate } from "../helpers.js";
-import { getFollowingUsers, getUserById } from "../data/userService.js";
+import { isAuthenticated } from "../middleware/auth.js";
 import { matchUsersById } from "../data/compDisc.js";
-
-import User from "../models/users.js";
-import Route from "../models/routes.js";
 
 const router = express.Router();
 
@@ -21,7 +16,7 @@ router.get("/", isAuthenticated, async (req, res) => {
       hasMatchedUsers: hasMatchedUsers,
       matchedUsers: matchedUserObjs
     });
-  } catch (error) {
+  } catch (e) {
     return res.status(400).render("error", {
       message: e.message
     });

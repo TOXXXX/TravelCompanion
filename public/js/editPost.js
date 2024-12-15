@@ -11,8 +11,9 @@ function validInputDateFrontend(input) {
   let inputDate = new Date(input);
   let today = new Date();
   today.setUTCHours(0, 0, 0, 0);
-  inputDate.setUTCHours(1, 0, 0, 0);
-  if (today > inputDate) {
+  inputDate.setUTCHours(0, 0, 0, 0);
+  if (today.getTime() > inputDate.getTime()) {
+    // untested
     errors.push("You can only plan for the future");
   }
   return errors;
@@ -73,6 +74,11 @@ function validInputDateFrontend(input) {
   }
 
   if (editPost) {
+    if (document.getElementById("postType").value == "route") {
+      document.getElementById("startDate").required = false;
+      document.getElementById("endDate").required = false;
+    }
+
     editPost.addEventListener("change", (event) => {
       errorDiv.hidden = true;
       submitButton.disabled = false;

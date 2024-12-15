@@ -1,5 +1,6 @@
 import Post from "../models/posts.js";
 import User from "../models/users.js";
+import Route from "../models/routes.js";
 import mongoose from "mongoose";
 
 export const getPostById = async (postId) => {
@@ -108,6 +109,13 @@ export const getFilteredPostsWithRoute = async (
 
 export const deletePostById = async (postId) => {
   try {
+    const route = await Route.find({ pid: postId });
+    if (route.length > 0) {
+      for (let i = 0; i < route.length; i++) {
+        await Route.findByIdAndDelete(route[i]._id);
+      }
+    }
+
     const post = await Post.findByIdAndDelete(postId);
     if (!post) {
       throw new Error("Post not found");

@@ -1,4 +1,6 @@
 import express from "express";
+import multer from "multer";
+import sharp from "sharp";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
 import { getFollowingUsers, getUserById } from "../data/userService.js";
@@ -15,13 +17,41 @@ import {
   deleteCommentById
 } from "../data/comment.js";
 import Post from "../models/posts.js";
-import Comment from "../models/comments.js";
+// import Comment from "../models/comments.js";
 import User from "../models/users.js";
 
 const router = express.Router();
 
 // TODO: The unit of distance and duration still unclear
 // TODO: Location is currently not available
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/");
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  // limits: { fileSize: 1 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png/;
+    const extname = filetypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+      return cb(null, true);
+    }
+    cb(new Error("Only JPEG, JPG, and PNG files are allowed."));
+  }
+});
+
 router
   .route("/")
   .get(async (req, res) => {

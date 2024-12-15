@@ -16,6 +16,7 @@ import {
 } from "../data/comment.js";
 import Post from "../models/posts.js";
 import Comment from "../models/comments.js";
+import User from "../models/users.js";
 
 const router = express.Router();
 
@@ -72,11 +73,10 @@ router
         // Post may not have route, so check if it exists
         let routes;
         if (item.routeInfo) {
-          routes = item.routeInfo.routes;
+          routes = item.routeInfo;
         } else {
           routes = {
-            distance: "N/A",
-            duration: "N/A"
+            tripDuration: "N/A"
           };
         }
 
@@ -90,8 +90,11 @@ router
           liked: req.session.userId
             ? item.likeByUsers.includes(req.session.userId)
             : false,
-          distance: routes.distance || "N/A",
-          duration: routes.duration || "N/A"
+          // TODO: Distance is currently not available
+          distance: "N/A",
+          duration: routes.tripDuration || "N/A",
+          // TODO: Location is currently not available
+          locations: "N/A"
         };
       });
 
@@ -183,6 +186,11 @@ router.post("/create", isAuthenticated, async (req, res) => {
     // Save the post
     const newPost = new Post(postData);
     await newPost.save();
+    await User.findByIdAndUpdate(
+      req.session.userId,
+      { $push: { posts: String(newPost._id) } },
+      { new: true }
+    );
     // Redirect to display the new post
     return res.status(201).redirect(`/post/${newPost._id}`);
   } catch (e) {

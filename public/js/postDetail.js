@@ -82,4 +82,21 @@
       }
     }
   }
+
+  // Like
+  let like = document.getElementById("likes");
+  if (like) {
+    like.addEventListener("click", async (event) => {
+      event.preventDefault();
+      let postId = window.location.pathname.split("/")[2];
+      let request = new Request(`/post/${postId}/like`);
+      const response = await fetch(request, {
+        method: "POST"
+      });
+      if (response.ok) {
+        const data = await response.json();
+        like.innerText = `Like by ${data.likes} people.`;
+      }
+    });
+  }
 })();

@@ -1,5 +1,6 @@
 import Post from "../models/posts.js";
 import User from "../models/users.js";
+import Route from "../models/routes.js";
 import mongoose from "mongoose";
 
 export const getPostById = async (postId) => {
@@ -28,7 +29,7 @@ export const createPost = async (userId, postData) => {
     const newPost = new Post({ ...postData, uid: userId });
     await newPost.save();
 
-    const objectIdUserId = mongoose.Types.ObjectId(userId);
+    const objectIdUserId = new mongoose.Types.ObjectId(userId);
     await User.findByIdAndUpdate(
       objectIdUserId,
       { $push: { posts: newPost._id } },
@@ -65,7 +66,7 @@ export const getFilteredPostsWithRoute = async (
 
   // Filter for following users
   if (following) {
-    matchStage.$match.author = { $in: userIds };
+    matchStage.$match.uid = { $in: userIds };
   }
 
   try {
@@ -80,7 +81,7 @@ export const getFilteredPostsWithRoute = async (
         $lookup: {
           from: "routes",
           localField: "postIDString", // Use the string version of _id
-          foreignField: "postID",
+          foreignField: "pid",
           as: "routeInfo"
         }
       },
@@ -108,6 +109,13 @@ export const getFilteredPostsWithRoute = async (
 
 export const deletePostById = async (postId) => {
   try {
+    const route = await Route.find({ pid: postId });
+    if (route.length > 0) {
+      for (let i = 0; i < route.length; i++) {
+        await Route.findByIdAndDelete(route[i]._id);
+      }
+    }
+
     const post = await Post.findByIdAndDelete(postId);
     if (!post) {
       throw new Error("Post not found");
@@ -155,5 +163,36 @@ export const LikePost = async (postId, userId) => {
     return { state, likeCount: post.likeByUsers.length };
   } catch (error) {
     throw new Error(`Unable to like post: ${error.message}`);
+  }
+};
+
+// Randomly select 3 posts
+export const getRandomPosts = async () => {
+  try {
+    const posts = await Post.aggregate([
+      { $sample: { size: 3 } },
+      {
+        $addFields: {
+          postIDString: { $toString: "$_id" } // Convert _id (ObjectId) to string
+        }
+      },
+      {
+        $lookup: {
+          from: "routes",
+          localField: "postIDString", // Use the string version of _id
+          foreignField: "pid",
+          as: "routeInfo"
+        }
+      },
+      {
+        $unwind: {
+          path: "$routeInfo",
+          preserveNullAndEmptyArrays: true // Keep posts without routes
+        }
+      }
+    ]);
+    return posts;
+  } catch (error) {
+    throw new Error(`Unable to get random posts: ${error.message}`);
   }
 };

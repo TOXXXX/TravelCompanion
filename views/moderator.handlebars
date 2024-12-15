@@ -13,7 +13,7 @@
         </div>
         <div class="report-actions">
             <button class="btn btn-success" onclick="dismissReport('{{this._id}}')">Dismiss Report</button>
-            <button id="hideAccount-{{this._id}}" class="btn btn-danger" onclick="disableAccount('{{this.reportedUser}}', '{{this._id}}')">Hide Account</button>
+            <button data-id="hideAccount-{{this.reportedUser}}" class="btn btn-danger" onclick="disableAccount('{{this.reportedUser}}', '{{this._id}}')">Hide Account</button>
         </div>
     </div>
     {{/each}}

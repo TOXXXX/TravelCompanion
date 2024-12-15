@@ -35,8 +35,12 @@ reportForm.addEventListener("submit", function (event) {
     .then((response) => response.json())
     .then((data) => {
       if (data.message === "Report submitted successfully") {
+        const submitButton = document.getElementById("submitReport");
         document.getElementById("message").textContent =
           "Report submitted successfully";
+        submitButton.disabled = true;
+        submitButton.style.backgroundColor = "gray";
+        submitButton.style.cursor = "not-allowed";
       } else {
         document.getElementById("message").textContent =
           "An error occurred while submitting the report";

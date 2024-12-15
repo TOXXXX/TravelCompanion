@@ -17,7 +17,7 @@ const UserSchema = new Schema({
   profilePicture: { type: String, default: "/default-profile.svg" },
   bio: { type: String, default: "This user has not set a bio yet." },
   role: { type: String, default: "User" },
-  isHidden: { type: Boolean, default: false }
+  isHidden: { type: Boolean, default: false, required: true }
 });
 
 UserSchema.pre("save", async function (next) {

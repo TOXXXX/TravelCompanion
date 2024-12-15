@@ -23,22 +23,25 @@ function disableAccount(username, reportId) {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ isHidden: true })
+    }
   })
     .then((response) => response.json())
     .then((data) => {
       if (data) {
-        const button = document.getElementById(`hideAccount-${reportId}`);
-        if (button.innerText === "Hide Account") {
-          button.innerText = "Show Account";
-          button.classList.remove("btn-danger");
-          button.classList.add("btn-warning");
-        } else {
-          button.innerText = "Hide Account";
-          button.classList.remove("btn-warning");
-          button.classList.add("btn-danger");
-        }
+        const buttons = document.querySelectorAll(
+          `[data-id='hideAccount-${username}']`
+        );
+        buttons.forEach((button) => {
+          if (button.innerText === "Hide Account") {
+            button.innerText = "Show Account";
+            button.classList.remove("btn-danger");
+            button.classList.add("btn-warning");
+          } else {
+            button.innerText = "Hide Account";
+            button.classList.remove("btn-warning");
+            button.classList.add("btn-danger");
+          }
+        });
       } else {
         console.error("Failed to disable/enable user");
       }

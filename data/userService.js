@@ -41,11 +41,11 @@ export const getUserByUsername = async (username, includePassword = false) => {
 
     if (includePassword) {
       query = query.select(
-        "userName bio profilePicture email phoneNumber followers following password"
+        "userName bio profilePicture email phoneNumber followers following role isHidden password"
       );
     } else {
       query = query.select(
-        "userName bio profilePicture email phoneNumber followers following"
+        "userName bio profilePicture email phoneNumber followers following role isHidden"
       );
     }
 

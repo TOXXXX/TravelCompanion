@@ -53,11 +53,7 @@ export const getUserByUsername = async (username, includePassword = false) => {
     if (!user) {
       throw new Error("User not found");
     }
-    console.log(
-      "Fetched user with password:",
-      includePassword ? user.password : "Password not fetched"
-    );
-    console.log("Fetched user with comments:", user);
+
     return user;
   } catch (error) {
     throw new Error(`Unable to get user by username: ${error.message}`);
@@ -189,12 +185,8 @@ export const toggleFollowUser = async (currentUserId, targetUserId) => {
 
 export const verifyPassword = async (hashedPassword, plainPassword) => {
   try {
-    console.log("Hashed Password:", hashedPassword);
-    console.log("Plain Password:", plainPassword);
-
     return await bcrypt.compare(plainPassword, hashedPassword);
   } catch (err) {
-    console.error("Error in verifyPassword:", err.message);
     throw new Error("Password verification failed");
   }
 };
@@ -274,7 +266,6 @@ export const getCommentById = async (commentId) => {
     if (!comment) throw new Error("Comment not found");
     return comment;
   } catch (error) {
-    console.error("Error fetching comment by ID:", error.message);
     throw new Error(`Unable to get comment: ${error.message}`);
   }
 };
@@ -294,7 +285,6 @@ export const deleteCommentById = async (commentId) => {
 
 export const deleteCommentsByIds = async (commentIds, userId) => {
   try {
-    console.log("Attempting to delete comments with IDs:", commentIds);
     const comments = await Comment.find({ _id: { $in: commentIds } });
 
     for (const comment of comments) {
@@ -304,7 +294,6 @@ export const deleteCommentsByIds = async (commentIds, userId) => {
     }
 
     await Comment.deleteMany({ _id: { $in: commentIds } });
-    console.log("Comments to delete:", comments);
     await User.updateOne(
       { _id: userId },
       { $pull: { personalPageComments: { $in: commentIds } } }

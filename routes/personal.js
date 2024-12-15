@@ -37,14 +37,8 @@ const upload = multer({
 
 router.get("/:username", isAuthenticated, async (req, res) => {
   try {
-    // console.log("Requested username:", req.params.username);
-
     const user = await userService.getUserByUsername(req.params.username);
     const isCurrentUser = req.session.userName === req.params.username;
-    // const isCurrentUser = req.session.userId === user._id.toString();
-
-    // console.log("Fetched user:", user);
-    // console.log("Comments fetched for user:", user.personalPageComments);
     if (!user) {
       return res.status(401).redirect("/login");
     }
@@ -54,7 +48,6 @@ router.get("/:username", isAuthenticated, async (req, res) => {
       isFollowing = await userService.isFollowing(req.session.userId, user._id);
     }
 
-    // const posts = await postService.getUserAllPosts(user._id);
     const userPosts = await Post.find({ uid: user._id }).lean();
     const followersCount = user.followers?.length || 0;
     const followingCount = user.following?.length || 0;
@@ -80,7 +73,6 @@ router.get("/:username", isAuthenticated, async (req, res) => {
       session: req.session
     });
   } catch (err) {
-    console.error("Error in /personal/:username:", err.message);
     res.status(404).render("error", { message: "User not found" });
   }
 });
@@ -97,7 +89,6 @@ router.get("/:username/edit", isAuthenticated, async (req, res) => {
       customCSS: "editPersonalPage"
     });
   } catch (err) {
-    console.error(err);
     res.status(403).render("error", { message: "Access denied" });
   }
 });
@@ -112,8 +103,7 @@ router.post(
         req.session.userName,
         true
       );
-      console.log("Session user:", sessionUser);
-      console.log("Password field:", sessionUser.password);
+
       if (!sessionUser || sessionUser.userName !== req.params.username) {
         throw new Error("Unauthorized access");
       }
@@ -121,36 +111,44 @@ router.post(
       const { formType, currentPassword, newPassword, confirmPassword } =
         req.body;
 
+      const renderWithError = (errorMessage) => {
+        res.render("editPersonalPage", {
+          title: "Edit Personal Page",
+          user: sessionUser,
+          customCSS: "editPersonalPage",
+          errorMessage
+        });
+      };
+
       if (formType === "password") {
         if (!currentPassword || !newPassword || !confirmPassword) {
-          return res.render("editPersonalPage", {
-            title: "Edit Personal Page",
-            user: sessionUser,
-            customCSS: "editPersonalPage",
-            errorMessage: "All password fields are required."
-          });
+          return renderWithError("All password fields are required.");
         }
 
         if (newPassword !== confirmPassword) {
-          return res.render("editPersonalPage", {
-            title: "Edit Personal Page",
-            user: sessionUser,
-            customCSS: "editPersonalPage",
-            errorMessage: "New passwords do not match."
-          });
+          return renderWithError("New password do not match.");
         }
 
-        const isPasswordCorrect = await userService.verifyPassword(
+        if (newPassword === currentPassword) {
+          return renderWithError(
+            "New password is the same with current password."
+          );
+        }
+
+        const passwordRegex =
+          /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+        if (!passwordRegex.test(newPassword)) {
+          return renderWithError(
+            "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number."
+          );
+        }
+
+        const isCorrectPsw = await userService.verifyPassword(
           sessionUser.password,
           currentPassword
         );
-        if (!isPasswordCorrect) {
-          return res.render("editPersonalPage", {
-            title: "Edit Personal Page",
-            user: sessionUser,
-            customCSS: "editPersonalPage",
-            errorMessage: "Current password is incorrect."
-          });
+        if (!isCorrectPsw) {
+          return renderWithError("Current password is incorrect.");
         }
 
         const hashedPassword = await userService.hashPassword(newPassword);
@@ -167,7 +165,6 @@ router.post(
       }
 
       let profilePicturePath = "";
-
       if (req.file) {
         const resizedImagePath = `/uploads/resized-${req.file.filename}`;
         await sharp(req.file.path)
@@ -185,35 +182,37 @@ router.post(
           req.body.profilePicture ||
           "/default-profile.svg"
       };
-      if (
-        updatedData.email &&
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedData.email)
-      ) {
-        return res.render("editPersonalPage", {
-          title: "Edit Personal Page",
-          user: sessionUser,
-          customCSS: "editPersonalPage",
-          errorMessage: "Invalid email format."
-        });
-      }
 
-      if (
-        updatedData.phoneNumber &&
-        !/^[0-9\-+()\s]{7,15}$/.test(updatedData.phoneNumber)
-      ) {
-        return res.render("editPersonalPage", {
-          title: "Edit Personal Page",
-          user: sessionUser,
-          customCSS: "editPersonalPage",
-          errorMessage: "Invalid phone number format."
-        });
+      const validateInput = () => {
+        if (updatedData.bio.length > 150) {
+          return "Bio must not exceed 150 characters.";
+        }
+
+        if (
+          updatedData.email &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updatedData.email)
+        ) {
+          return "Invalid email format.";
+        }
+
+        if (
+          updatedData.phoneNumber &&
+          !/^[0-9\-+()\s]{7,15}$/.test(updatedData.phoneNumber)
+        ) {
+          return "Invalid phone number format.";
+        }
+
+        return null;
+      };
+
+      const validationError = validateInput();
+      if (validationError) {
+        return renderWithError(validationError);
       }
 
       await userService.updateUserByUsername(req.params.username, updatedData);
-
       return res.redirect(`/personal/${req.params.username}`);
     } catch (err) {
-      console.error("Error in edit route:", err.message);
       res.render("editPersonalPage", {
         title: "Edit Personal Page",
         user: req.session.user,
@@ -223,7 +222,6 @@ router.post(
     }
   }
 );
-
 router.post("/:username/toggleFollow", isAuthenticated, async (req, res) => {
   try {
     const currentUserId = req.session.userId;
@@ -243,7 +241,6 @@ router.post("/:username/toggleFollow", isAuthenticated, async (req, res) => {
       message: result.message
     });
   } catch (err) {
-    console.error("Error in follow route:", err.message);
     return res.status(500).json({ error: err.message });
   }
 });
@@ -267,7 +264,6 @@ router.get("/:username/followers", isAuthenticated, async (req, res) => {
       customCSS: "followersPage"
     });
   } catch (err) {
-    console.error("Error in followers route:", err.message);
     res.status(500).render("error", { message: "Unable to fetch followers." });
   }
 });
@@ -293,7 +289,6 @@ router.get("/:username/following", isAuthenticated, async (req, res) => {
       customCSS: "followingPage"
     });
   } catch (err) {
-    console.error("Error in following route:", err.message);
     res
       .status(500)
       .render("error", { message: "Unable to fetch following users." });
@@ -304,17 +299,24 @@ router.post("/:username/comment", isAuthenticated, async (req, res) => {
   try {
     const targetUser = await userService.getUserByUsername(req.params.username);
     if (!targetUser) throw new Error("User not found");
+    const commentText = req.body.commentText;
 
+    if (!commentText || commentText.length > 150) {
+      return res
+        .status(400)
+        .render("error", {
+          message: "Comment must be 150 characters or fewer."
+        });
+    }
     const commentData = {
       uid: req.session.userId,
-      content: req.body.commentText
+      content: commentText.trim()
     };
 
     await userService.addCommentToUser(targetUser._id, commentData);
 
     res.redirect(`/personal/${req.params.username}`);
   } catch (err) {
-    console.error("Error in /personal/:username/comment:", err.message);
     res.status(500).render("error", { message: "Failed to add comment" });
   }
 });
@@ -323,32 +325,20 @@ router.post("/:username/delete-comments", isAuthenticated, async (req, res) => {
   try {
     const { username } = req.params;
     const { commentId, selectedComments } = req.body;
-    console.log("Delete Request Received:");
-    console.log("commentId:", commentId);
-    console.log("selectedComments:", selectedComments);
     const sessionUser = await userService.getUserByUsername(
       req.session.userName
     );
     if (!sessionUser) {
       throw new Error("Unauthorized access - User not found");
     }
-    console.log("Session User:", sessionUser);
     const targetUser = await userService.getUserByUsername(username);
-    console.log("Target User:", targetUser);
-    // if (!sessionUser || sessionUser.userName !== username) {
-    //   throw new Error("Unauthorized access");
-    // }
     if (!targetUser) throw new Error("Target user not found");
-    console.log(
-      `Checking authorization for session user: ${sessionUser.userName}, target user: ${targetUser.userName}`
-    );
     if (commentId) {
       const comment = await userService.getCommentById(commentId);
 
       if (
         comment.uid.userName === sessionUser.userName ||
         sessionUser.userName === targetUser.userName
-        // username !== sessionUser.userName
       ) {
         await userService.deleteCommentById(commentId);
       } else {
@@ -358,7 +348,6 @@ router.post("/:username/delete-comments", isAuthenticated, async (req, res) => {
 
     return res.redirect(`/personal/${username}`);
   } catch (err) {
-    console.error("Error in /delete-comments route:", err.message);
     return res.redirect(`/personal/${req.params.username}`);
   }
 });

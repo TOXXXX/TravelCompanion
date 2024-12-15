@@ -11,7 +11,6 @@ router.get("/user/:id", async (req, res) => {
     }
     res.render("personalPage", { user });
   } catch (error) {
-    console.error("Error fetching user:", error.message);
     res.status(500).send("Server Error");
   }
 });
@@ -21,7 +20,6 @@ router.put("/user/:id", async (req, res) => {
     const updatedUser = await updateUserById(req.params.id, req.body);
     res.json(updatedUser);
   } catch (error) {
-    console.error("Error updating user:", error.message);
     res.status(500).send("Server Error");
   }
 });

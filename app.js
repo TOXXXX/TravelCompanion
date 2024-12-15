@@ -25,7 +25,13 @@ const hbs = handlebars.create({
     eq: (a, b) => a === b,
     or: (a, b) => a || b,
     and: (a, b) => a && b,
-    not: (a) => !a
+    not: (a) => !a,
+    formatDate: (date) => {
+      if (!date) return "Unknown Date";
+      return new Date(date).toDateString(); // Format date as "Mon DD YYYY"
+    },
+    default: (value, defaultValue) => value || defaultValue,
+    json: (context) => JSON.stringify(context)
   },
   runtimeOptions: {
     allowProtoPropertiesByDefault: true,

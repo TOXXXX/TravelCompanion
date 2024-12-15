@@ -3,7 +3,6 @@ import multer from "multer";
 import path from "path";
 import sharp from "sharp";
 import * as userService from "../data/userService.js";
-import * as postService from "../data/post.js";
 import { isAuthenticated } from "../middleware/auth.js";
 import Post from "../models/posts.js";
 
@@ -41,8 +40,8 @@ router.get("/:username", isAuthenticated, async (req, res) => {
     // console.log("Requested username:", req.params.username);
 
     const user = await userService.getUserByUsername(req.params.username);
-    // const isCurrentUser = req.session.userName === req.params.username;
-    const isCurrentUser = req.session.userId === user._id.toString();
+    const isCurrentUser = req.session.userName === req.params.username;
+    // const isCurrentUser = req.session.userId === user._id.toString();
 
     // console.log("Fetched user:", user);
     // console.log("Comments fetched for user:", user.personalPageComments);
@@ -70,14 +69,15 @@ router.get("/:username", isAuthenticated, async (req, res) => {
         phoneNumber: user.phoneNumber || "This user has not set number yet.",
         followersCount,
         followingCount,
-        personalPageComments: user.personalPageComments,
+        personalPageComments: user.personalPageComments || [],
         posts: userPosts
       },
       isCurrentUser,
       isFollowing,
       successMessage: req.flash("successMessage"),
       errorMessage: req.flash("errorMessage"),
-      customCSS: "personalPage"
+      customCSS: "personalPage",
+      session: req.session
     });
   } catch (err) {
     console.error("Error in /personal/:username:", err.message);

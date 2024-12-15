@@ -1,7 +1,13 @@
-import { createUser } from "./data/userService.js";
+import {
+  createUser,
+  toggleFollowUser,
+  addCommentToUser
+} from "./data/userService.js";
 import { createPost } from "./data/post.js";
 import { createRoute } from "./data/route.js";
+import { createComment } from "./data/comment.js";
 import { dropDB, disconnectDB } from "./config/db.js";
+import mongoose from "mongoose";
 
 const seedDatabase = async () => {
   try {
@@ -11,7 +17,7 @@ const seedDatabase = async () => {
     const sampleUsers = [
       {
         userName: "maheshs85",
-        password: "1234",
+        password: "Maheshs85",
         email: "maheshs85@example.com",
         phoneNumber: "123-456-7890",
         followers: [],
@@ -20,8 +26,8 @@ const seedDatabase = async () => {
         personalPageComments: []
       },
       {
-        userName: "TOXXXX",
-        password: "1234",
+        userName: "toxxxx",
+        password: "Toxxxxx1",
         email: "TOXXXX@example.com",
         phoneNumber: "123-456-7891",
         followers: [],
@@ -30,8 +36,8 @@ const seedDatabase = async () => {
         personalPageComments: []
       },
       {
-        userName: "ChenHaolinOlym",
-        password: "1234",
+        userName: "chenhaolinolym",
+        password: "Chenhaolinolym1",
         email: "ChenHaolinOlym@example.com",
         phoneNumber: "123-456-7892",
         followers: [],
@@ -40,9 +46,9 @@ const seedDatabase = async () => {
         personalPageComments: []
       },
       {
-        userName: "Junran Tao",
-        password: "1234",
-        email: "Junran Tao@example.com",
+        userName: "junrantao",
+        password: "Junrantao1",
+        email: "JunranTao@example.com",
         phoneNumber: "123-456-7893",
         followers: [],
         following: [],
@@ -50,9 +56,9 @@ const seedDatabase = async () => {
         personalPageComments: []
       },
       {
-        userName: "Arman Singh",
-        password: "1234",
-        email: "Arman Singh@example.com",
+        userName: "armansingh",
+        password: "Armansingh1",
+        email: "ArmanSingh@example.com",
         phoneNumber: "123-456-7894",
         followers: [],
         following: [],
@@ -61,8 +67,42 @@ const seedDatabase = async () => {
       }
     ];
 
+    const createdUsers = [];
+
     for (const userData of sampleUsers) {
-      await createUser(userData);
+      const user = await createUser(userData);
+      createdUsers.push(user);
+    }
+
+    for (let i = 0; i < createdUsers.length; i++) {
+      for (let j = i; j < createdUsers.length; j++) {
+        if (i !== j) {
+          toggleFollowUser(createdUsers[i]._id, createdUsers[j]._id);
+        }
+      }
+    }
+
+    // Comments posted on the personal page
+    const userComments = [
+      {
+        uid: createdUsers[0]._id,
+        content: "Great post! Keep it up!",
+        postID: null
+      },
+      {
+        uid: createdUsers[1]._id,
+        content: "Nice photo!",
+        postID: null
+      },
+      {
+        uid: createdUsers[2]._id,
+        content: "I love this!",
+        postID: null
+      }
+    ];
+
+    for (const commentData of userComments) {
+      await addCommentToUser(createdUsers[0]._id, commentData);
     }
 
     console.log("Sample users added successfully");
@@ -193,10 +233,13 @@ const seedDatabase = async () => {
       }
     ];
 
+    let createdPosts = [];
+
     // Create Posts and Routes in a one-to-one relationship
     for (let i = 0; i < postData.length; i++) {
-      const userId = `user${i + 1}`;
+      const userId = createdUsers[i]._id;
       const post = await createPost(userId, postData[i]);
+      createdPosts.push(post);
 
       // Add postID and uid to the route data
       const routeToCreate = {
@@ -205,7 +248,43 @@ const seedDatabase = async () => {
         ...routeData[i]
       };
 
-      const route = await createRoute(routeToCreate);
+      // Last post does not have a route
+      if (i !== postData.length - 1) {
+        const route = await createRoute(routeToCreate);
+      }
+    }
+
+    // Comments on the posts
+    const postComments = [
+      {
+        uid: createdUsers[1]._id,
+        content: "This is amazing!",
+        postId: createdPosts[0]._id
+      },
+      {
+        uid: createdUsers[2]._id,
+        content: "Great work!",
+        postId: createdPosts[1]._id
+      },
+      {
+        uid: createdUsers[3]._id,
+        content: "I love this place!",
+        postId: createdPosts[2]._id
+      },
+      {
+        uid: createdUsers[4]._id,
+        content: "Fantastic view!",
+        postId: createdPosts[3]._id
+      },
+      {
+        uid: createdUsers[0]._id,
+        content: "Beautiful scenery!",
+        postId: createdPosts[4]._id
+      }
+    ];
+
+    for (const commentData of postComments) {
+      await createComment(commentData);
     }
 
     console.log("Sample posts and routes added successfully");

@@ -112,11 +112,11 @@ body {
 .user-stats {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 20px;
-  padding: 10px 0;
-  background-color: #f4f4f4;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .user-stats .stats-item {
@@ -132,7 +132,13 @@ body {
   font-size: 1.4rem;
   color: #000;
 }
-
+.posts{
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
 .posts h2 {
   font-size: 1.8rem;
   margin-bottom: 15px;
@@ -168,12 +174,17 @@ body {
 }
 
 .comments {
-  margin-top: 30px;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
 
 .comments h2 {
-  font-size: 1.8rem;
   margin-bottom: 15px;
+  font-size: 18px;
+  color: #333;
 }
 
 .comments ul {
@@ -194,6 +205,30 @@ body {
 .comments li small {
   color: #888;
   font-size: 0.85rem;
+}
+
+textarea#commentContent {
+  width: 95%;
+  max-width: 95%;  
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+}
+.comment-item {
+  word-wrap: break-word; 
+  overflow-wrap: break-word; 
+  white-space: pre-wrap;  
+  max-width: 100%; 
+  box-sizing: border-box;  
+}
+
+.comment-content {
+
+  word-wrap: break-word;  
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 .personal-header {
   display: flex;
@@ -231,6 +266,7 @@ body {
 .btn-comment {
   background-color: #28a745;
   color: #fff;
+  border: transparent;
 }
 
 .btn-comment:hover {

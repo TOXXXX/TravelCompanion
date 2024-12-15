@@ -1,6 +1,8 @@
 import Post from "../models/posts.js";
 import User from "../models/users.js";
 import Route from "../models/routes.js";
+import mongoose from "mongoose";
+
 export const getPostById = async (postId) => {
   try {
     const post = await Post.findById(postId).lean();
@@ -27,8 +29,9 @@ export const createPost = async (userId, postData) => {
     const newPost = new Post({ ...postData, uid: userId });
     await newPost.save();
 
+    const objectIdUserId = new mongoose.Types.ObjectId(userId);
     await User.findByIdAndUpdate(
-      userId,
+      objectIdUserId,
       { $push: { posts: newPost._id } },
       { new: true }
     );

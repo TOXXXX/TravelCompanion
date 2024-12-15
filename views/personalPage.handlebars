@@ -15,12 +15,20 @@
         <a href="/personal/{{user.userName}}/edit" class="btn btn-edit">Edit Profile</a>
         {{else}}
         <section class="follow-section">
-          <form action="/personal/{{user.userName}}/toggleFollow" method="POST">
-            <button type="submit" class="btn btn-follow">
-              {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
-            </button>
-          </form>
+          <button id="follow-button" class="btn btn-follow" data-username="{{user.userName}}">
+            {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+          </button>
         </section>
+
+
+        {{#if successMessage}}
+        <div class="alert alert-success">{{successMessage}}</div>
+        {{/if}}
+
+        {{#if errorMessage}}
+        <div class="alert alert-danger">{{errorMessage}}</div>
+        {{/if}}
+
         {{/if}}
 
       </div>
@@ -30,15 +38,22 @@
 
       <section class="user-stats">
         <div class="stats-item">
-          <p><strong>Followers:</strong> {{user.followers.length}}</p>
+          <p><strong>Followers:</strong> {{user.followersCount}}</p>
+          <a href="/personal/{{user.userName}}/followers" class="btn btn-view">View Followers
+            {{!-- {{#if user.followersCount}}View Followers{{else}}No Followers{{/if}} --}}
+          </a>
         </div>
         <div class="stats-item">
-          <p><strong>Following:</strong> {{user.following.length}}</p>
+          <p><strong>Following:</strong> {{user.followingCount}}</p>
+          <a href="/personal/{{user.userName}}/following" class="btn btn-view">View Following
+            {{!-- {{#if user.followingCount}}View Following{{else}}No Following{{/if}} --}}
+          </a>
         </div>
         <div class="stats-item">
           <p><strong>Posts:</strong> {{posts.length}}</p>
         </div>
       </section>
+
 
       <section class="posts">
         <h2>Travel Plans & Routes</h2>
@@ -61,21 +76,34 @@
 
       <section class="comments">
         <h2>Comments</h2>
+
         {{#if user.personalPageComments.length}}
-        <ul>
-          {{#each user.personalPageComments}}
-          <li>
-            <strong>{{this.author}}</strong>: {{this.commentText}}
-            <small>({{this.createdAt}})</small>
-          </li>
-          {{/each}}
-        </ul>
+        <form action="/personal/{{user.userName}}/delete-comments" method="POST">
+          <ul>
+            {{#each user.personalPageComments}}
+            <li>
+              <p>{{this.content}}</p>
+              <small>By {{this.uid.userName}} on {{this.created}}</small>
+              {{#if (or (eq this.uid.userName ../session.userName) ../isCurrentUser)}}
+              <button type="submit" name="commentId" value="{{this._id}}" class="btn btn-delete">Delete</button>
+
+              {{!-- {{#if isCurrentUser}} --}}
+              {{!-- <input type="checkbox" name="selectedComments" value="{{this._id}}" /> --}}
+              {{/if}}
+            </li>
+            {{/each}}
+          </ul>
+
+          {{!-- {{#if isCurrentUser}}
+          <button type="submit" class="btn btn-danger">Delete Selected Comments</button>
+          {{/if}} --}}
+        </form>
         {{else}}
         <p>No comments yet. Be the first to comment!</p>
         {{/if}}
 
         {{#unless isCurrentUser}}
-        <form action="/comments/{{user.userName}}" method="POST">
+        <form action="/personal/{{user.userName}}/comment" method="POST">
           <textarea name="commentText" placeholder="Write a comment..." required></textarea>
           <button type="submit" class="btn btn-comment">Post Comment</button>
         </form>
@@ -83,6 +111,53 @@
       </section>
 
 
+
+
+
     </div>
   </section>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const followButton = document.getElementById("follow-button");
+
+    if (followButton) {
+      followButton.addEventListener("click", async () => {
+        const username = followButton.getAttribute("data-username");
+
+        try {
+          const response = await fetch(`/personal/${username}/toggleFollow`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Update button text and class based on follow state
+            followButton.textContent = data.isFollowing ? "Unfollow" : "Follow";
+            followButton.classList.toggle("btn-unfollow", data.isFollowing);
+            followButton.classList.toggle("btn-follow", !data.isFollowing);
+          } else {
+            console.error("Failed to toggle follow:", data.error);
+            alert(data.error || "An unexpected error occurred.");
+          }
+        } catch (error) {
+          console.error("Error toggling follow:", error);
+          alert("An error occurred. Please try again.");
+        }
+      });
+    }
+  });
+  document.getElementById("commentForm").addEventListener("submit", (e) => {
+    const commentContent = document.getElementById("commentContent").value.trim();
+    if (!commentContent) {
+      e.preventDefault();
+      alert("Comment cannot be empty!");
+    }
+  });
+
+</script>

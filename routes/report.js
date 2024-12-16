@@ -1,4 +1,5 @@
 import express from "express";
+import xss from "xss";
 import { isAuthenticated, requireRole } from "../middleware/auth.js";
 import { getUserByUsername } from "../data/userService.js";
 import Report from "../models/report.js";
@@ -9,25 +10,28 @@ router.get("/report/:username", isAuthenticated, (req, res) => {
   return res.render("report", {
     title: "Report",
     customCSS: "report",
-    username: req.params.username
+    username: xss(req.params.username)
   });
 });
 
 router.post("/report/:username", isAuthenticated, async (req, res) => {
   try {
     // Handle report submission
-    const { reportType, description } = req.body;
+    let { reportType, description } = req.body;
+
+    reportType = xss(reportType);
+    description = xss(description);
 
     if (!reportType || !description) {
       return res.status(400).send("All fields are required");
     }
 
-    if (req.session.userName === req.params.username) {
+    if (req.session.userName === xss(req.params.username)) {
       return res.status(400).send("You cannot report yourself");
     }
 
     // Get the user being reported
-    const reportedUser = await getUserByUsername(req.params.username);
+    const reportedUser = await getUserByUsername(xss(req.params.username));
 
     if (!reportedUser) {
       return res.status(404).send("User not found");
@@ -98,7 +102,7 @@ router.post(
   requireRole("Moderator"),
   async (req, res) => {
     try {
-      const username = req.params.username;
+      const username = xss(req.params.username);
       const user = await getUserByUsername(username);
 
       if (!user) {

@@ -15,7 +15,9 @@ const UserSchema = new Schema({
     { type: mongoose.Schema.Types.ObjectId, ref: "Comment" }
   ],
   profilePicture: { type: String, default: "/default-profile.svg" },
-  bio: { type: String, default: "This user has not set a bio yet." }
+  bio: { type: String, default: "This user has not set a bio yet." },
+  role: { type: String, default: "User" },
+  isHidden: { type: Boolean, default: false, required: true }
 });
 
 UserSchema.pre("save", async function (next) {

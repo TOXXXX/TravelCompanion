@@ -36,16 +36,16 @@ router.post("/new/:postId", async (req, res) => {
   const { postId } = req.params;
   const action = req.body.action;
   let {
-    "route-name": routeName,
-    "route-description": routeDesc,
-    "route-duration": routeDuration,
-    "waypoint-1-coordinates": waypoint1Coordinates,
-    "waypoint-2-coordinates": waypoint2Coordinates,
-    "waypoint-1-name": waypoint1Name,
-    "waypoint-2-name": waypoint2Name,
-    "waypoint-1-description": waypoint1Description,
-    "waypoint-2-description": waypoint2Description,
-    "route-type": routeType
+    'route-name': routeName,
+    'route-description': routeDesc,
+    'route-duration': routeDuration,
+    'waypoint-1-coordinates': waypoint1Coordinates,
+    'waypoint-2-coordinates': waypoint2Coordinates,
+    'waypoint-1-name': waypoint1Name,
+    'waypoint-2-name': waypoint2Name,
+    'waypoint-1-description': waypoint1Description,
+    'waypoint-2-description': waypoint2Description,
+    'route-type': routeType,
   } = req.body;
 
   routeName = routeName?.trim();
@@ -327,6 +327,7 @@ router.get("/:postId", async (req, res) => {
 
 router.get("/edit/:id", async (req, res) => {
   const { id } = req.params;
+
 
   try {
     const route = await Route.findById(id);

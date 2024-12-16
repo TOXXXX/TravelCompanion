@@ -15,6 +15,7 @@ import {
   createComment,
   deleteCommentById
 } from "../data/comment.js";
+import xss from "xss";
 import Post from "../models/posts.js";
 import Comment from "../models/comments.js";
 import User from "../models/users.js";
@@ -237,7 +238,7 @@ router.get("/:postId", async (req, res) => {
       timed: timed,
       startDate: startDate,
       endDate: endDate,
-      isAuthor: isAuthor,
+      isAuthor: isAuthor
     });
   } catch (e) {
     return res.status(404).render("error", {

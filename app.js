@@ -35,8 +35,8 @@ const hbs = handlebars.create({
     default: (value, defaultValue) => {
       return value || defaultValue;
     },
-    ifEquals: function(arg1, arg2, options) {
-      return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
+    ifEquals: function (arg1, arg2, options) {
+      return arg1 === arg2 ? options.fn(this) : options.inverse(this);
     },
     json: (context) => {
       return JSON.stringify(context);
@@ -88,6 +88,7 @@ const startServer = async () => {
     );
     app.use((req, res, next) => {
       res.locals.isAuthenticated = req.session.isAuthenticated || false;
+      res.locals.isModerator = req.session.role == "Moderator";
       res.locals.session = req.session || {};
       next();
     });

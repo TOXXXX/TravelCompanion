@@ -3,9 +3,7 @@ import {
   toggleFollowUser,
   addCommentToUser
 } from "./data/userService.js";
-import { createPost } from "./data/post.js";
-import { createRoute } from "./data/route.js";
-import { createComment } from "./data/comment.js";
+import Report from "./models/report.js";
 import { dropDB, disconnectDB } from "./config/db.js";
 
 const seedDatabase = async () => {
@@ -312,6 +310,40 @@ const seedDatabase = async () => {
     // }
 
     console.log("Sample posts and routes added successfully");
+
+    const sampleReports = [
+      {
+        reportedBy: createdUsers[1]._id,
+        reportedUser: createdUsers[0]._id,
+        description: "Test description",
+        type: "Inappropriate Content"
+      },
+      {
+        reportedBy: createdUsers[2]._id,
+        reportedUser: createdUsers[1]._id,
+        description: "Test description",
+        type: "Spam"
+      },
+      {
+        reportedBy: createdUsers[3]._id,
+        reportedUser: createdUsers[2]._id,
+        description: "Test description",
+        type: "Harassment"
+      }
+    ];
+
+    for (const reportData of sampleReports) {
+      const report = new Report({
+        reportedBy: reportData.reportedBy,
+        reportedUser: reportData.reportedUser,
+        description: reportData.description,
+        type: reportData.type
+      });
+
+      await report.save();
+    }
+
+    console.log("Sample reports added successfully");
 
     console.log("Seeding completed.");
 

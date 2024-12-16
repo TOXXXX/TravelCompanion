@@ -25,6 +25,8 @@ function validInputDateFrontend(input) {
   let errorDiv = document.getElementById("errorDiv");
   let submitButton = document.getElementById("submitBTN");
   let postPictures = document.getElementById("postPictures");
+  let postDescription = document.getElementById("postDescription");
+  let postContent = document.getElementById("postContent");
 
   function editPostCheckForm(event) {
     errorDiv.hidden = true;
@@ -52,6 +54,13 @@ function validInputDateFrontend(input) {
       if (!startDate.value || !endDate.value) {
         errors.push("Fill in both dates or leave both empty for route");
       }
+    }
+    // console.log(postDescription.value.length);
+    if (postDescription.value.length > 100) {
+      errors.push("Description must be less than 100 characters");
+    }
+    if (postContent.value.length > 10000) {
+      errors.push("Content must be less than 10000 characters");
     }
 
     if (startDate.valueAsNumber > endDate.valueAsNumber) {
@@ -113,6 +122,13 @@ function validInputDateFrontend(input) {
         if (!startDate.value || !endDate.value) {
           errors.push("Fill in both dates or leave both empty for route");
         }
+      }
+
+      if (postDescription.value.length > 100) {
+        errors.push("Description must be less than 100 characters");
+      }
+      if (postContent.value.length > 10000) {
+        errors.push("Content must be less than 10000 characters");
       }
 
       if (startDate.valueAsNumber > endDate.valueAsNumber) {

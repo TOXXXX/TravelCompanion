@@ -5,6 +5,7 @@ import Route from "../models/routes.js";
 import Post from "../models/posts.js";
 import User from "../models/users.js";
 import { isAuthenticated } from "../middleware/auth.js";
+import xss from "xss";
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ const router = express.Router();
 const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 
 router.get("/new/:postId", isAuthenticated, async (req, res) => {
-  const { postId } = req.params;
+  const postId = xss(req.params.postId);
   let postOwner = await Post.findById(postId);
   if (postOwner) {
     postOwner = postOwner.uid;
@@ -46,8 +47,8 @@ router.get("/new/:postId", isAuthenticated, async (req, res) => {
 });
 
 router.post("/new/:postId", isAuthenticated, async (req, res) => {
-  const { postId } = req.params;
-  const action = req.body.action;
+  const postId = xss(req.params.postId);
+  const action = xss(req.body.action);
 
   const post = await Post.findById(postId);
   const routeOwnerId = post.uid;
@@ -306,7 +307,7 @@ router.post("/new/:postId", isAuthenticated, async (req, res) => {
 
 router.get("/:postId", async (req, res) => {
   try {
-    const { postId } = req.params;
+    const postId = xss(req.params.postId);
     const route = await Route.findOne({ postId });
     const isRouteOwner = route.uid.toString() == req.session.userId;
 
@@ -336,7 +337,7 @@ router.get("/:postId", async (req, res) => {
 });
 
 router.get("/edit/:id", isAuthenticated, async (req, res) => {
-  const { id } = req.params;
+  const id = xss(req.params.id);
 
   try {
     const route = await Route.findById(id);
@@ -369,7 +370,7 @@ router.get("/edit/:id", isAuthenticated, async (req, res) => {
 });
 
 router.post("/edit/:id", isAuthenticated, async (req, res) => {
-  const { id } = req.params;
+  const id = xss(req.params.id);
   // console.log(id);
   const route = await Route.findById(id);
 
@@ -570,7 +571,7 @@ router.post("/edit/:id", isAuthenticated, async (req, res) => {
 });
 
 router.post("/delete/:id", isAuthenticated, async (req, res) => {
-  const { id } = req.params;
+  const id = xss(req.params.id);
 
   const route = await Route.findById(id);
   const routeOwnerId = route.uid;

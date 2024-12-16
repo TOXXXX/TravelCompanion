@@ -29,7 +29,7 @@ $(document).ready(function () {
                 <div class="companion-div search-result">
                   <li class="companion">
                     <a href="/personal/${user.userName}">
-                      <img src="${user.profilePic}" alt="Profile Picture" class="profile-pic">
+                      <img src="${user.profilePicture ? user.profilePicture : "/default-profile.svg"}" alt="Profile Picture" class="profile-pic">
                       <h2>${user.userName}</h2>
                     </a>
                     <p>About me: <br>${user.bio}</p>
@@ -43,8 +43,6 @@ $(document).ready(function () {
 
           // Add results to container
           $resultsContainer.append("<h3>Search Results</h3>", $resultsList);
-
-          // $resultsContainer.append($resetButton);
         } else {
           $resultsContainer.html("<p>No users found matching your search.</p>");
         }

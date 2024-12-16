@@ -53,6 +53,9 @@ export const getUserByUsername = async (username, includePassword = false) => {
     if (!user) {
       throw new Error("User not found");
     }
+    if (user.isHidden) {
+      throw new Error("User not found");
+    }
 
     return user;
   } catch (error) {
@@ -263,6 +266,10 @@ export const getCommentById = async (commentId) => {
       "uid",
       "userName"
     );
+    const user = await User.findById(comment.uid);
+    if (user.isHidden) {
+      return null;
+    }
     if (!comment) throw new Error("Comment not found");
     return comment;
   } catch (error) {
@@ -322,5 +329,14 @@ export const searchUsers = async (search) => {
     });
   } catch (e) {
     throw new Error(`Unable to search users: ${e.message}`);
+  }
+};
+
+export const getAllHiddenUserIds = async () => {
+  try {
+    const hiddenUserIds = await User.find({ isHidden: true }).select("_id");
+    return hiddenUserIds.map((user) => user._id);
+  } catch (error) {
+    throw new Error(`Unable to get hidden user IDs: ${error.message}`);
   }
 };

@@ -1,7 +1,7 @@
 import express from "express";
 import xss from "xss";
 import { isAuthenticated, requireRole } from "../middleware/auth.js";
-import { getUserByUsername } from "../data/userService.js";
+import { getUserByUsernameForReport } from "../data/userService.js";
 import Report from "../models/report.js";
 
 const router = express.Router();
@@ -31,7 +31,9 @@ router.post("/report/:username", isAuthenticated, async (req, res) => {
     }
 
     // Get the user being reported
-    const reportedUser = await getUserByUsername(xss(req.params.username));
+    const reportedUser = await getUserByUsernameForReport(
+      xss(req.params.username)
+    );
 
     if (!reportedUser) {
       return res.status(404).send("User not found");
@@ -103,7 +105,7 @@ router.post(
   async (req, res) => {
     try {
       const username = xss(req.params.username);
-      const user = await getUserByUsername(username);
+      const user = await getUserByUsernameForReport(username);
 
       if (!user) {
         return res.status(404).send("User not found");
@@ -113,8 +115,6 @@ router.post(
 
       // Invalidate the user's session if they are hidden
       if (user.isHidden) {
-        console.log(`Invalidating session for ${user.userName}`);
-        console.log(`Session ID: ${user.sessionId}`);
         req.sessionStore.destroy(user.sessionId, (err) => {
           if (err) {
             console.log(err);
@@ -165,7 +165,7 @@ router.get(
   async (req, res) => {
     try {
       const username = req.params.username;
-      const user = await getUserByUsername(username);
+      const user = await getUserByUsernameForReport(username);
 
       if (!user) {
         return res.status(404).send("User not found");

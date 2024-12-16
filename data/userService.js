@@ -63,6 +63,44 @@ export const getUserByUsername = async (username, includePassword = false) => {
   }
 };
 
+export const getUserByUsernameForReport = async (
+  username,
+  includePassword = false
+) => {
+  try {
+    let query = User.findOne({ userName: username })
+      .populate("posts")
+      // .populate("personalPageComments")
+      .populate({
+        path: "personalPageComments",
+        populate: { path: "uid", select: "userName profilePicture" }
+      })
+      .populate("followers following", "userName profilePicture");
+
+    if (includePassword) {
+      query = query.select(
+        "userName sessionId bio profilePicture email phoneNumber followers following role isHidden password"
+      );
+    } else {
+      query = query.select(
+        "userName sessionId bio profilePicture email phoneNumber followers following role isHidden"
+      );
+    }
+
+    const user = await query;
+    if (!user) {
+      throw new Error("User not found");
+    }
+    // if (user.isHidden) {
+    //   throw new Error("User not found");
+    // }
+
+    return user;
+  } catch (error) {
+    throw new Error(`Unable to get user by username: ${error.message}`);
+  }
+};
+
 // Update User
 export const updateUserById = async (userId, updateData) => {
   try {

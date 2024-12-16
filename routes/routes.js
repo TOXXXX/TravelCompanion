@@ -3,6 +3,8 @@ import axios from "axios";
 import dotenv from "dotenv";
 import Route from "../models/routes.js";
 import Post from "../models/posts.js";
+import User from "../models/users.js";
+import { isAuthenticated } from "../middleware/auth.js";
 import xss from "xss";
 
 dotenv.config();
@@ -10,8 +12,22 @@ dotenv.config();
 const router = express.Router();
 const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 
-router.get("/new/:postId", async (req, res) => {
+router.get("/new/:postId", isAuthenticated, async (req, res) => {
   const postId = xss(req.params.postId);
+  let postOwner = await Post.findById(postId);
+  if (postOwner) {
+    postOwner = postOwner.uid;
+    if (postOwner.toString() !== req.session.userId.toString()) {
+      return res.status(403).render("error", {
+        message: "You are not authorized to create a route for this post."
+      });
+    }
+  } else {
+    return res.status(404).render("error", {
+      message: "Post owner not found in this post."
+    });
+  }
+
   try {
     const post = await Post.findById(postId);
     if (!post) {
@@ -30,9 +46,18 @@ router.get("/new/:postId", async (req, res) => {
   }
 });
 
-router.post("/new/:postId", async (req, res) => {
+router.post("/new/:postId", isAuthenticated, async (req, res) => {
   const postId = xss(req.params.postId);
   const action = xss(req.body.action);
+
+  const post = await Post.findById(postId);
+  const routeOwnerId = post.uid;
+  if (routeOwnerId.toString() !== req.session.userId.toString()) {
+    return res.status(403).render("error", {
+      message: "You are not authorized to create a route for this post."
+    });
+  }
+
   let {
     "route-name": routeName,
     "route-description": routeDesc,
@@ -284,6 +309,15 @@ router.get("/:postId", async (req, res) => {
   try {
     const postId = xss(req.params.postId);
     const route = await Route.findOne({ postId });
+    const isRouteOwner = route.uid.toString() == req.session.userId;
+
+    const routeOwner = await User.findById(route.uid);
+    if (routeOwner.isHidden) {
+      return res.status(403).render("error", {
+        message: "This user's route is hidden from public view."
+      });
+    }
+
     if (!route) {
       return res.status(404).render("error", { message: "Route not found." });
     }
@@ -291,7 +325,8 @@ router.get("/:postId", async (req, res) => {
     return res.render("route-detail", {
       customCSS: "create-route",
       route,
-      post
+      post,
+      isRouteOwner: isRouteOwner
     });
   } catch (e) {
     console.error(e);
@@ -301,13 +336,20 @@ router.get("/:postId", async (req, res) => {
   }
 });
 
-router.get("/edit/:id", async (req, res) => {
+router.get("/edit/:id", isAuthenticated, async (req, res) => {
   const id = xss(req.params.id);
 
   try {
     const route = await Route.findById(id);
     if (!route) {
       return res.status(404).render("error", { message: "Route not found." });
+    }
+
+    const routeOwnerId = route.uid;
+    if (routeOwnerId.toString() !== req.session.userId.toString()) {
+      return res.status(403).render("error", {
+        message: "You are not authorized to create a route for this post."
+      });
     }
 
     console.log({ ...route.toJSON() });
@@ -327,9 +369,17 @@ router.get("/edit/:id", async (req, res) => {
   }
 });
 
-router.post("/edit/:id", async (req, res) => {
+router.post("/edit/:id", isAuthenticated, async (req, res) => {
   const id = xss(req.params.id);
-  console.log(id);
+  // console.log(id);
+  const route = await Route.findById(id);
+
+  const routeOwnerId = route.uid;
+  if (routeOwnerId.toString() !== req.session.userId.toString()) {
+    return res.status(403).render("error", {
+      message: "You are not authorized to edit this route."
+    });
+  }
 
   const {
     "route-name": routeName,
@@ -520,8 +570,16 @@ router.post("/edit/:id", async (req, res) => {
   }
 });
 
-router.post("/delete/:id", async (req, res) => {
+router.post("/delete/:id", isAuthenticated, async (req, res) => {
   const id = xss(req.params.id);
+
+  const route = await Route.findById(id);
+  const routeOwnerId = route.uid;
+  if (routeOwnerId.toString() !== req.session.userId.toString()) {
+    return res.status(403).render("error", {
+      message: "You are not authorized to delete this route."
+    });
+  }
 
   try {
     const route = await Route.findByIdAndDelete(id);

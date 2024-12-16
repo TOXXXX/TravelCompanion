@@ -19,8 +19,8 @@ const hbs = handlebars.create({
     default: (value, defaultValue) => {
       return value || defaultValue;
     },
-    ifEquals: function(arg1, arg2, options) {
-      return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
+    ifEquals: function (arg1, arg2, options) {
+      return arg1 === arg2 ? options.fn(this) : options.inverse(this);
     },
     json: (context) => {
       return JSON.stringify(context);

@@ -256,7 +256,7 @@ router.post(
         { new: true }
       );
       // Redirect to display the new post
-      return res.status(201).redirect(`/post/${newPost._id}`);
+      return res.status(201).redirect(`/route/new/${newPost._id}`);
     } catch (e) {
       return res.status(400).render("error", {
         message: e.message

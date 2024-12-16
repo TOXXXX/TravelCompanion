@@ -19,6 +19,7 @@ waypoints.forEach(({ geocoderId, hiddenInputId, nameInputId }) => {
   const geocoder = new MapboxGeocoder({
     accessToken: mapboxgl.accessToken,
     mapboxgl: mapboxgl,
+    language: "en-US",
     placeholder: "Search for a location..."
   });
 

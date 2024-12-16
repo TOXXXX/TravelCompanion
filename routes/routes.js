@@ -245,6 +245,7 @@ router.post("/new/:postId", async (req, res) => {
         distance: `${distanceInKm} km`,
         duration: formattedDuration
       });
+
       await routeDoc.save();
     }
 
@@ -521,8 +522,8 @@ router.post("/delete/:id", async (req, res) => {
       return res.status(404).render("error", { message: "Route not found." });
     }
 
-    // Redirect to home with success alert
-    res.redirect(`/`);
+    // Redirect to original post
+    res.redirect(`/post/${route.postId}`);
   } catch (error) {
     console.error("Failed to delete route:", error.message);
     res.status(500).render("error", { message: "Failed to delete route." });

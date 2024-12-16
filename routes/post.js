@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import sharp from "sharp";
+import path from "path";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
 import { getFollowingUsers, getUserById } from "../data/userService.js";
@@ -27,7 +28,7 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/uploads/");
+    cb(null, "public/uploads/posts");
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -158,77 +159,103 @@ router.get("/create", isAuthenticated, (req, res) => {
   }
 });
 
-router.post("/create", isAuthenticated, async (req, res) => {
-  try {
-    let {
-      postTitle,
-      postDescription,
-      postContent,
-      postType,
-      startDate,
-      endDate
-    } = req.body;
+router.post(
+  "/create",
+  isAuthenticated,
+  upload.array("postPictures", 5),
+  async (req, res) => {
+    try {
+      let {
+        postTitle,
+        postDescription,
+        postContent,
+        postType,
+        startDate,
+        endDate
+      } = req.body;
 
-    postTitle = validTrimInput(postTitle, "string");
-    postDescription = validTrimInput(postDescription, "string");
-    postContent = validTrimInput(postContent, "string");
-    postType = validTrimInput(postType, "string");
+      postTitle = validTrimInput(postTitle, "string");
+      postDescription = validTrimInput(postDescription, "string");
+      postContent = validTrimInput(postContent, "string");
+      postType = validTrimInput(postType, "string");
 
-    let postData;
-    let now = new Date();
-
-    if (postType === "route") {
-      let intendedTime = [];
-      if (startDate && endDate) {
-        intendedTime = [startDate, endDate];
+      let images = [];
+      console.log(req.files);
+      if (req.files.length > 0) {
+        for (let i = 0; i < req.files.length; i++) {
+          const image = req.files[i].path;
+          // const fileName = `uploads/posts/${req.files[i].filename}`;
+          // let clientPicPath = req.files[i].path.split("public\\")[1];
+          // clientPicPath = "/resized-".concat(clientPicPath.replace(/\\/g, "/"));
+          const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
+          await sharp(image)
+            .resize({ width: 1000, height: 1000, fit: "inside" })
+            .jpeg({ quality: 90 })
+            //.png()
+            .toFile(`public${clientPicPath}`);
+          images.push(clientPicPath);
+        }
       }
-      postData = {
-        uid: req.session.userId,
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: false,
-        intendedTime: intendedTime,
-        created: now,
-        lastEdited: now,
-        comments: [],
-        likeByUsers: []
-      };
-    } else if (postType === "plan") {
-      startDate = validInputDate(startDate);
-      endDate = validInputDate(endDate);
-      postData = {
-        uid: req.session.userId,
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: true,
-        intendedTime: [startDate, endDate],
-        created: now,
-        lastEdited: now,
-        comments: [],
-        likeByUsers: []
-      };
-    } else {
-      throw new Error("Invalid post type");
-    }
 
-    // Save the post
-    const newPost = new Post(postData);
-    await newPost.save();
-    await User.findByIdAndUpdate(
-      req.session.userId,
-      { $push: { posts: String(newPost._id) } },
-      { new: true }
-    );
-    // Redirect to display the new post
-    return res.status(201).redirect(`/post/${newPost._id}`);
-  } catch (e) {
-    return res.status(400).render("error", {
-      message: e.message
-    });
+      let postData;
+      let now = new Date();
+
+      if (postType === "route") {
+        let intendedTime = [];
+        if (startDate && endDate) {
+          intendedTime = [startDate, endDate];
+        }
+        postData = {
+          uid: req.session.userId,
+          title: postTitle,
+          intro: postDescription,
+          content: {
+            description: postContent,
+            images: images
+          },
+          isPlan: false,
+          intendedTime: intendedTime,
+          created: now,
+          lastEdited: now,
+          comments: [],
+          likeByUsers: []
+        };
+      } else if (postType === "plan") {
+        startDate = validInputDate(startDate);
+        endDate = validInputDate(endDate);
+        postData = {
+          uid: req.session.userId,
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent, images: images },
+          isPlan: true,
+          intendedTime: [startDate, endDate],
+          created: now,
+          lastEdited: now,
+          comments: [],
+          likeByUsers: []
+        };
+      } else {
+        throw new Error("Invalid post type");
+      }
+
+      // Save the post
+      const newPost = new Post(postData);
+      await newPost.save();
+      await User.findByIdAndUpdate(
+        req.session.userId,
+        { $push: { posts: String(newPost._id) } },
+        { new: true }
+      );
+      // Redirect to display the new post
+      return res.status(201).redirect(`/post/${newPost._id}`);
+    } catch (e) {
+      return res.status(400).render("error", {
+        message: e.message
+      });
+    }
   }
-});
+);
 
 router.get("/:postId", async (req, res) => {
   try {

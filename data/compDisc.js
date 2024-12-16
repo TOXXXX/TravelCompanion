@@ -35,16 +35,14 @@ export const matchUsersById = async (userId) => {
   try {
     // const user = await getUserById(userId);
 
-    let myRoutes = await Route.find({ uid: userId });
-    let othersRoutes = await Route.find({ uid: { $ne: userId } });
+    let myRoutes = await Route.find({ uid: userId }).populate("postId").lean();
+    let othersRoutes = await Route.find({ uid: { $ne: userId } })
+      .populate("postId")
+      .lean();
     let matchedUsers = [];
 
-    myRoutes = myRoutes.filter(
-      async (route) => (await getPostById(route.postId)).isPlan === true
-    );
-    othersRoutes = othersRoutes.filter(
-      async (route) => (await getPostById(route.postId)).isPlan === true
-    );
+    myRoutes = myRoutes.filter((route) => route.postId.isPlan === true);
+    othersRoutes = othersRoutes.filter((route) => route.postId.isPlan === true);
 
     for (let myRoute of myRoutes) {
       for (let otherRoute of othersRoutes) {

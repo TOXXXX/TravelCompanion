@@ -18,10 +18,8 @@ router.post("/register", async (req, res) => {
     let { userName, password, confirmPassword, email } = req.body;
     // Prevent XSS attacks
     // Passwords are omitted because they are hashed before being stored
-
-    userName = userName.toLowerCase();
-
     userName = xss(userName);
+    userName = userName.toLowerCase();
     email = xss(email);
     if (password !== confirmPassword) {
       return res.status(400).send("Passwords do not match");
@@ -70,10 +68,8 @@ router.post("/login", async (req, res) => {
   try {
     let { userName, password } = req.body;
     // Password omitted
-
-    userName = userName.toLowerCase();
-
     userName = xss(userName);
+    userName = userName.toLowerCase();
 
     const user = await User.findOne({ userName });
     if (!user) {

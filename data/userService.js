@@ -53,6 +53,9 @@ export const getUserByUsername = async (username, includePassword = false) => {
     if (!user) {
       throw new Error("User not found");
     }
+    if (user.isHidden) {
+      throw new Error("User not found");
+    }
 
     return user;
   } catch (error) {

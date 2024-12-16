@@ -43,6 +43,9 @@ router.get("/:username", isAuthenticated, async (req, res) => {
     if (!user) {
       return res.status(401).redirect("/login");
     }
+    if (user.isHidden) {
+      return res.status(404).render("error", { message: "User not found" });
+    }
 
     let isFollowing = false;
     if (!isCurrentUser) {

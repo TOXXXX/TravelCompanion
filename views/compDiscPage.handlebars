@@ -7,7 +7,7 @@
       <div class="companion-div">
         <li class="companion">
           <a href="/personal/{{this.userName}}">
-          <img src="{{this.profilePic}}" alt="Profile Picture" class="profile-pic">
+          <img src="{{#if this.profilePicture}}{{this.profilePicture}}{{else}}/default-profile.svg{{/if}}" alt="Profile Picture" class="profile-pic">
           <h2>{{this.userName}}</h2>
           </a>
           <p>About me: <br>{{this.bio}}</p>

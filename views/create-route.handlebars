@@ -77,9 +77,13 @@
       </div>
       <div class="button-container">
         {{#if (not hideCreateBtn)}}
+        {{#unless isEdit}}
         <button class="btn create-btn" type="submit" name="action" value="createRoute">Create Route</button>
-        {{else if isEdit}}
+        {{/unless}}
+        {{#if isEdit}}
         <button class="btn create-btn" type="submit" name="action" value="updateRoute">Update Route</button>
+        {{/if}}
+        <a href="/post/{{postId}}" class="btn cancel-btn">Skip Creat/Edit Route</a>
         {{else}}
         <button class="btn save-btn" data-post-id="{{postId}}" onclick="onSaveClickHandler(this)" type="button" name="action" value="viewPost">View Post </button>
         {{/if}}

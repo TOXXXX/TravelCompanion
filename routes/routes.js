@@ -3,6 +3,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import Route from "../models/routes.js";
 import Post from "../models/posts.js";
+import xss from "xss";
 
 dotenv.config();
 
@@ -10,7 +11,7 @@ const router = express.Router();
 const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 
 router.get("/new/:postId", async (req, res) => {
-  const { postId } = req.params;
+  const postId = xss(req.params.postId);
   try {
     const post = await Post.findById(postId);
     if (!post) {
@@ -30,8 +31,8 @@ router.get("/new/:postId", async (req, res) => {
 });
 
 router.post("/new/:postId", async (req, res) => {
-  const { postId } = req.params;
-  const action = req.body.action;
+  const postId = xss(req.params.postId);
+  const action = xss(req.body.action);
   let {
     "route-name": routeName,
     "route-description": routeDesc,
@@ -281,8 +282,11 @@ router.post("/new/:postId", async (req, res) => {
 
 router.get("/:postId", async (req, res) => {
   try {
-    const { postId } = req.params;
+    const postId = xss(req.params.postId);
     const route = await Route.findOne({ postId });
+    if (!route) {
+      return res.status(404).render("error", { message: "Route not found." });
+    }
     const post = await Post.findById(postId);
     return res.render("route-detail", {
       customCSS: "create-route",
@@ -298,7 +302,7 @@ router.get("/:postId", async (req, res) => {
 });
 
 router.get("/edit/:id", async (req, res) => {
-  const { id } = req.params;
+  const id = xss(req.params.id);
 
   try {
     const route = await Route.findById(id);
@@ -324,7 +328,7 @@ router.get("/edit/:id", async (req, res) => {
 });
 
 router.post("/edit/:id", async (req, res) => {
-  const { id } = req.params;
+  const id = xss(req.params.id);
   console.log(id);
 
   const {
@@ -457,6 +461,9 @@ router.post("/edit/:id", async (req, res) => {
     const durationInHours = Math.floor(durationInMinutes / 60);
     const remainingMinutes = durationInMinutes % 60;
 
+    const distanceInMeters = route.distance;
+    const distanceInKm = (distanceInMeters / 1000).toFixed(2);
+
     let formattedDuration = "";
     if (durationInHours > 0) {
       formattedDuration += `${durationInHours} hour${durationInHours > 1 ? "s" : ""} `;
@@ -506,7 +513,7 @@ router.post("/edit/:id", async (req, res) => {
     if (!updatedRoute) {
       return res.status(404).render("error", { message: "Route not found." });
     }
-    res.redirect(`/`);
+    res.redirect(`/post/${updatedRoute.postId}`);
   } catch (error) {
     console.error("Failed to update route:", error);
     res.status(500).render("error", { message: "Failed to update route." });
@@ -514,7 +521,7 @@ router.post("/edit/:id", async (req, res) => {
 });
 
 router.post("/delete/:id", async (req, res) => {
-  const { id } = req.params;
+  const id = xss(req.params.id);
 
   try {
     const route = await Route.findByIdAndDelete(id);

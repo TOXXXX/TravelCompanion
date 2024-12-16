@@ -1,7 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import User from "../models/users.js";
-import { isAuthenticated } from "../middleware/auth.js";
 import xss from "xss";
 
 const router = express.Router();
@@ -18,6 +17,15 @@ router.post("/register", async (req, res) => {
     let { userName, password, confirmPassword, email } = req.body;
     // Prevent XSS attacks
     // Passwords are omitted because they are hashed before being stored
+
+    userName = userName.trim();
+    password = password.trim();
+    confirmPassword = confirmPassword.trim();
+    email = email.trim();
+
+    if (!userName || !password || !confirmPassword || !email) {
+      return res.status(400).send("All fields are required");
+    }
 
     userName = userName.toLowerCase();
 
@@ -70,6 +78,12 @@ router.post("/login", async (req, res) => {
   try {
     let { userName, password } = req.body;
     // Password omitted
+    userName = userName.trim();
+    password = password.trim();
+
+    if (!userName || !password) {
+      return res.status(400).send("All fields are required");
+    }
 
     userName = userName.toLowerCase();
 
@@ -78,6 +92,10 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ userName });
     if (!user) {
       return res.status(401).send("User does not exist");
+    }
+
+    if (user.isHidden) {
+      return res.status(403).send("User is not allowed to log in");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

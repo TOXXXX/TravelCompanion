@@ -324,3 +324,12 @@ export const searchUsers = async (search) => {
     throw new Error(`Unable to search users: ${e.message}`);
   }
 };
+
+export const getAllHiddenUserIds = async () => {
+  try {
+    const hiddenUserIds = await User.find({ isHidden: true }).select("_id");
+    return hiddenUserIds.map((user) => user._id);
+  } catch (error) {
+    throw new Error(`Unable to get hidden user IDs: ${error.message}`);
+  }
+};

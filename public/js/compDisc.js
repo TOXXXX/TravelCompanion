@@ -44,7 +44,7 @@ $(document).ready(function () {
           // Add results to container
           $resultsContainer.append("<h3>Search Results</h3>", $resultsList);
 
-          $resultsContainer.append($resetButton);
+          // $resultsContainer.append($resetButton);
         } else {
           $resultsContainer.html("<p>No users found matching your search.</p>");
         }

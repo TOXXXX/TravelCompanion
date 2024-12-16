@@ -277,6 +277,23 @@ router.get("/:postId", async (req, res) => {
   try {
     const post = await getPostById(xss(req.params.postId));
     let comments = await getPostComments(xss(req.params.postId)); //tested
+    const postAuthor = await getUserById(post.uid);
+
+    if (postAuthor.isHidden) {
+      return res.status(404).render("error", {
+        message:
+          "This post has been temporarily hidden due to violation of terms."
+      });
+    }
+
+    for (let i = 0; i < comments.length; i++) {
+      const isHidden = (await getUserById(comments[i].uid)).isHidden;
+      if (isHidden) {
+        comments = comments.splice(i, 1);
+        i--;
+      }
+    }
+
     for (let i = 0; i < comments.length; i++) {
       comments[i] = {
         _id: comments[i]._id,
@@ -330,6 +347,15 @@ router.get("/:postId", async (req, res) => {
 
 router.delete("/delete/:postId", isAuthenticated, async (req, res) => {
   try {
+    const post = await getPostById(xss(req.params.postId));
+    if (post) {
+      if (post.uid != req.session.userId) {
+        throw new Error("You are not authorized to delete this post");
+      }
+    } else {
+      throw new Error(`Could not find post with id ${xss(req.params.postId)}`);
+    }
+
     const deletedPost = await deletePostById(xss(req.params.postId));
     if (!deletedPost) {
       throw new Error(
@@ -351,6 +377,10 @@ router.get("/edit/:postId", isAuthenticated, async (req, res) => {
     let routeId;
     if (route) {
       routeId = route._id;
+    }
+
+    if (post.uid != req.session.userId) {
+      throw new Error("You are not authorized to edit this post");
     }
 
     if (!post) {
@@ -412,6 +442,17 @@ router.patch(
       postType = validTrimInput(postType, "string");
       let postData;
       let now = new Date();
+
+      const post = await getPostById(xss(req.params.postId));
+      if (post) {
+        if (post.uid != req.session.userId) {
+          throw new Error("You are not authorized to edit this post");
+        }
+      } else {
+        throw new Error(
+          `Could not find post with id ${xss(req.params.postId)}`
+        );
+      }
 
       if (postDescription.length > 100) {
         throw new Error("Description cannot exceed 100 characters");
@@ -518,6 +559,17 @@ router.delete(
   isAuthenticated,
   async (req, res) => {
     try {
+      const comment = await getPostComments(xss(req.params.commentId));
+      if (comment) {
+        if (comment.uid != req.session.userId) {
+          throw new Error("You are not authorized to delete this comment");
+        }
+      } else {
+        throw new Error(
+          `Could not find comment with id ${xss(req.params.commentId)}`
+        );
+      }
+
       const deletedComment = await deleteCommentById(xss(req.params.commentId));
       if (!deletedComment) {
         throw new Error(

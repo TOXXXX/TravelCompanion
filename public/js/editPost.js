@@ -63,6 +63,13 @@ function validInputDateFrontend(input) {
       errors.push("Content must be less than 10000 characters");
     }
 
+    var re = /(\.jpg|\.jpeg|\.png)$/i;
+    for (let file of postPictures.files) {
+      if (!re.exec(file.name)) {
+        errors.push("Only .jpg, .jpeg, .png files are allowed");
+      }
+    }
+
     if (startDate.valueAsNumber > endDate.valueAsNumber) {
       errors.push("Start date must be before or same as the end date");
     }
@@ -129,6 +136,13 @@ function validInputDateFrontend(input) {
       }
       if (postContent.value.length > 10000) {
         errors.push("Content must be less than 10000 characters");
+      }
+
+      var re = /(\.jpg|\.jpeg|\.png)$/i;
+      for (let file of postPictures.files) {
+        if (!re.exec(file.name)) {
+          errors.push("Only .jpg, .jpeg, .png files are allowed");
+        }
       }
 
       if (startDate.valueAsNumber > endDate.valueAsNumber) {

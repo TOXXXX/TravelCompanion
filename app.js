@@ -72,6 +72,7 @@ const startServer = async () => {
     );
     app.use((req, res, next) => {
       res.locals.isAuthenticated = req.session.isAuthenticated || false;
+      res.locals.isModerator = req.session.role == "Moderator";
       res.locals.session = req.session || {};
       next();
     });

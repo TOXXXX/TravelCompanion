@@ -1,0 +1,22 @@
+<h2>Reported Activities</h2>
+<div class="reports-list">
+    {{#each reports}}
+    <div class="report-item" id="{{this._id}}">
+        <div class="report-header">
+            <span class="report-type">{{this.type}}</span>
+            <span class="report-date">{{this.createdAt}}</span>
+        </div>
+        <div class="report-content">
+            <p><strong>Reported User:</strong> {{this.reportedUser}}</p>
+            <p><strong>Reported By:</strong> {{this.reportedBy}}</p>
+            <p><strong>Description:</strong> {{this.description}}</p>
+        </div>
+        <div class="report-actions">
+            <button class="btn btn-success" onclick="dismissReport('{{this._id}}')">Dismiss Report</button>
+            <button data-id="hideAccount-{{this.reportedUser}}" class="btn btn-danger" onclick="disableAccount('{{this.reportedUser}}', '{{this._id}}')">Hide Account</button>
+        </div>
+    </div>
+    {{/each}}
+</div>
+
+<script src="/js/moderator.js"></script>

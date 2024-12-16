@@ -29,10 +29,11 @@ const RouteSchema = new Schema(
       description: { type: String }
     },
     routeType: { type: String, required: true },
-    mapDataUrl: { type: String, required: true }
+    mapDataUrl: { type: String, required: true },
+    distance: { type: String },
+    duration: { type: String }
   },
   { timestamps: true }
 );
 
-export default model('Route', RouteSchema);
-
+export default model("Route", RouteSchema);

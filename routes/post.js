@@ -441,9 +441,14 @@ router.patch(
         postData.content.images = oldPost.content.images;
       }
 
-      const updatedPost = await updatePostById(xss(req.params.postId), postData);
+      const updatedPost = await updatePostById(
+        xss(req.params.postId),
+        postData
+      );
       if (!updatedPost) {
-        throw new Error(`Could not update post with id ${xss(req.params.postId)}`);
+        throw new Error(
+          `Could not update post with id ${xss(req.params.postId)}`
+        );
       }
       return res.status(200).json({ message: "Post updated successfully" });
     } catch (e) {

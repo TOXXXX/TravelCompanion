@@ -260,56 +260,56 @@ const seedDatabase = async () => {
     let createdPosts = [];
 
     // Create Posts and Routes in a one-to-one relationship
-    for (let i = 0; i < postData.length; i++) {
-      const userId = createdUsers[i]._id;
-      const post = await createPost(userId, postData[i]);
-      createdPosts.push(post);
+    // for (let i = 0; i < postData.length; i++) {
+    //   const userId = createdUsers[i]._id;
+    //   const post = await createPost(userId, postData[i]);
+    //   createdPosts.push(post);
 
-      // Add postID and uid to the route data
-      const routeToCreate = {
-        uid: userId,
-        postId: post._id,
-        ...routeData[i]
-      };
+    //   // Add postID and uid to the route data
+    //   const routeToCreate = {
+    //     uid: userId,
+    //     postId: post._id,
+    //     ...routeData[i]
+    //   };
 
-      // Last post does not have a route
-      if (i !== postData.length - 1) {
-        const route = await createRoute(routeToCreate);
-      }
-    }
+    //   // Last post does not have a route
+    //   if (i !== postData.length - 1) {
+    //     const route = await createRoute(routeToCreate);
+    //   }
+    // }
 
     // Comments on the posts
-    const postComments = [
-      {
-        uid: createdUsers[1]._id,
-        content: "This is amazing!",
-        postId: createdPosts[0]._id
-      },
-      {
-        uid: createdUsers[2]._id,
-        content: "Great work!",
-        postId: createdPosts[1]._id
-      },
-      {
-        uid: createdUsers[3]._id,
-        content: "I love this place!",
-        postId: createdPosts[2]._id
-      },
-      {
-        uid: createdUsers[4]._id,
-        content: "Fantastic view!",
-        postId: createdPosts[3]._id
-      },
-      {
-        uid: createdUsers[0]._id,
-        content: "Beautiful scenery!",
-        postId: createdPosts[4]._id
-      }
-    ];
+    // const postComments = [
+    //   {
+    //     uid: createdUsers[1]._id,
+    //     content: "This is amazing!",
+    //     postId: createdPosts[0]._id
+    //   },
+    //   {
+    //     uid: createdUsers[2]._id,
+    //     content: "Great work!",
+    //     postId: createdPosts[1]._id
+    //   },
+    //   {
+    //     uid: createdUsers[3]._id,
+    //     content: "I love this place!",
+    //     postId: createdPosts[2]._id
+    //   },
+    //   {
+    //     uid: createdUsers[4]._id,
+    //     content: "Fantastic view!",
+    //     postId: createdPosts[3]._id
+    //   },
+    //   {
+    //     uid: createdUsers[0]._id,
+    //     content: "Beautiful scenery!",
+    //     postId: createdPosts[4]._id
+    //   }
+    // ];
 
-    for (const commentData of postComments) {
-      await createComment(commentData);
-    }
+    // for (const commentData of postComments) {
+    //   await createComment(commentData);
+    // }
 
     console.log("Sample posts and routes added successfully");
 

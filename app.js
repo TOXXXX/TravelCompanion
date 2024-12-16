@@ -11,6 +11,22 @@ import { setAuth } from "./middleware/auth.js";
 
 dotenv.config();
 
+
+const logger = (req, res, next) => {
+  console.log(
+    `[${new Date().toUTCString()}]: ${req.method} ${req.originalUrl} (${
+      req.session.user ? "Authenticated" : "Non-Authenticated"
+    }${
+      req.session.user
+        ? req.session.use?.role === "admin"
+          ? " Administrator User"
+          : " User"
+        : ""
+    })`
+  );
+  next();
+};
+
 const app = express();
 const port = process.env.PORT || 3000;
 const hbs = handlebars.create({
@@ -34,7 +50,11 @@ const hbs = handlebars.create({
       return new Date(date).toDateString(); // Format date as "Mon DD YYYY"
     },
     default: (value, defaultValue) => value || defaultValue,
-    json: (context) => JSON.stringify(context)
+    json: (context) => JSON.stringify(context),
+    conditionalRouteEditCreatePath: (isEdit, postId, routeId) => {
+      console.log({isEdit, postId, routeId});
+      return isEdit ? `/route/edit/${routeId}` : `/route/new/${postId}`;
+    }
   },
   runtimeOptions: {
     allowProtoPropertiesByDefault: true,
@@ -53,7 +73,7 @@ app.set("views", "./views");
 
 const startServer = async () => {
   try {
-    await seedDatabase();
+    //await seedDatabase();
 
     app.use(express.json());
 
@@ -78,6 +98,7 @@ const startServer = async () => {
     });
     app.use(setAuth);
     app.use(flash());
+    app.use(logger);
     registerRoutes(app);
 
     app.listen(port, async () => {

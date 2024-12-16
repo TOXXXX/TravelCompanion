@@ -182,7 +182,6 @@ router.post(
       postType = validTrimInput(postType, "string");
 
       let images = [];
-      console.log(req.files);
       if (req.files.length > 0) {
         if (req.files.length > 5) {
           throw new Error("You can only upload up to 5 images");
@@ -306,6 +305,7 @@ router.get("/:postId", async (req, res) => {
       isAuthor: isAuthor
     });
   } catch (e) {
+    console.log(e);
     return res.status(404).render("error", {
       message: e.message
     });

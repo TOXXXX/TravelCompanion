@@ -3,7 +3,6 @@ import axios from "axios";
 import dotenv from "dotenv";
 import Route from "../models/routes.js";
 import Post from "../models/posts.js";
-import User from "../models/users.js";
 
 dotenv.config();
 
@@ -242,7 +241,9 @@ router.post("/new/:postId", async (req, res) => {
           description: waypoint2Description
         },
         routeType,
-        mapDataUrl
+        mapDataUrl,
+        distance: `${distanceInKm} km`,
+        duration: formattedDuration
       });
       await routeDoc.save();
     }
@@ -340,16 +341,16 @@ router.post("/edit/:id", async (req, res) => {
 
   // Trim inputs
   const trimmedData = {
-    routeName: routeName.trim(),
-    routeDesc: routeDesc.trim(),
-    routeDuration: routeDuration.trim(),
-    waypoint1Coordinates: waypoint1Coordinates.trim(),
-    waypoint2Coordinates: waypoint2Coordinates.trim(),
-    waypoint1Name: waypoint1Name.trim(),
-    waypoint2Name: waypoint2Name.trim(),
-    waypoint1Description: waypoint1Description.trim(),
-    waypoint2Description: waypoint2Description.trim(),
-    routeType: routeType.trim()
+    routeName: routeName?.trim(),
+    routeDesc: routeDesc?.trim(),
+    routeDuration: routeDuration?.trim(),
+    waypoint1Coordinates: waypoint1Coordinates?.trim(),
+    waypoint2Coordinates: waypoint2Coordinates?.trim(),
+    waypoint1Name: waypoint1Name?.trim(),
+    waypoint2Name: waypoint2Name?.trim(),
+    waypoint1Description: waypoint1Description?.trim(),
+    waypoint2Description: waypoint2Description?.trim(),
+    routeType: routeType?.trim()
   };
 
   // Server-Side Validation
@@ -495,7 +496,9 @@ router.post("/edit/:id", async (req, res) => {
           description: trimmedData.waypoint2Description
         },
         routeType: trimmedData.routeType,
-        mapDataUrl
+        mapDataUrl,
+        distance: `${distanceInKm} km`,
+        duration: formattedDuration
       },
       { new: true, runValidators: true }
     );

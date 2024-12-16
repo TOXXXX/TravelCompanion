@@ -24,11 +24,73 @@ function validInputDateFrontend(input) {
   let editPost = document.getElementById("editPost");
   let errorDiv = document.getElementById("errorDiv");
   let submitButton = document.getElementById("submitBTN");
+  let postPictures = document.getElementById("postPictures");
+
+  function editPostCheckForm(event) {
+    errorDiv.hidden = true;
+    submitButton.disabled = false;
+    errorDiv.innerHTML = "<h4>Submission Errors:</h4>";
+    let postType = document.getElementById("postType");
+    let startDate = document.getElementById("startDate");
+    let endDate = document.getElementById("endDate");
+    if (postType.value == "route") {
+      startDate.required = false;
+      endDate.required = false;
+    } else if (postType.value == "plan") {
+      startDate.required = true;
+      endDate.required = true;
+    }
+
+    let errors = [];
+    if (postType.value == "plan") {
+      errors = errors.concat(validInputDateFrontend(startDate.value));
+      errors = errors.concat(validInputDateFrontend(endDate.value));
+      errors = [...new Set(errors)];
+    }
+
+    if (postType.value == "route" && (startDate.value || endDate.value)) {
+      if (!startDate.value || !endDate.value) {
+        errors.push("Fill in both dates or leave both empty for route");
+      }
+    }
+
+    if (startDate.valueAsNumber > endDate.valueAsNumber) {
+      errors.push("Start date must be before or same as the end date");
+    }
+
+    let existingPics = document.getElementById("edit-thumbnail-container");
+
+    if (existingPics) {
+      if (existingPics.childElementCount + postPictures.files.length > 5) {
+        errors.push("You can only have up to 5 pictures for a post");
+      }
+    }
+
+    if (postPictures.files.length > 5) {
+      errors.push("You can only have up to 5 pictures for a post");
+    }
+
+    if (errors.length > 0) {
+      submitButton.disabled = true;
+      errorDiv.hidden = false;
+      errors = [...new Set(errors)];
+      let errorUl = document.createElement("ul");
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      for (let error of errors) {
+        let li = document.createElement("li");
+        li.innerText = error;
+        errorUl.appendChild(li);
+      }
+      errorDiv.appendChild(errorUl);
+    }
+  }
+
   if (createPost) {
     createPost.addEventListener("change", (event) => {
       errorDiv.hidden = true;
       submitButton.disabled = false;
-      errorDiv.innerHTML = "";
+      errorDiv.innerHTML = "<h4>Submission Errors:</h4>";
       let postType = document.getElementById("postType");
       let startDate = document.getElementById("startDate");
       let endDate = document.getElementById("endDate");
@@ -55,6 +117,10 @@ function validInputDateFrontend(input) {
 
       if (startDate.valueAsNumber > endDate.valueAsNumber) {
         errors.push("Start date must be before or same as the end date");
+      }
+
+      if (postPictures.files.length > 5) {
+        errors.push("You can only upload up to 5 pictures");
       }
 
       if (errors.length > 0) {
@@ -79,71 +145,77 @@ function validInputDateFrontend(input) {
       document.getElementById("endDate").required = false;
     }
 
-    editPost.addEventListener("change", (event) => {
-      errorDiv.hidden = true;
-      submitButton.disabled = false;
-      errorDiv.innerHTML = "";
-      let postType = document.getElementById("postType");
-      let startDate = document.getElementById("startDate");
-      let endDate = document.getElementById("endDate");
-      if (postType.value == "route") {
-        startDate.required = false;
-        endDate.required = false;
-      } else if (postType.value == "plan") {
-        startDate.required = true;
-        endDate.required = true;
+    let thumbnails = [];
+    for (let i = 0; i < 5; i++) {
+      if (document.getElementById(`thumbnail${i}`)) {
+        thumbnails.push(document.getElementById(`thumbnail${i}`));
+      } else {
+        break;
       }
+    }
 
-      let errors = [];
-      if (postType.value == "plan") {
-        errors = errors.concat(validInputDateFrontend(startDate.value));
-        errors = errors.concat(validInputDateFrontend(endDate.value));
-        errors = [...new Set(errors)];
-      }
-
-      if (postType.value == "route" && (startDate.value || endDate.value)) {
-        if (!startDate.value || !endDate.value) {
-          errors.push("Fill in both dates or leave both empty for route");
-        }
-      }
-
-      if (startDate.valueAsNumber > endDate.valueAsNumber) {
-        errors.push("Start date must be before or same as the end date");
-      }
-
-      if (errors.length > 0) {
-        submitButton.disabled = true;
-        errorDiv.hidden = false;
-        let errorUl = document.createElement("ul");
+    for (let i = 0; i < thumbnails.length; i++) {
+      thumbnails[i].addEventListener("click", async (event) => {
         event.preventDefault();
-        event.stopImmediatePropagation();
-        for (let error of errors) {
-          let li = document.createElement("li");
-          li.innerText = error;
-          errorUl.appendChild(li);
+        console.log(window.location.pathname.split("/")[3]);
+        console.log(thumbnails[i].getAttribute("src"));
+        try {
+          let request = new Request(`/post/image/delete`);
+          const response = await fetch(request, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              postId: window.location.pathname.split("/")[3],
+              imgSrc: thumbnails[i].getAttribute("src")
+            })
+          });
+          if (response.ok) {
+            alert("Image sucessfully deleted");
+            thumbnails[i].remove();
+          }
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+          // window.location.reload();
         }
-        errorDiv.appendChild(errorUl);
-      }
+        editPostCheckForm(event);
+      });
+    }
+
+    editPost.addEventListener("change", (event) => {
+      editPostCheckForm(event);
     });
 
     editPost.addEventListener("submit", async (event) => {
       event.preventDefault();
       let postId = window.location.pathname.split("/")[3];
       let request = new Request(`/post/edit/${postId}`);
+
+      const formData = new FormData();
+      formData.append("postTitle", document.getElementById("postTitle").value);
+      formData.append(
+        "postDescription",
+        document.getElementById("postDescription").value
+      );
+      formData.append(
+        "postContent",
+        document.getElementById("postContent").value
+      );
+      formData.append("postType", document.getElementById("postType").value);
+      formData.append("startDate", document.getElementById("startDate").value);
+      formData.append("endDate", document.getElementById("endDate").value);
+      // formData.append("postPictures", postPictures.files);
+
+      const files = postPictures.files; // FileList
+      for (let i = 0; i < files.length; i++) {
+        formData.append("postPictures", files[i]); // Add each file individually
+      }
+
       try {
         const response = await fetch(request, {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            postTitle: document.getElementById("postTitle").value,
-            postDescription: document.getElementById("postDescription").value,
-            postContent: document.getElementById("postContent").value,
-            postType: document.getElementById("postType").value,
-            startDate: document.getElementById("startDate").value,
-            endDate: document.getElementById("endDate").value
-          })
+          body: formData
         });
         if (response.ok) {
           alert("Post successfully updated");

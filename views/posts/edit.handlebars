@@ -24,10 +24,19 @@
         placeholder="Tell us more about what your route/plan entails"
          required>{{post.content.description}}</textarea>
       </div>
-      {{!-- <div class="form-group">
-        <label for="route-duration">Duration (days)</label>
-        <input type="number" id="route-duration" name="route-duration" min="1" required>
-      </div> --}}
+      <div class="form-group">
+        <label for="postPictures">Pictures(up to 5):</label>
+        <input type="file" name="postPictures" id="postPictures" accept="image/jpeg, image/png" multiple>
+        {{#if post.content.images}}
+        <p>Click on a previous image to delete it from post:</p>
+          <div class="edit-thumbnail-container" id="edit-thumbnail-container">
+            {{#each post.content.images}}
+              <img src="{{this}}" class="edit-thumbnail" 
+              id="thumbnail{{@index}}" name="img{{@index}}" alt="Post Image {{@index}}">
+            {{/each}}
+          </div>
+        {{/if}}
+      </div>
       <div class="form-group">
         <p>If it is somewhere you plan to visit, choose "Plan"<br>
         If it is somewhere you have visited or only hypothetical, choose "Route"
@@ -47,6 +56,7 @@
         <input type="date" id="endDate" name="endDate" value="{{endDate}}" required>
       </div>
       <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+        <h4>Submission Errors:</h4>
         {{!-- Frontend validation error --}}
       </div>
       <button type="submit" class="btn" name="submitBTN" id="submitBTN" >Create Route</button>

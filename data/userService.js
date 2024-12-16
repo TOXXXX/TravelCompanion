@@ -266,6 +266,10 @@ export const getCommentById = async (commentId) => {
       "uid",
       "userName"
     );
+    const user = await User.findById(comment.uid);
+    if (user.isHidden) {
+      return null;
+    }
     if (!comment) throw new Error("Comment not found");
     return comment;
   } catch (error) {

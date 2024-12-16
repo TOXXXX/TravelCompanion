@@ -1,4 +1,3 @@
-import xss from "xss";
 import express from "express";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
@@ -241,6 +240,7 @@ router.get("/:postId", async (req, res) => {
       isAuthor: isAuthor
     });
   } catch (e) {
+    console.log(e);
     return res.status(404).render("error", {
       message: e.message
     });

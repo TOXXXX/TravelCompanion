@@ -7,7 +7,6 @@ import { createPost } from "./data/post.js";
 import { createRoute } from "./data/route.js";
 import { createComment } from "./data/comment.js";
 import { dropDB, disconnectDB } from "./config/db.js";
-import mongoose from "mongoose";
 
 const seedDatabase = async () => {
   try {

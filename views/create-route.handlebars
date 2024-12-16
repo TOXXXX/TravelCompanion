@@ -1,4 +1,4 @@
-<h2 style="text-align: center;">Create a New Route</h2>
+<h2 style="text-align: center;">{{pageHeading}}</h2>
 <div class="container">
   <div class="map-box">
     <div class="map-container">
@@ -29,7 +29,7 @@
     {{/if}}
   </div>
   <div class="route-form">
-    <form id="route-form" action="/route/new/{{postId}}" method="POST">
+    <form id="route-form" action="{{conditionalRouteEditCreatePath isEdit postId routeId}}" method="POST">
       <div class="form-group">
         <label for="route-name">Route Name</label>
         <input type="text" id="route-name" name="route-name" value="{{routeName}}" required>
@@ -78,8 +78,11 @@
       <div class="button-container">
         {{#if (not hideCreateBtn)}}
         <button class="btn create-btn" type="submit" name="action" value="createRoute">Create Route</button>
-        {{/if}}
+        {{else if isEdit}}
+        <button class="btn create-btn" type="submit" name="action" value="updateRoute">Update Route</button>
+        {{else}}
         <button class="btn save-btn" data-post-id="{{postId}}" onclick="onSaveClickHandler(this)" type="button" name="action" value="viewPost">View Post </button>
+        {{/if}}
       </div>
     </form>
   </div>

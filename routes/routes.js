@@ -12,8 +12,6 @@ const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 
 router.get("/new/:postId", async (req, res) => {
   const { postId } = req.params;
-  // console.log(`Mapbox Token: ${MAPBOX_ACCESS_TOKEN}`);
-  // console.log(postId);
   try {
     const post = await Post.findById(postId);
     if (!post) {
@@ -21,7 +19,7 @@ router.get("/new/:postId", async (req, res) => {
     }
 
     res.render("create-route", {
-      title: "Create Route",
+      pageHeading: "Create new route",
       customCSS: "create-route",
       MAPBOX_ACCESS_TOKEN,
       postId
@@ -36,16 +34,16 @@ router.post("/new/:postId", async (req, res) => {
   const { postId } = req.params;
   const action = req.body.action;
   let {
-    'route-name': routeName,
-    'route-description': routeDesc,
-    'route-duration': routeDuration,
-    'waypoint-1-coordinates': waypoint1Coordinates,
-    'waypoint-2-coordinates': waypoint2Coordinates,
-    'waypoint-1-name': waypoint1Name,
-    'waypoint-2-name': waypoint2Name,
-    'waypoint-1-description': waypoint1Description,
-    'waypoint-2-description': waypoint2Description,
-    'route-type': routeType,
+    "route-name": routeName,
+    "route-description": routeDesc,
+    "route-duration": routeDuration,
+    "waypoint-1-coordinates": waypoint1Coordinates,
+    "waypoint-2-coordinates": waypoint2Coordinates,
+    "waypoint-1-name": waypoint1Name,
+    "waypoint-2-name": waypoint2Name,
+    "waypoint-1-description": waypoint1Description,
+    "waypoint-2-description": waypoint2Description,
+    "route-type": routeType
   } = req.body;
 
   routeName = routeName?.trim();
@@ -166,7 +164,6 @@ router.post("/new/:postId", async (req, res) => {
       cycling: "mapbox/cycling"
     };
     const profile = profileMapping[routeType] || "mapbox/driving";
-    //console.log("profile;", profile);
 
     const directionsUrl = `https://api.mapbox.com/directions/v5/${profile}/${lng1},${lat1};${lng2},${lat2}`;
     const directionsResponse = await axios.get(directionsUrl, {
@@ -177,14 +174,6 @@ router.post("/new/:postId", async (req, res) => {
       }
     });
 
-    // console.log(directionsUrl, {
-    //   access_token: MAPBOX_ACCESS_TOKEN,
-    //   steps: true,
-    //   geometries: 'polyline'
-    // });
-
-    //console.log("directionURL:", directionsUrl);
-
     const directionsData = directionsResponse.data;
     if (!directionsData.routes || directionsData.routes.length === 0) {
       //return res.status(404).send('No routes found');
@@ -192,8 +181,6 @@ router.post("/new/:postId", async (req, res) => {
         message: "No routes found"
       });
     }
-
-    //console.log("direactions data :", directionsData);
 
     const route = directionsData.routes[0];
     const encodedPolyline = route.geometry;
@@ -228,18 +215,12 @@ router.post("/new/:postId", async (req, res) => {
 
     const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${pathOverlay},${startPin},${endPin}/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
 
-    //console.log("mapUrl:", mapUrl);
-    //const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+FF0000(${lng1},${lat1}),pin-s-l+00FF00(${lng2},${lat2})/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
-    //console.log({mapUrl})
     const response = await axios.get(mapUrl, { responseType: "arraybuffer" });
-    //console.log("response :", response);
 
     const base64Image = Buffer.from(response.data, "binary").toString("base64");
     const mapDataUrl = `data:image/png;base64,${base64Image}`;
-    //console.log(mapDataUrl);
 
     const uid = req.session.userId;
-    console.log(uid);
 
     let routeDoc = await Route.findOne({ postId, routeName, uid });
 
@@ -267,10 +248,8 @@ router.post("/new/:postId", async (req, res) => {
     }
 
     if (action === "createRoute") {
-      //console.log(res);
-      
       return res.render("create-route", {
-        title: "Create Route",
+        pageHeading: "Review your route",
         customCSS: "create-route",
         MAPBOX_ACCESS_TOKEN,
         postId,
@@ -288,20 +267,10 @@ router.post("/new/:postId", async (req, res) => {
         duration: formattedDuration,
         hideCreateBtn: true
       });
-    } else if (action === "viewPost") {
-      //console.log(res);
-      return res.redirect({
-        success: true,
-        data: {
-          postId
-        }
-      });
     } else {
       return res.status(400).json({ error: "Invalid action." });
     }
   } catch (error) {
-    //console.error("Error generating map URL:", error.message);
-    //res.status(500).send("Failed to generate map URL.");
     return res.status(500).render("error", {
       message: "Failed to generate map URL."
     });
@@ -310,12 +279,13 @@ router.post("/new/:postId", async (req, res) => {
 
 router.get("/:postId", async (req, res) => {
   try {
-    const { id } = req.params;
-    const route = await Route.findById(id);
+    const { postId } = req.params;
+    const route = await Route.findOne({ postId });
+    const post = await Post.findById(postId);
     return res.render("route-detail", {
-      customCSS: "routes",
-      route: route,
-      post: Post
+      customCSS: "create-route",
+      route,
+      post
     });
   } catch (e) {
     console.error(e);
@@ -328,16 +298,22 @@ router.get("/:postId", async (req, res) => {
 router.get("/edit/:id", async (req, res) => {
   const { id } = req.params;
 
-
   try {
     const route = await Route.findById(id);
     if (!route) {
       return res.status(404).render("error", { message: "Route not found." });
     }
 
-    res.render("edit-route", {
-      route,
-      MAPBOX_ACCESS_TOKEN
+    console.log({ ...route.toJSON() });
+
+    res.render("create-route", {
+      pageHeading: `Edit route: ${route.routeName}`,
+      customCSS: "create-route",
+      MAPBOX_ACCESS_TOKEN,
+      ...route.toJSON(),
+      routeId: route._id,
+      routeDuration: route?.tripDuration,
+      isEdit: true
     });
   } catch (error) {
     console.error(error);
@@ -347,6 +323,8 @@ router.get("/edit/:id", async (req, res) => {
 
 router.post("/edit/:id", async (req, res) => {
   const { id } = req.params;
+  console.log(id);
+
   const {
     "route-name": routeName,
     "route-description": routeDesc,
@@ -437,12 +415,56 @@ router.post("/edit/:id", async (req, res) => {
   }
 
   try {
-    const [lng1, lat1] = trimmedData.waypoint1Coordinates
+    const [lng1, lat1] = waypoint1Coordinates
       .split(",")
       .map((coord) => parseFloat(coord.trim()));
-    const [lng2, lat2] = trimmedData.waypoint2Coordinates
+    const [lng2, lat2] = waypoint2Coordinates
       .split(",")
       .map((coord) => parseFloat(coord.trim()));
+
+    const profileMapping = {
+      driving: "mapbox/driving",
+      walking: "mapbox/walking",
+      cycling: "mapbox/cycling"
+    };
+    const profile = profileMapping[routeType] || "mapbox/driving";
+
+    const directionsUrl = `https://api.mapbox.com/directions/v5/${profile}/${lng1},${lat1};${lng2},${lat2}`;
+    const directionsResponse = await axios.get(directionsUrl, {
+      params: {
+        access_token: MAPBOX_ACCESS_TOKEN,
+        steps: true,
+        geometries: "polyline"
+      }
+    });
+
+    const directionsData = directionsResponse.data;
+    if (!directionsData.routes || directionsData.routes.length === 0) {
+      //return res.status(404).send('No routes found');
+      return res.status(404).render("error", {
+        message: "No routes found"
+      });
+    }
+
+    const route = directionsData.routes[0];
+    const encodedPolyline = route.geometry;
+
+    const durationInSeconds = route.duration;
+
+    const durationInMinutes = Math.floor(durationInSeconds / 60);
+    const durationInHours = Math.floor(durationInMinutes / 60);
+    const remainingMinutes = durationInMinutes % 60;
+
+    let formattedDuration = "";
+    if (durationInHours > 0) {
+      formattedDuration += `${durationInHours} hour${durationInHours > 1 ? "s" : ""} `;
+    }
+    if (remainingMinutes > 0) {
+      formattedDuration += `${remainingMinutes} minute${remainingMinutes > 1 ? "s" : ""}`;
+    }
+    if (formattedDuration === "") {
+      formattedDuration = "Less than a minute";
+    }
 
     const encodedPolylineEscaped = encodeURIComponent(encodedPolyline);
     const pathOverlay = `path-5+f44-0.8(${encodedPolylineEscaped})`;
@@ -451,15 +473,10 @@ router.post("/edit/:id", async (req, res) => {
 
     const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${pathOverlay},${startPin},${endPin}/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
 
-    //console.log("mapUrl:", mapUrl);
-    //const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-l+FF0000(${lng1},${lat1}),pin-s-l+00FF00(${lng2},${lat2})/auto/800x400@2x?access_token=${MAPBOX_ACCESS_TOKEN}`;
-    //console.log({mapUrl})
     const response = await axios.get(mapUrl, { responseType: "arraybuffer" });
-    //console.log("response :", response);
 
     const base64Image = Buffer.from(response.data, "binary").toString("base64");
     const mapDataUrl = `data:image/png;base64,${base64Image}`;
-
     // Update Route Document
     const updatedRoute = await Route.findByIdAndUpdate(
       id,
@@ -482,13 +499,12 @@ router.post("/edit/:id", async (req, res) => {
       },
       { new: true, runValidators: true }
     );
-
     if (!updatedRoute) {
       return res.status(404).render("error", { message: "Route not found." });
     }
     res.redirect(`/`);
   } catch (error) {
-    console.error("Failed to update route:", error.message);
+    console.error("Failed to update route:", error);
     res.status(500).render("error", { message: "Failed to update route." });
   }
 });

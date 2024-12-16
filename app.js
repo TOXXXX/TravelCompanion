@@ -50,7 +50,11 @@ const hbs = handlebars.create({
       return new Date(date).toDateString(); // Format date as "Mon DD YYYY"
     },
     default: (value, defaultValue) => value || defaultValue,
-    json: (context) => JSON.stringify(context)
+    json: (context) => JSON.stringify(context),
+    conditionalRouteEditCreatePath: (isEdit, postId, routeId) => {
+      console.log({isEdit, postId, routeId});
+      return isEdit ? `/route/edit/${routeId}` : `/route/new/${postId}`;
+    }
   },
   runtimeOptions: {
     allowProtoPropertiesByDefault: true,
@@ -69,7 +73,7 @@ app.set("views", "./views");
 
 const startServer = async () => {
   try {
-    await seedDatabase();
+    //await seedDatabase();
 
     app.use(express.json());
 

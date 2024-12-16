@@ -1,26 +1,43 @@
 <h1>Companion Discovery Page</h1>
-{{!-- 
-TODO:implement the companion discovery page
-Waiting: how to get route coordinates from DB
- --}}
 
-{{#if hasMatchedUsers}}
-  <ul>
-    {{#each matchedUsers}}
-    <div class="companion-div">
-      <li class="companion">
-        <a href="/personal/{{this.userName}}">
-        <img src="{{this.profilePic}}" alt="Profile Picture" class="profile-pic">
-        <h2>{{this.userName}}</h2>
-        </a>
-        <p>About me: <br>{{this.bio}}</p>
-        <p>Contact me at: {{this.email}}</p>
-        <p>We could be about {{this.distance}}km close during {{this.startDate}} to {{this.endDate}}</p>
-      </li>
-    </div>
-    {{/each}}
-  </ul>
-{{else}}
-  <p>Sorry, it looks like no one have over-lapping plans as yours.</p>
-  <p>Try later or create more plans for future to find out!</p>
-{{/if}}
+<div>
+  {{#if hasMatchedUsers}}
+    <ul>
+      {{#each matchedUsers}}
+      <div class="companion-div">
+        <li class="companion">
+          <a href="/personal/{{this.userName}}">
+          <img src="{{this.profilePic}}" alt="Profile Picture" class="profile-pic">
+          <h2>{{this.userName}}</h2>
+          </a>
+          <p>About me: <br>{{this.bio}}</p>
+          <p>Contact me at: {{this.email}}</p>
+          <p>We could be about {{this.distance}}km close during {{this.startDate}} to {{this.endDate}}</p>
+        </li>
+      </div>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p>Sorry, it looks like no one have over-lapping plans as yours.</p>
+    <p>Try later or create more plans for future to find out!</p>
+  {{/if}}
+</div>
+
+<div class="search-section">
+  <h3>Still want to connect with more people?</h3>
+  <p>Try searching their name or bio:</p>
+  <form id="user-search-form">
+    <input 
+      type="text" 
+      id="search-input" 
+      placeholder="Search by name or bio" 
+      class="search-input"
+    >
+    <button type="submit" class="search-button">Search</button>
+  </form>
+  <div id="search-results-container"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="/js/compDisc.js"></script>
+

@@ -1,0 +1,24 @@
+<h2>Report Inappropriate Activity</h2>
+<div class="report-form">
+    <form id="reportForm">
+        <div class="form-group">
+            <label for="reportType">Type of Report:</label>
+            <select id="reportType" name="reportType" required>
+                <option value="">Select a report type</option>
+                <option value="Spam">Spam</option>
+                <option value="Harassment">Harassment</option>
+                <option value="Inappropriate Content">Inappropriate Content</option>
+                <option value="Fake Account">Fake Account</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="description">Description of the Issue:</label>
+            <textarea id="description" name="description" required></textarea>
+        </div>
+        <button id="submitReport" type="submit" class="btn">Submit Report</button>
+    </form>
+    <div id="message" class="message"></div>
+</div>
+
+<script src="/js/report.js"></script>

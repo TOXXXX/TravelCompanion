@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import sharp from "sharp";
 import path from "path";
+import fs from "fs";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
 import { getFollowingUsers, getUserById } from "../data/userService.js";
@@ -162,7 +163,7 @@ router.get("/create", isAuthenticated, (req, res) => {
 router.post(
   "/create",
   isAuthenticated,
-  upload.array("postPictures", 5),
+  upload.array("postPictures", 10),
   async (req, res) => {
     try {
       let {
@@ -182,18 +183,19 @@ router.post(
       let images = [];
       console.log(req.files);
       if (req.files.length > 0) {
+        if (req.files.length > 5) {
+          throw new Error("You can only upload up to 5 images");
+        }
         for (let i = 0; i < req.files.length; i++) {
           const image = req.files[i].path;
-          // const fileName = `uploads/posts/${req.files[i].filename}`;
-          // let clientPicPath = req.files[i].path.split("public\\")[1];
-          // clientPicPath = "/resized-".concat(clientPicPath.replace(/\\/g, "/"));
           const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
           await sharp(image)
-            .resize({ width: 1000, height: 1000, fit: "inside" })
+            .resize({ width: 600, height: 600, fit: "inside" })
             .jpeg({ quality: 90 })
             //.png()
             .toFile(`public${clientPicPath}`);
           images.push(clientPicPath);
+          fs.unlinkSync(image); // Delete the original image
         }
       }
 
@@ -282,6 +284,14 @@ router.get("/:postId", async (req, res) => {
       endDate = post.intendedTime[1].toDateString();
     }
 
+    let postContentDes = post.content.description;
+    if (postContentDes.includes("\n")) {
+      postContentDes = postContentDes.split("\n").join("<br>");
+    } else if (postContentDes.includes("\r")) {
+      postContentDes = postContentDes.split("\r").join("<br>");
+    }
+    post.content.description = postContentDes;
+
     return res.render("posts/postDetail", {
       title: `Post: ${post.title}`,
       customCSS: "posts",
@@ -351,60 +361,91 @@ router.get("/edit/:postId", isAuthenticated, async (req, res) => {
   }
 });
 
-router.patch("/edit/:postId", isAuthenticated, async (req, res) => {
-  try {
-    let {
-      postTitle,
-      postDescription,
-      postContent,
-      postType,
-      startDate,
-      endDate
-    } = req.body;
-    postTitle = validTrimInput(postTitle, "string");
-    postDescription = validTrimInput(postDescription, "string");
-    postContent = validTrimInput(postContent, "string");
-    postType = validTrimInput(postType, "string");
-    let postData;
-    let now = new Date();
-    if (postType === "route") {
-      let intendedTime = [];
-      if (startDate && endDate) {
-        intendedTime = [startDate, endDate];
+router.patch(
+  "/edit/:postId",
+  isAuthenticated,
+  upload.array("postPictures", 10),
+  async (req, res) => {
+    try {
+      let {
+        postTitle,
+        postDescription,
+        postContent,
+        postType,
+        startDate,
+        endDate
+      } = req.body;
+      postTitle = validTrimInput(postTitle, "string");
+      postDescription = validTrimInput(postDescription, "string");
+      postContent = validTrimInput(postContent, "string");
+      postType = validTrimInput(postType, "string");
+      let postData;
+      let now = new Date();
+      if (postType === "route") {
+        let intendedTime = [];
+        if (startDate && endDate) {
+          intendedTime = [startDate, endDate];
+        }
+        postData = {
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent },
+          isPlan: false,
+          intendedTime: intendedTime,
+          lastEdited: now
+        };
+      } else if (postType === "plan") {
+        startDate = validInputDate(startDate);
+        endDate = validInputDate(endDate);
+        postData = {
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent },
+          isPlan: true,
+          intendedTime: [startDate, endDate],
+          lastEdited: now
+        };
+      } else {
+        throw new Error("Invalid post type");
       }
-      postData = {
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: false,
-        intendedTime: intendedTime,
-        lastEdited: now
-      };
-    } else if (postType === "plan") {
-      startDate = validInputDate(startDate);
-      endDate = validInputDate(endDate);
-      postData = {
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: true,
-        intendedTime: [startDate, endDate],
-        lastEdited: now
-      };
-    } else {
-      throw new Error("Invalid post type");
+
+      console.log(req.files);
+      if (req.files.length > 0) {
+        const oldPost = await getPostById(req.params.postId);
+        let dbImgs = oldPost.content.images;
+        if (req.files.length + dbImgs.length > 5) {
+          throw new Error("You can only have up to 5 images for a post");
+        }
+        for (let i = 0; i < req.files.length; i++) {
+          const image = req.files[i].path;
+          const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
+          await sharp(image)
+            .resize({ width: 600, height: 600, fit: "inside" })
+            .jpeg({ quality: 90 })
+            //.png()
+            .toFile(`public${clientPicPath}`);
+          dbImgs.push(clientPicPath);
+          fs.unlinkSync(image); // Delete the un-cut images
+        }
+        postData.content.images = dbImgs;
+        console.log(postData);
+      } else {
+        const oldPost = await getPostById(req.params.postId);
+        postData.content.images = oldPost.content.images;
+      }
+
+      const updatedPost = await updatePostById(req.params.postId, postData);
+      if (!updatedPost) {
+        throw new Error(`Could not update post with id ${req.params.postId}`);
+      }
+      return res.status(200).json({ message: "Post updated successfully" });
+    } catch (e) {
+      return res.status(400).render("error", {
+        message: e.message
+      });
     }
-    const updatedPost = await updatePostById(req.params.postId, postData);
-    if (!updatedPost) {
-      throw new Error(`Could not update post with id ${req.params.postId}`);
-    }
-    return res.status(200).json({ message: "Post updated successfully" });
-  } catch (e) {
-    return res.status(400).render("error", {
-      message: e.message
-    });
   }
-});
+);
 
 router.post("/:postId/comment", isAuthenticated, async (req, res) => {
   try {
@@ -443,11 +484,38 @@ router.delete(
       }
       return res.status(204).json({ message: "Comment deleted" });
     } catch (e) {
-      return res.status(400).render("error", {
-        message: e.message
-      });
+      return res.status(400).json({ error: e.message });
     }
   }
 );
+
+router.delete("/image/delete", isAuthenticated, async (req, res) => {
+  try {
+    const { postId, imgSrc } = req.body;
+    // console.log(req.body);
+    // console.log(postId);
+    // console.log(imgSrc);
+    const post = await Post.findById(postId);
+    const postUser = await User.findById(post.uid);
+    if (postUser._id != req.session.userId) {
+      throw new Error("You are not authorized to delete this image");
+    }
+    // console.log("before:");
+    // console.log(post.content.images);
+    post.content.images = post.content.images.filter((img) => img !== imgSrc);
+    // console.log("after:");
+    // console.log(post.content.images);
+    await updatePostById(postId, post);
+    // TODO here
+
+    fs.unlink(`public${imgSrc}`, (err) => {
+      if (err) throw err;
+    });
+
+    return res.status(204).json({ message: "Image deleted" });
+  } catch (e) {
+    return res.status(400).json({ error: e.message });
+  }
+});
 
 export default router;

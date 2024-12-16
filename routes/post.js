@@ -25,9 +25,6 @@ import User from "../models/users.js";
 
 const router = express.Router();
 
-// TODO: The unit of distance and duration still unclear
-// TODO: Location is currently not available
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public/uploads/posts");
@@ -87,7 +84,6 @@ router
 
       let following_user_ids = [];
 
-      // TODO: Filter with following users not tested, need to test with actual following users
       if (following === true && req.session.userId) {
         // If following is true, show posts from users that the current user is following
         // Otherwise, show posts from everyone
@@ -109,7 +105,10 @@ router
           routes = item.routeInfo;
         } else {
           routes = {
-            tripDuration: "N/A"
+            distance: "N/A",
+            duration: "N/A",
+            origin: "N/A",
+            destination: "N/A"
           };
         }
 
@@ -123,11 +122,18 @@ router
           liked: req.session.userId
             ? item.likeByUsers.includes(req.session.userId)
             : false,
-          // TODO: Distance is currently not available
-          distance: "N/A",
-          duration: routes.tripDuration || "N/A",
-          // TODO: Location is currently not available
-          locations: "N/A"
+          distance: routes.distance || "N/A",
+          duration: routes.duration || "N/A",
+          origin: routes.origin ? routes.origin.name.split(",")[0] : "N/A",
+          destination: routes.destination
+            ? routes.destination.name.split(",")[0]
+            : "N/A",
+          intendedTime:
+            item.intendedTime.length === 0
+              ? "N/A"
+              : item.intendedTime
+                  .map((date) => date.toISOString().split("T")[0])
+                  .join(" to ")
         };
       });
 

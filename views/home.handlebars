@@ -9,14 +9,14 @@
   </section>
 
   <section id="routes">
-    <h2>Popular Travel Routes</h2>
+    <h2>Popular Travel Posts</h2>
     <div class="card-grid">
       {{#each posts}}
         <div class="card">
           <h3>{{ title }}</h3>
           <p>{{ intro }}</p>
-          <p><strong>Destinations:</strong> {{ destinations }}</p>
-          <p><strong>Duration:</strong> {{ duration }}</p>
+          <p><strong>Route:</strong><br> {{ destinations }}</p>
+          <p><strong>Intended Dates:</strong> {{ intendedDates }}</p>
           <p>{{ likes }} likes • {{ comments }} comments</p>
         </div>
       {{/each}}

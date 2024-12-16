@@ -26,17 +26,21 @@ $(document).ready(function () {
             <p class="card-description">${post.intro}</p>
             <div class="card-footer">
               <div class="card-metadata">
-                <span class="metadata-item">
+                <span class="metadata-item" title="Intended Dates">
+                  <i class="fas fa-clock icon"></i>
+                  ${post.intendedTime}
+                </span>
+                <span class="metadata-item" title="Travel Time">
                   <i class="far fa-clock icon"></i>
-                  ${post.duration} minutes
+                  ${post.duration}
                 </span>
-                <span class="metadata-item">
+                <span class="metadata-item" title="Distance">
                   <i class="far fa-map icon"></i>
-                  ${post.distance} kilometers
+                  ${post.distance}
                 </span>
-                <span class="metadata-item">
+                <span class="metadata-item" title="Origin and Destination">
                   <i class="far fa-compass icon"></i>
-                  ${post.locations}
+                  ${post.origin} -- ${post.destination}
                 </span>
               </div>
               <div class="card-interactions">

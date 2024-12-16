@@ -73,14 +73,9 @@ export const getFilteredPostsWithRoute = async (
     const postsWithRoutes = await Post.aggregate([
       matchStage,
       {
-        $addFields: {
-          postIDString: { $toString: "$_id" } // Convert _id (ObjectId) to string
-        }
-      },
-      {
         $lookup: {
           from: "routes",
-          localField: "postIDString", // Use the string version of _id
+          localField: "_id",
           foreignField: "postId",
           as: "routeInfo"
         }
@@ -172,14 +167,9 @@ export const getRandomPosts = async () => {
     const posts = await Post.aggregate([
       { $sample: { size: 3 } },
       {
-        $addFields: {
-          postIDString: { $toString: "$_id" } // Convert _id (ObjectId) to string
-        }
-      },
-      {
         $lookup: {
           from: "routes",
-          localField: "postIDString", // Use the string version of _id
+          localField: "_id",
           foreignField: "postId",
           as: "routeInfo"
         }

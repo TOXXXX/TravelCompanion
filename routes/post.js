@@ -1,4 +1,8 @@
 import express from "express";
+import multer from "multer";
+import sharp from "sharp";
+import path from "path";
+import fs from "fs";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
 import { getFollowingUsers, getUserById } from "../data/userService.js";
@@ -16,13 +20,41 @@ import {
 } from "../data/comment.js";
 import xss from "xss";
 import Post from "../models/posts.js";
-import Comment from "../models/comments.js";
+// import Comment from "../models/comments.js";
 import User from "../models/users.js";
 
 const router = express.Router();
 
 // TODO: The unit of distance and duration still unclear
 // TODO: Location is currently not available
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/posts");
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  // limits: { fileSize: 1 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png/;
+    const extname = filetypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+      return cb(null, true);
+    }
+    cb(new Error("Only JPEG, JPG, and PNG files are allowed."));
+  }
+});
+
 router
   .route("/")
   .get(async (req, res) => {
@@ -129,78 +161,103 @@ router.get("/create", isAuthenticated, (req, res) => {
   }
 });
 
-router.post("/create", isAuthenticated, async (req, res) => {
-  try {
-    let {
-      postTitle,
-      postDescription,
-      postContent,
-      postType,
-      startDate,
-      endDate
-    } = req.body;
+router.post(
+  "/create",
+  isAuthenticated,
+  upload.array("postPictures", 10),
+  async (req, res) => {
+    try {
+      let {
+        postTitle,
+        postDescription,
+        postContent,
+        postType,
+        startDate,
+        endDate
+      } = req.body;
 
-    postTitle = validTrimInput(postTitle, "string");
-    postDescription = validTrimInput(postDescription, "string");
-    postContent = validTrimInput(postContent, "string");
-    postType = validTrimInput(postType, "string");
+      postTitle = validTrimInput(postTitle, "string");
+      postDescription = validTrimInput(postDescription, "string");
+      postContent = validTrimInput(postContent, "string");
+      postType = validTrimInput(postType, "string");
 
-    let postData;
-    let now = new Date();
-
-    if (postType === "route") {
-      let intendedTime = [];
-      if (startDate && endDate) {
-        intendedTime = [startDate, endDate];
+      let images = [];
+      if (req.files.length > 0) {
+        if (req.files.length > 5) {
+          throw new Error("You can only upload up to 5 images");
+        }
+        for (let i = 0; i < req.files.length; i++) {
+          const image = req.files[i].path;
+          const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
+          await sharp(image)
+            .resize({ width: 600, height: 600, fit: "inside" })
+            .jpeg({ quality: 90 })
+            //.png()
+            .toFile(`public${clientPicPath}`);
+          images.push(clientPicPath);
+          fs.unlinkSync(image); // Delete the original image
+        }
       }
-      postData = {
-        uid: req.session.userId,
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: false,
-        intendedTime: intendedTime,
-        created: now,
-        lastEdited: now,
-        comments: [],
-        likeByUsers: []
-      };
-    } else if (postType === "plan") {
-      startDate = validInputDate(startDate);
-      endDate = validInputDate(endDate);
-      postData = {
-        uid: req.session.userId,
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: true,
-        intendedTime: [startDate, endDate],
-        created: now,
-        lastEdited: now,
-        comments: [],
-        likeByUsers: []
-      };
-    } else {
-      throw new Error("Invalid post type");
-    }
 
-    // Save the post
-    const newPost = new Post(postData);
-    await newPost.save();
-    await User.findByIdAndUpdate(
-      req.session.userId,
-      { $push: { posts: String(newPost._id) } },
-      { new: true }
-    );
-    // Redirect to display the new post
-    //return res.status(201).redirect(`/post/${newPost._id}`);
-    return res.status(201).redirect(`/route/new/${newPost._id}`);
-  } catch (e) {
-    return res.status(400).render("error", {
-      message: e.message
-    });
+      let postData;
+      let now = new Date();
+
+      if (postType === "route") {
+        let intendedTime = [];
+        if (startDate && endDate) {
+          intendedTime = [startDate, endDate];
+        }
+        postData = {
+          uid: req.session.userId,
+          title: postTitle,
+          intro: postDescription,
+          content: {
+            description: postContent,
+            images: images
+          },
+          isPlan: false,
+          intendedTime: intendedTime,
+          created: now,
+          lastEdited: now,
+          comments: [],
+          likeByUsers: []
+        };
+      } else if (postType === "plan") {
+        startDate = validInputDate(startDate);
+        endDate = validInputDate(endDate);
+        postData = {
+          uid: req.session.userId,
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent, images: images },
+          isPlan: true,
+          intendedTime: [startDate, endDate],
+          created: now,
+          lastEdited: now,
+          comments: [],
+          likeByUsers: []
+        };
+      } else {
+        throw new Error("Invalid post type");
+      }
+
+      // Save the post
+      const newPost = new Post(postData);
+      await newPost.save();
+      await User.findByIdAndUpdate(
+        req.session.userId,
+        { $push: { posts: String(newPost._id) } },
+        { new: true }
+      );
+      // Redirect to display the new post
+      return res.status(201).redirect(`/post/${newPost._id}`);
+    } catch (e) {
+      return res.status(400).render("error", {
+        message: e.message
+      });
+    }
   }
-});
+);
 
 router.get("/:postId", async (req, res) => {
   try {
@@ -226,6 +283,14 @@ router.get("/:postId", async (req, res) => {
       startDate = post.intendedTime[0].toDateString();
       endDate = post.intendedTime[1].toDateString();
     }
+
+    let postContentDes = post.content.description;
+    if (postContentDes.includes("\n")) {
+      postContentDes = postContentDes.split("\n").join("<br>");
+    } else if (postContentDes.includes("\r")) {
+      postContentDes = postContentDes.split("\r").join("<br>");
+    }
+    post.content.description = postContentDes;
 
     return res.render("posts/postDetail", {
       title: `Post: ${post.title}`,
@@ -299,62 +364,95 @@ router.get("/edit/:postId", isAuthenticated, async (req, res) => {
   }
 });
 
-router.patch("/edit/:postId", isAuthenticated, async (req, res) => {
-  try {
-    let {
-      postTitle,
-      postDescription,
-      postContent,
-      postType,
-      startDate,
-      endDate
-    } = req.body;
-    postTitle = validTrimInput(postTitle, "string");
-    postDescription = validTrimInput(postDescription, "string");
-    postContent = validTrimInput(postContent, "string");
-    postType = validTrimInput(postType, "string");
-    let postData;
-    let now = new Date();
-    if (postType === "route") {
-      let intendedTime = [];
-      if (startDate && endDate) {
-        intendedTime = [startDate, endDate];
+router.patch(
+  "/edit/:postId",
+  isAuthenticated,
+  upload.array("postPictures", 10),
+  async (req, res) => {
+    try {
+      let {
+        postTitle,
+        postDescription,
+        postContent,
+        postType,
+        startDate,
+        endDate
+      } = req.body;
+      postTitle = xss(postTitle);
+      postDescription = xss(postDescription);
+      postContent = xss(postContent);
+      postType = xss(postType);
+      startDate = xss(startDate);
+      endDate = xss(endDate);
+      postTitle = validTrimInput(postTitle, "string");
+      postDescription = validTrimInput(postDescription, "string");
+      postContent = validTrimInput(postContent, "string");
+      postType = validTrimInput(postType, "string");
+      let postData;
+      let now = new Date();
+      if (postType === "route") {
+        let intendedTime = [];
+        if (startDate && endDate) {
+          intendedTime = [startDate, endDate];
+        }
+        postData = {
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent },
+          isPlan: false,
+          intendedTime: intendedTime,
+          lastEdited: now
+        };
+      } else if (postType === "plan") {
+        startDate = validInputDate(startDate);
+        endDate = validInputDate(endDate);
+        postData = {
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent },
+          isPlan: true,
+          intendedTime: [startDate, endDate],
+          lastEdited: now
+        };
+      } else {
+        throw new Error("Invalid post type");
       }
-      postData = {
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: false,
-        intendedTime: intendedTime,
-        lastEdited: now
-      };
-    } else if (postType === "plan") {
-      startDate = validInputDate(startDate);
-      endDate = validInputDate(endDate);
-      postData = {
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: true,
-        intendedTime: [startDate, endDate],
-        lastEdited: now
-      };
-    } else {
-      throw new Error("Invalid post type");
+
+      if (req.files.length > 0) {
+        const oldPost = await getPostById(xss(req.params.postId));
+        let dbImgs = oldPost.content.images;
+        if (req.files.length + dbImgs.length > 5) {
+          throw new Error("You can only have up to 5 images for a post");
+        }
+        for (let i = 0; i < req.files.length; i++) {
+          const image = req.files[i].path;
+          const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
+          await sharp(image)
+            .resize({ width: 600, height: 600, fit: "inside" })
+            .jpeg({ quality: 90 })
+            //.png()
+            .toFile(`public${clientPicPath}`);
+          dbImgs.push(clientPicPath);
+          fs.unlinkSync(image); // Delete the un-cut images
+        }
+        postData.content.images = dbImgs;
+      } else {
+        const oldPost = await getPostById(xss(req.params.postId));
+        postData.content.images = oldPost.content.images;
+      }
+
+      const updatedPost = await updatePostById(xss(req.params.postId), postData);
+      if (!updatedPost) {
+        throw new Error(`Could not update post with id ${xss(req.params.postId)}`);
+      }
+      return res.status(200).json({ message: "Post updated successfully" });
+    } catch (e) {
+      return res.status(400).render("error", {
+        message: e.message
+      });
     }
-    const updatedPost = await updatePostById(xss(req.params.postId), postData);
-    if (!updatedPost) {
-      throw new Error(
-        `Could not update post with id ${xss(req.params.postId)}`
-      );
-    }
-    return res.status(200).json({ message: "Post updated successfully" });
-  } catch (e) {
-    return res.status(400).render("error", {
-      message: e.message
-    });
   }
-});
+);
 
 router.post("/:postId/comment", isAuthenticated, async (req, res) => {
   try {
@@ -393,11 +491,38 @@ router.delete(
       }
       return res.status(204).json({ message: "Comment deleted" });
     } catch (e) {
-      return res.status(400).render("error", {
-        message: e.message
-      });
+      return res.status(400).json({ error: e.message });
     }
   }
 );
+
+router.delete("/image/delete", isAuthenticated, async (req, res) => {
+  try {
+    const { postId, imgSrc } = req.body;
+    // console.log(req.body);
+    // console.log(postId);
+    // console.log(imgSrc);
+    const post = await Post.findById(postId);
+    const postUser = await User.findById(post.uid);
+    if (postUser._id != req.session.userId) {
+      throw new Error("You are not authorized to delete this image");
+    }
+    // console.log("before:");
+    // console.log(post.content.images);
+    post.content.images = post.content.images.filter((img) => img !== imgSrc);
+    // console.log("after:");
+    // console.log(post.content.images);
+    await updatePostById(postId, post);
+    // TODO here
+
+    fs.unlink(`public${imgSrc}`, (err) => {
+      if (err) throw err;
+    });
+
+    return res.status(204).json({ message: "Image deleted" });
+  } catch (e) {
+    return res.status(400).json({ error: e.message });
+  }
+});
 
 export default router;

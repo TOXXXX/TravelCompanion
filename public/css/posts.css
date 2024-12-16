@@ -276,3 +276,40 @@ h3 a:hover {
     text-decoration: none;
     color: inherit;
 }
+
+#likes{
+    text-align: center;
+    padding: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5rem;
+    border: dotted #0c4418;
+    background-color: #ccc;
+    color: #157927;
+}
+
+#likes:hover{
+    cursor: pointer;
+    color:  #ccc;
+    background-color: #157927;
+}
+
+.edit-thumbnail {
+    height: 120px;
+    width: auto;
+    padding: 0.5rem;
+}
+
+.edit-thumbnail:hover {
+    cursor: pointer;
+    opacity: 0.2;
+    background-color: rgb(165, 3, 3);
+}
+
+.edit-thumbnail-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    background-color: blanchedalmond;
+}

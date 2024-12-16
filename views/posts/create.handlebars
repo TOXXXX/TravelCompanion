@@ -5,7 +5,7 @@
     <p style="text-align: center; padding-top: 200px;">Mapbox Map would be embedded here</p>
   </div> --}}
   <div class="route-form">
-    <form action="/post/create" method="POST" name="createPost" id="createPost">
+    <form action="/post/create" method="POST" name="createPost" id="createPost" enctype="multipart/form-data">
       <div class="form-group">
         <label for="postTitle" class="form-labels">Post Title</label>
         <input type="text" id="postTitle" name="postTitle" required>
@@ -22,10 +22,10 @@
         placeholder="Tell us more about what your route/plan entails"
          required></textarea>
       </div>
-      {{!-- <div class="form-group">
-        <label for="route-duration">Duration (days)</label>
-        <input type="number" id="route-duration" name="route-duration" min="1" required>
-      </div> --}}
+      <div class="form-group">
+        <label for="postPictures">Pictures(up to 5):</label>
+        <input type="file" name="postPictures" id="postPictures" accept="image/jpeg, image/png" multiple>
+      </div>
       <div class="form-group">
         <p>If it is somewhere you plan to visit, choose "Plan"<br>
         If it is somewhere you have visited or only hypothetical, choose "Route"
@@ -45,6 +45,7 @@
         <input type="date" id="endDate" name="endDate" required>
       </div>
       <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+        <h4>Submission Errors:</h4>
         {{!-- Frontend validation error --}}
       </div>
       <button type="submit" class="btn" name="submitBTN" id="submitBTN" >Create Route</button>

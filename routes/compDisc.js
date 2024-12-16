@@ -1,6 +1,9 @@
 import express from "express";
-import { isAuthenticated } from "../middleware/auth.js";
+import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { matchUsersById } from "../data/compDisc.js";
+import { validTrimInput } from "../helpers.js";
+import { searchUsers } from "../data/userService.js";
+import xss from "xss";
 
 const router = express.Router();
 
@@ -20,6 +23,18 @@ router.get("/", isAuthenticated, async (req, res) => {
     return res.status(400).render("error", {
       message: e.message
     });
+  }
+});
+
+router.post("/search", isAuthenticatedAPI, async (req, res) => {
+  try {
+    let { search } = req.body;
+    search = xss(search);
+    search = validTrimInput(search, "string");
+    const users = await searchUsers(search);
+    return res.status(200).json(users);
+  } catch (e) {
+    return res.status(400).json({ error: e.message });
   }
 });
 

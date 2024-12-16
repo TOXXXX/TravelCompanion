@@ -312,3 +312,15 @@ export const getRandomUsers = async () => {
     throw new Error(`Unable to get random users: ${error.message}`);
   }
 };
+
+export const searchUsers = async (search) => {
+  try {
+    const users = await User.find();
+    const searchRegex = new RegExp(search, "i");
+    return users.filter((user) => {
+      return searchRegex.test(user.userName) || searchRegex.test(user.bio);
+    });
+  } catch (e) {
+    throw new Error(`Unable to search users: ${e.message}`);
+  }
+};

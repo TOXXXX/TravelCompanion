@@ -1,6 +1,6 @@
 import express from "express";
 import { isAuthenticated, requireRole } from "../middleware/auth.js";
-import { getUserById, getUserByUsername } from "../data/userService.js";
+import { getUserByUsername } from "../data/userService.js";
 import Report from "../models/report.js";
 
 const router = express.Router();

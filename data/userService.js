@@ -41,11 +41,11 @@ export const getUserByUsername = async (username, includePassword = false) => {
 
     if (includePassword) {
       query = query.select(
-        "userName bio profilePicture email phoneNumber followers following role isHidden password"
+        "userName sessionId bio profilePicture email phoneNumber followers following role isHidden password"
       );
     } else {
       query = query.select(
-        "userName bio profilePicture email phoneNumber followers following role isHidden"
+        "userName sessionId bio profilePicture email phoneNumber followers following role isHidden"
       );
     }
 
@@ -331,5 +331,17 @@ export const getAllHiddenUserIds = async () => {
     return hiddenUserIds.map((user) => user._id);
   } catch (error) {
     throw new Error(`Unable to get hidden user IDs: ${error.message}`);
+  }
+};
+
+export const isUserHiddenByUsername = async (username) => {
+  try {
+    const user = await User.findOne({ userName: username }).select("isHidden");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user.isHidden;
+  } catch (error) {
+    throw new Error(`Unable to check if user is hidden: ${error.message}`);
   }
 };

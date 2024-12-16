@@ -106,6 +106,21 @@ router.post(
       }
 
       user.isHidden = !user.isHidden;
+
+      // Invalidate the user's session if they are hidden
+      if (user.isHidden) {
+        console.log(`Invalidating session for ${user.userName}`);
+        console.log(`Session ID: ${user.sessionId}`);
+        req.sessionStore.destroy(user.sessionId, (err) => {
+          if (err) {
+            console.log(err);
+            return res
+              .status(500)
+              .send("An error occurred while invalidating the session");
+          }
+        });
+      }
+
       await user.save();
 
       res.status(200).json({ message: "User disabled successfully" });
@@ -136,6 +151,29 @@ router.get(
       title: "Moderator",
       customCSS: "moderator"
     });
+  }
+);
+
+router.get(
+  "/user/:username/hidden",
+  isAuthenticated,
+  requireRole("Moderator"),
+  async (req, res) => {
+    try {
+      const username = req.params.username;
+      const user = await getUserByUsername(username);
+
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+
+      res.status(200).json({ isHidden: user.isHidden });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .send("An error occurred while checking if the user is hidden");
+    }
   }
 );
 

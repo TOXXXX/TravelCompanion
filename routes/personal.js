@@ -336,7 +336,7 @@ router.post("/:username/comment", isAuthenticated, async (req, res) => {
 // Delete selected comments
 router.post("/:username/delete-comments", isAuthenticated, async (req, res) => {
   try {
-    const { username } = xss(req.params);
+    let username = xss(req.params.username);
     let { commentId, selectedComments } = req.body;
     commentId = xss(commentId);
     selectedComments = xss(selectedComments);

@@ -27,9 +27,8 @@ router.post("/register", async (req, res) => {
       return res.status(400).send("All fields are required");
     }
 
-    userName = userName.toLowerCase();
-
     userName = xss(userName);
+    userName = userName.toLowerCase();
     email = xss(email);
     if (password !== confirmPassword) {
       return res.status(400).send("Passwords do not match");
@@ -85,9 +84,8 @@ router.post("/login", async (req, res) => {
       return res.status(400).send("All fields are required");
     }
 
-    userName = userName.toLowerCase();
-
     userName = xss(userName);
+    userName = userName.toLowerCase();
 
     const user = await User.findOne({ userName });
     if (!user) {

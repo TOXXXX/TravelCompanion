@@ -8,6 +8,15 @@ document
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
 
+    const coppaVerification =
+      document.getElementById("coppaVerification").value;
+    if (coppaVerification === "no") {
+      document.getElementById("message").textContent =
+        "Please verify that you are at least 13 years old";
+      document.getElementById("message").style.color = "red";
+      return;
+    }
+
     try {
       const response = await fetch("/register", {
         method: "POST",

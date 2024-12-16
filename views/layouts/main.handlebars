@@ -24,24 +24,19 @@
 <header>
   <div class="container">
     <div class="header-content">
+      <h1><a href="/">Travel Companion</a></h1>
       <nav>
         <ul>
-          <h1><a href="/">Travel Companion</a></h1>
-        <nav>
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/post">Posts</a></li>
-            <li><a href="/companions">Companions</a></li>
-            {{#if isAuthenticated}}
-            <li><a href="/personal/{{session.userName}}">Profile</a></li>
-            {{#if isModerator}}
-            <li><a href="/moderator">Moderator</a></li>
-            {{/if}}
-            <li><a href="#" id="logoutButton">Log out</a></li>
-            {{else}}
-            <li><a href="login">Log in</a></li>
-            <li><a href="register" class="btn-signup">Sign Up</a></li>
-            {{/if}}
+          <li><a href="/">Home</a></li>
+          <li><a href="/post">Posts</a></li>
+          <li><a href="/companions">Companions</a></li>
+          {{#if isAuthenticated}}
+          <li><a href="/personal/{{session.userName}}">Profile</a></li>
+          <li><a href="#" id="logoutButton">Log out</a></li>
+          {{else}}
+          <li><a href="login">Log in</a></li>
+          <li><a href="register" class="btn-signup">Sign Up</a></li>
+          {{/if}}
         </ul>
       </nav>
     </div>

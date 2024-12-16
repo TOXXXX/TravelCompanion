@@ -18,6 +18,9 @@ router.post("/register", async (req, res) => {
     let { userName, password, confirmPassword, email } = req.body;
     // Prevent XSS attacks
     // Passwords are omitted because they are hashed before being stored
+
+    userName = userName.toLowerCase();
+
     userName = xss(userName);
     email = xss(email);
     if (password !== confirmPassword) {
@@ -38,7 +41,7 @@ router.post("/register", async (req, res) => {
       return res
         .status(400)
         .send(
-          "Username must be 3-30 characters long and can only contain letters, numbers, and underscores"
+          "Username must be 6-30 characters long and can only contain letters, numbers, and underscores"
         );
     }
 
@@ -67,6 +70,9 @@ router.post("/login", async (req, res) => {
   try {
     let { userName, password } = req.body;
     // Password omitted
+
+    userName = userName.toLowerCase();
+
     userName = xss(userName);
 
     const user = await User.findOne({ userName });

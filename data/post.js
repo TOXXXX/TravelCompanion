@@ -81,7 +81,7 @@ export const getFilteredPostsWithRoute = async (
         $lookup: {
           from: "routes",
           localField: "postIDString", // Use the string version of _id
-          foreignField: "pid",
+          foreignField: "postId",
           as: "routeInfo"
         }
       },
@@ -109,7 +109,7 @@ export const getFilteredPostsWithRoute = async (
 
 export const deletePostById = async (postId) => {
   try {
-    const route = await Route.find({ pid: postId });
+    const route = await Route.find({ postId });
     if (route.length > 0) {
       for (let i = 0; i < route.length; i++) {
         await Route.findByIdAndDelete(route[i]._id);
@@ -180,7 +180,7 @@ export const getRandomPosts = async () => {
         $lookup: {
           from: "routes",
           localField: "postIDString", // Use the string version of _id
-          foreignField: "pid",
+          foreignField: "postId",
           as: "routeInfo"
         }
       },

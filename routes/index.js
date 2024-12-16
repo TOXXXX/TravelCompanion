@@ -13,7 +13,6 @@ const registerRoutes = (app) => {
   app.use("/personal", personalRoutes);
   app.use("/route", mapRoutes);
   app.use("/companions", compDiscRoutes);
-  app.use("/route", mapRoutes);
 };
 
 export default registerRoutes;

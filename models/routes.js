@@ -28,5 +28,4 @@ const RouteSchema = new Schema({
 }, { timestamps: true });
 
 export default model('Route', RouteSchema);
->>>>>>>>> Temporary merge branch 2
 

@@ -1,3 +1,4 @@
+import xss from "xss";
 import express from "express";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
@@ -192,7 +193,6 @@ router.post("/create", isAuthenticated, async (req, res) => {
       { new: true }
     );
     // Redirect to display the new post
-    console.log(newPost);
     //return res.status(201).redirect(`/post/${newPost._id}`);
     return res.status(201).redirect(`/route/new/${newPost._id}`);
   } catch (e) {
@@ -238,7 +238,6 @@ router.get("/:postId", async (req, res) => {
       startDate: startDate,
       endDate: endDate,
       isAuthor: isAuthor,
-      routes
     });
   } catch (e) {
     return res.status(404).render("error", {

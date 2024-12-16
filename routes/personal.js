@@ -43,7 +43,18 @@ router.get("/:username", isAuthenticated, async (req, res) => {
     if (!user) {
       return res.status(401).redirect("/login");
     }
-
+    if (user.isHidden) {
+      return res.status(404).render("error", { message: "User not found" });
+    }
+    let personalPageComments = [];
+    if (user.personalPageComments && user.personalPageComments.length > 0) {
+      for (const commentId of user.personalPageComments) {
+        const comment = await userService.getCommentById(commentId);
+        if (comment) {
+          personalPageComments.push(comment);
+        }
+      }
+    }
     let isFollowing = false;
     if (!isCurrentUser) {
       isFollowing = await userService.isFollowing(req.session.userId, user._id);
@@ -63,7 +74,7 @@ router.get("/:username", isAuthenticated, async (req, res) => {
         phoneNumber: user.phoneNumber || "This user has not set number yet.",
         followersCount,
         followingCount,
-        personalPageComments: user.personalPageComments || [],
+        personalPageComments: personalPageComments || [],
         posts: userPosts
       },
       isCurrentUser,
@@ -336,7 +347,7 @@ router.post("/:username/comment", isAuthenticated, async (req, res) => {
 // Delete selected comments
 router.post("/:username/delete-comments", isAuthenticated, async (req, res) => {
   try {
-    let username = xss(req.params.username);
+    const username = xss(req.params.username);
     let { commentId, selectedComments } = req.body;
     commentId = xss(commentId);
     selectedComments = xss(selectedComments);

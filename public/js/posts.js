@@ -131,6 +131,11 @@ $(document).ready(function () {
     });
   });
 
+  // Create button redirect
+  $("#create-button").on("click", function () {
+    window.location.replace("/post/create");
+  });
+
   // Click event for edit button
   $("#posts-container").on("click", ".edit", function () {
     const postId = $(this).data("postid");

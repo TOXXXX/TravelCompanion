@@ -175,6 +175,14 @@ router.post("/new/:postId", isAuthenticated, async (req, res) => {
     });
   }
 
+  routeName = xss(routeName);
+  routeDesc = xss(routeDesc);
+  waypoint1Description = xss(waypoint1Description);
+  waypoint2Description = xss(waypoint2Description);
+  waypoint1Name = xss(waypoint1Name);
+  waypoint2Name = xss(waypoint2Name);
+  routeType = xss(routeType);
+
   try {
     const [lng1, lat1] = waypoint1Coordinates
       .split(",")
@@ -395,7 +403,7 @@ router.post("/edit/:id", isAuthenticated, async (req, res) => {
   } = req.body;
 
   // Trim inputs
-  const trimmedData = {
+  let trimmedData = {
     routeName: routeName?.trim(),
     routeDesc: routeDesc?.trim(),
     routeDuration: routeDuration?.trim(),
@@ -465,6 +473,19 @@ router.post("/edit/:id", isAuthenticated, async (req, res) => {
       "Invalid Waypoint 2 Description. Only letters, numbers, spaces, and common punctuation (.,!?-) are allowed."
     );
   }
+
+  trimmedData = {
+    routeName: xss(trimmedData.routeName),
+    routeDesc: xss(trimmedData.routeDesc),
+    routeDuration: trimmedData.routeDuration,
+    waypoint1Coordinates: trimmedData.waypoint1Coordinates,
+    waypoint2Coordinates: trimmedData.waypoint2Coordinates,
+    waypoint1Name: xss(trimmedData.waypoint1Name),
+    waypoint2Name: xss(trimmedData.waypoint2Name),
+    waypoint1Description: xss(trimmedData.waypoint1Description),
+    waypoint2Description: xss(trimmedData.waypoint2Description),
+    routeType: xss(trimmedData.routeType)
+  };
 
   if (errors.length > 0) {
     return res.status(400).render("error", { message: errors.join(" ") });

@@ -26,7 +26,7 @@ import xss from "xss";
 import Post from "../models/posts.js";
 import Route from "../models/routes.js";
 import User from "../models/users.js";
-import { isRouteExists } from "../data/route.js";
+import Comment from "../models/comments.js";
 
 const router = express.Router();
 
@@ -578,7 +578,7 @@ router.delete(
   isAuthenticated,
   async (req, res) => {
     try {
-      const comment = await getPostComments(xss(req.params.commentId));
+      const comment = await Comment.findById(xss(req.params.commentId));
       if (comment) {
         if (comment.uid != req.session.userId) {
           throw new Error("You are not authorized to delete this comment");
@@ -597,6 +597,7 @@ router.delete(
       }
       return res.status(204).json({ message: "Comment deleted" });
     } catch (e) {
+      console.log(e);
       return res.status(400).json({ error: e.message });
     }
   }

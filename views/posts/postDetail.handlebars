@@ -1,10 +1,11 @@
-<h1>{{post.title}}</h1>
+<h1 class="pageTitle">{{post.title}}</h1>
 {{#if isAuthor}}
-
-    <button type="button" id="deletePost" name="deletePost">Delete Post</button>
+    <div class="isAuthorButtons">
+    <button class="postButtonDelete" type="button" id="deletePost" name="deletePost">Delete Post</button>
     <form action="/post/edit/{{post._id}}" method="GET" id="editPost" name="editPost">
-        <button type="submit" id="edit" name="edit">Edit Post</button>
+        <button class="postButton" type="submit" id="edit" name="edit">Edit Post</button>
     </form>
+    </div>
 {{/if}}
 <section class="post-content">
     {{#if post.isPlan}}
@@ -50,7 +51,7 @@
             <p class="comment-content">{{this.content}}</p>
             <p class="comment-lastedited">Last Edited: {{this.lastEdited}}</p>
             {{#if this.isAuthor}}
-                <button type="button" class="deleteComment" name="deleteComment{{this._id}}"
+                <button class="postButtonDelete" type="button" class="deleteComment" name="deleteComment{{this._id}}"
                  id="deleteComment{{this._id}}">Delete My Comment</button>
             {{/if}}
         </li>
@@ -65,7 +66,7 @@
         <label for="makeComment">Comment:</label>
         <textarea name="makeComment" id="makeComment"
         placeholder="Make a friendly comment here..."></textarea>
-        <button type="submit" id="submit" name="submit">Submit</button>
+        <button class="postButton" type="submit" id="submit" name="submit">Submit</button>
     </form>
     </div>
 </div>

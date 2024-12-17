@@ -235,7 +235,7 @@ router.post(
             //.png()
             .toFile(`public${clientPicPath}`);
           images.push(clientPicPath);
-          fs.unlinkSync(image); // Delete the original image
+          // fs.unlinkSync(image); // Delete the original image
         }
       }
 

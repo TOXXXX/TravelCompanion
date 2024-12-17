@@ -32,7 +32,10 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/uploads/posts");
+    if (!fs.existsSync("public/posts")) {
+      fs.mkdirSync("public/posts");
+    }
+    cb(null, "public/posts");
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -225,7 +228,7 @@ router.post(
         }
         for (let i = 0; i < req.files.length; i++) {
           const image = req.files[i].path;
-          const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
+          const clientPicPath = `/posts/resized-${req.files[i].filename}`;
           await sharp(image)
             .resize({ width: 600, height: 600, fit: "inside" })
             .jpeg({ quality: 90 })
@@ -519,7 +522,7 @@ router.patch(
         }
         for (let i = 0; i < req.files.length; i++) {
           const image = req.files[i].path;
-          const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
+          const clientPicPath = `/posts/resized-${req.files[i].filename}`;
           await sharp(image)
             .resize({ width: 600, height: 600, fit: "inside" })
             .jpeg({ quality: 90 })

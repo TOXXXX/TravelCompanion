@@ -277,22 +277,6 @@ h3 a:hover {
     color: inherit;
 }
 
-#likes{
-    text-align: center;
-    padding: 0.5rem;
-    align-items: center;
-    justify-content: center;
-    margin: 0.5rem;
-    border: dotted #0c4418;
-    background-color: #ccc;
-    color: #157927;
-}
-
-#likes:hover{
-    cursor: pointer;
-    color:  #ccc;
-    background-color: #157927;
-}
 
 .edit-thumbnail {
     height: 120px;
@@ -303,6 +287,7 @@ h3 a:hover {
 .edit-thumbnail:hover {
     cursor: pointer;
     opacity: 0.2;
+    transform: scale(0.8);
     background-color: rgb(165, 3, 3);
 }
 

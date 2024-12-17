@@ -44,7 +44,7 @@
 <hr>
 <div id="comments-div"  class="comments-box">
     <h2>Comments</h2>
-    <ol id="commentList" name="commentList">
+    <ol id="commentList">
         {{#each comments}}
         <li class="comment-box" data-commentid="{{this._id}}">
             <h4 class="comment-author">{{this.author}}</h4>
@@ -58,7 +58,7 @@
         {{/each}}
     </ol>
 <hr>
-    <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+    <div class= "form-group" id = "errorDiv" hidden>
         {{!-- Frontend validation error --}}
     </div>
     <div class= "form-group">

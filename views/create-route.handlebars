@@ -48,19 +48,19 @@
       <div class="form-group">
         <label>Waypoints</label>
         <div class="form-group waypoint">
-          <label for="geocoder-1">Origin</label>
+          <label>Origin</label>
           <div id="geocoder-1" class="geocoder"></div>
-          <input type="hidden" readonly="true" id="waypoint-1-coordinates" name="waypoint-1-coordinates">
-          <input type="text" readonly="true" id="waypoint-1-name" name="waypoint-1-name" value="{{waypoint1Name}}">
+          <input type="hidden" id="waypoint-1-coordinates" name="waypoint-1-coordinates">
+          <input type="text" readonly id="waypoint-1-name" name="waypoint-1-name" value="{{waypoint1Name}}">
           <textarea id="waypoint-1-description" name="waypoint-1-description" placeholder="Description (optional)"
             rows="2">{{waypoint1Description}}</textarea>
           <span class="error-message" id="waypoint-1-description-error" aria-live="assertive"></span>
         </div>
         <div class="form-group waypoint">
-          <label for="geocoder-2">Destination</label>
+          <label>Destination</label>
           <div id="geocoder-2" class="geocoder"></div>
-          <input type="hidden" readonly="true" id="waypoint-2-coordinates" name="waypoint-2-coordinates">
-          <input type="text" readonly="true" id="waypoint-2-name" name="waypoint-2-name" value="{{waypoint2Name}}">
+          <input type="hidden" id="waypoint-2-coordinates" name="waypoint-2-coordinates">
+          <input type="text" readonly id="waypoint-2-name" name="waypoint-2-name" value="{{waypoint2Name}}">
           <textarea id="waypoint-2-description" name="waypoint-2-description" placeholder="Description (optional)"
             rows="2">{{waypoint2Description}}</textarea>
           <span class="error-message" id="waypoint-2-description-error" aria-live="assertive"></span>

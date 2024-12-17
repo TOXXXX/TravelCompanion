@@ -9,9 +9,9 @@
 {{/if}}
 <section class="post-content">
     {{#if post.isPlan}}
-        <p>A Travel Plan of {{author}}</p>
+        <p>A Travel Plan of <a href="/personal/{{author}}">{{author}}</a></p>
     {{else}}
-        <p>A Travel Route Shared by {{author}}</p>
+        <p>A Travel Route Shared by <a href="/personal/{{author}}">{{author}}</a></p>
     {{/if}}
     {{#if timed}}
         <p>Start Date: {{startDate}}</p>

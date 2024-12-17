@@ -351,4 +351,4 @@ const seedDatabase = async () => {
   }
 };
 
-export default seedDatabase;
+await seedDatabase();

@@ -20,21 +20,55 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: storage,
+  storage: multer.diskStorage({
+    destination: "uploads/",
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + "-" + file.originalname);
+    }
+  }),
   limits: { fileSize: 1 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png/;
-    const extname = filetypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-    const mimetype = filetypes.test(file.mimetype);
-
-    if (extname && mimetype) {
-      return cb(null, true);
+    const allowedTypes = /jpeg|jpg|png/;
+    if (!allowedTypes.test(file.mimetype)) {
+      return cb(new Error("Only JPEG, JPG, and PNG files are allowed."), false);
     }
-    cb(new Error("Only JPEG, JPG, and PNG files are allowed."));
+    cb(null, true);
   }
 });
+
+const uploadMiddleware = (req, res, next) => {
+  upload.single("profilePicture")(req, res, (err) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.render("editPersonalPage", {
+          title: "Edit Personal Page",
+          user: req.session.user,
+          customCSS: "editPersonalPage",
+          errorMessage: "File size cannot exceed 1MB.",
+          formData: { ...req.body }
+        });
+      } else if (err.message === "Only JPEG, JPG, and PNG files are allowed.") {
+        return res.render("editPersonalPage", {
+          title: "Edit Personal Page",
+          user: req.session.user,
+          customCSS: "editPersonalPage",
+          errorMessage: err.message,
+          formData: { ...req.body }
+        });
+      } else {
+        return res.render("editPersonalPage", {
+          title: "Edit Personal Page",
+          user: req.session.user,
+          customCSS: "editPersonalPage",
+          errorMessage:
+            "An error occurred during file upload. Please try again.",
+          formData: { ...req.body }
+        });
+      }
+    }
+    next();
+  });
+};
 
 router.get("/:username", isAuthenticated, async (req, res) => {
   try {
@@ -108,7 +142,7 @@ router.get("/:username/edit", isAuthenticated, async (req, res) => {
 router.post(
   "/:username/edit",
   isAuthenticated,
-  upload.single("profilePicture"),
+  uploadMiddleware,
   async (req, res) => {
     try {
       const sessionUser = await userService.getUserByUsername(
@@ -123,15 +157,15 @@ router.post(
       let { formType, currentPassword, newPassword, confirmPassword } =
         req.body;
 
-      // Passwords are omitted
       formType = xss(formType);
 
-      const renderWithError = (errorMessage) => {
+      const renderWithError = (errorMessage, formData = {}) => {
         res.render("editPersonalPage", {
           title: "Edit Personal Page",
           user: sessionUser,
           customCSS: "editPersonalPage",
-          errorMessage
+          errorMessage,
+          formData
         });
       };
 
@@ -192,14 +226,10 @@ router.post(
         bio: xss(req.body.bio) || "",
         email: xss(req.body.email) || "",
         phoneNumber: xss(req.body.phoneNumber) || "",
-        profilePicture:
-          profilePicturePath ||
-          xss(req.body.profilePicture) ||
-          "/default-profile.svg"
+        profilePicture: profilePicturePath || sessionUser.profilePicture
       };
-
-      const validateInput = () => {
-        if (updatedData.bio.length > 150) {
+      const validationError = () => {
+        if (updatedData.bio && updatedData.bio.length > 150) {
           return "Bio must not exceed 150 characters.";
         }
 
@@ -220,16 +250,15 @@ router.post(
         return null;
       };
 
-      const validationError = validateInput();
-      if (validationError) {
-        return renderWithError(validationError);
+      const errorMessage = validationError();
+      if (errorMessage) {
+        return renderWithError(errorMessage, updatedData);
       }
-
       await userService.updateUserByUsername(
         xss(req.params.username),
         updatedData
       );
-      return res.redirect(`/personal/${xss(req.params.username)}`);
+      return res.redirect(`/personal/${xss(req.params.username)}/edit`);
     } catch (err) {
       res.render("editPersonalPage", {
         title: "Edit Personal Page",

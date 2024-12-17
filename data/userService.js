@@ -41,11 +41,11 @@ export const getUserByUsername = async (username, includePassword = false) => {
 
     if (includePassword) {
       query = query.select(
-        "userName bio profilePicture email phoneNumber followers following role isHidden password"
+        "userName sessionId bio profilePicture email phoneNumber followers following role isHidden password"
       );
     } else {
       query = query.select(
-        "userName bio profilePicture email phoneNumber followers following role isHidden"
+        "userName sessionId bio profilePicture email phoneNumber followers following role isHidden"
       );
     }
 
@@ -53,6 +53,47 @@ export const getUserByUsername = async (username, includePassword = false) => {
     if (!user) {
       throw new Error("User not found");
     }
+    if (user.isHidden) {
+      throw new Error("User not found");
+    }
+
+    return user;
+  } catch (error) {
+    throw new Error(`Unable to get user by username: ${error.message}`);
+  }
+};
+
+export const getUserByUsernameForReport = async (
+  username,
+  includePassword = false
+) => {
+  try {
+    let query = User.findOne({ userName: username })
+      .populate("posts")
+      // .populate("personalPageComments")
+      .populate({
+        path: "personalPageComments",
+        populate: { path: "uid", select: "userName profilePicture" }
+      })
+      .populate("followers following", "userName profilePicture");
+
+    if (includePassword) {
+      query = query.select(
+        "userName sessionId bio profilePicture email phoneNumber followers following role isHidden password"
+      );
+    } else {
+      query = query.select(
+        "userName sessionId bio profilePicture email phoneNumber followers following role isHidden"
+      );
+    }
+
+    const user = await query;
+    if (!user) {
+      throw new Error("User not found");
+    }
+    // if (user.isHidden) {
+    //   throw new Error("User not found");
+    // }
 
     return user;
   } catch (error) {
@@ -263,6 +304,10 @@ export const getCommentById = async (commentId) => {
       "uid",
       "userName"
     );
+    const user = await User.findById(comment.uid);
+    if (user.isHidden) {
+      return null;
+    }
     if (!comment) throw new Error("Comment not found");
     return comment;
   } catch (error) {
@@ -322,5 +367,26 @@ export const searchUsers = async (search) => {
     });
   } catch (e) {
     throw new Error(`Unable to search users: ${e.message}`);
+  }
+};
+
+export const getAllHiddenUserIds = async () => {
+  try {
+    const hiddenUserIds = await User.find({ isHidden: true }).select("_id");
+    return hiddenUserIds.map((user) => user._id);
+  } catch (error) {
+    throw new Error(`Unable to get hidden user IDs: ${error.message}`);
+  }
+};
+
+export const isUserHiddenByUsername = async (username) => {
+  try {
+    const user = await User.findOne({ userName: username }).select("isHidden");
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user.isHidden;
+  } catch (error) {
+    throw new Error(`Unable to check if user is hidden: ${error.message}`);
   }
 };

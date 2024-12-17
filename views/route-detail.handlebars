@@ -38,9 +38,10 @@
 
     <p><strong>Route Type:</strong> {{route.routeType}}</p>
     <!-- Action Buttons -->
+    {{#if isRouteOwner}}
     <div class="action-buttons">
-      <form action="/route/edit/{{route._id}}" method="POST"
-        onsubmit="return confirm('Are you sure you want to delete this route?');">
+      <form action="/route/edit/{{route._id}}" method="GET"
+        onsubmit="return confirm('Are you sure you want to edit this route?');">
         <button type="submit" class="btn delete-btn">Edit</button>
       </form>
       <!-- Delete Button as a Form for Security (CSRF Protection) -->
@@ -49,10 +50,11 @@
         <button type="submit" class="btn delete-btn">Delete</button>
       </form>
     </div>
+    {{/if}}
 
     <!-- Back to Home or Routes List -->
     <div class="back-link">
-      <a href="/">← Back to Routes List</a>
+      <a href="/post/{{route.postId}}">← Back to Post Detail</a>
     </div>
   </div>
 

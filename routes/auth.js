@@ -1,7 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import User from "../models/users.js";
-import { isAuthenticated } from "../middleware/auth.js";
 import xss from "xss";
 
 const router = express.Router();
@@ -19,9 +18,17 @@ router.post("/register", async (req, res) => {
     // Prevent XSS attacks
     // Passwords are omitted because they are hashed before being stored
 
-    userName = userName.toLowerCase();
+    userName = userName.trim();
+    password = password.trim();
+    confirmPassword = confirmPassword.trim();
+    email = email.trim();
+
+    if (!userName || !password || !confirmPassword || !email) {
+      return res.status(400).send("All fields are required");
+    }
 
     userName = xss(userName);
+    userName = userName.toLowerCase();
     email = xss(email);
     if (password !== confirmPassword) {
       return res.status(400).send("Passwords do not match");
@@ -70,14 +77,23 @@ router.post("/login", async (req, res) => {
   try {
     let { userName, password } = req.body;
     // Password omitted
+    userName = userName.trim();
+    password = password.trim();
 
-    userName = userName.toLowerCase();
+    if (!userName || !password) {
+      return res.status(400).send("All fields are required");
+    }
 
     userName = xss(userName);
+    userName = userName.toLowerCase();
 
     const user = await User.findOne({ userName });
     if (!user) {
       return res.status(401).send("User does not exist");
+    }
+
+    if (user.isHidden) {
+      return res.status(403).send("User is not allowed to log in");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -90,6 +106,10 @@ router.post("/login", async (req, res) => {
     req.session.userId = user._id;
     req.session.userName = user.userName;
     req.session.role = user.role;
+
+    // Store session ID in the database
+    user.sessionId = req.sessionID;
+    await user.save();
 
     res.json({ message: "Logged in successfully" });
   } catch (error) {

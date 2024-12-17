@@ -4,14 +4,30 @@ import dotenv from "dotenv";
 import Route from "../models/routes.js";
 import Post from "../models/posts.js";
 import User from "../models/users.js";
+import { isAuthenticated } from "../middleware/auth.js";
+import xss from "xss";
 
 dotenv.config();
 
 const router = express.Router();
 const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 
-router.get("/new/:postId", async (req, res) => {
-  const { postId } = req.params;
+router.get("/new/:postId", isAuthenticated, async (req, res) => {
+  const postId = xss(req.params.postId);
+  let postOwner = await Post.findById(postId);
+  if (postOwner) {
+    postOwner = postOwner.uid;
+    if (postOwner.toString() !== req.session.userId.toString()) {
+      return res.status(403).render("error", {
+        message: "You are not authorized to create a route for this post."
+      });
+    }
+  } else {
+    return res.status(404).render("error", {
+      message: "Post owner not found in this post."
+    });
+  }
+
   try {
     const post = await Post.findById(postId);
     if (!post) {
@@ -30,9 +46,18 @@ router.get("/new/:postId", async (req, res) => {
   }
 });
 
-router.post("/new/:postId", async (req, res) => {
-  const { postId } = req.params;
-  const action = req.body.action;
+router.post("/new/:postId", isAuthenticated, async (req, res) => {
+  const postId = xss(req.params.postId);
+  const action = xss(req.body.action);
+
+  const post = await Post.findById(postId);
+  const routeOwnerId = post.uid;
+  if (routeOwnerId.toString() !== req.session.userId.toString()) {
+    return res.status(403).render("error", {
+      message: "You are not authorized to create a route for this post."
+    });
+  }
+
   let {
     "route-name": routeName,
     "route-description": routeDesc,
@@ -242,8 +267,11 @@ router.post("/new/:postId", async (req, res) => {
           description: waypoint2Description
         },
         routeType,
-        mapDataUrl
+        mapDataUrl,
+        distance: `${distanceInKm} km`,
+        duration: formattedDuration
       });
+
       await routeDoc.save();
     }
 
@@ -279,13 +307,26 @@ router.post("/new/:postId", async (req, res) => {
 
 router.get("/:postId", async (req, res) => {
   try {
-    const { postId } = req.params;
+    const postId = xss(req.params.postId);
     const route = await Route.findOne({ postId });
+    const isRouteOwner = route.uid.toString() == req.session.userId;
+
+    const routeOwner = await User.findById(route.uid);
+    if (routeOwner.isHidden) {
+      return res.status(403).render("error", {
+        message: "This user's route is hidden from public view."
+      });
+    }
+
+    if (!route) {
+      return res.status(404).render("error", { message: "Route not found." });
+    }
     const post = await Post.findById(postId);
     return res.render("route-detail", {
       customCSS: "create-route",
       route,
-      post
+      post,
+      isRouteOwner: isRouteOwner
     });
   } catch (e) {
     console.error(e);
@@ -295,13 +336,20 @@ router.get("/:postId", async (req, res) => {
   }
 });
 
-router.get("/edit/:id", async (req, res) => {
-  const { id } = req.params;
+router.get("/edit/:id", isAuthenticated, async (req, res) => {
+  const id = xss(req.params.id);
 
   try {
     const route = await Route.findById(id);
     if (!route) {
       return res.status(404).render("error", { message: "Route not found." });
+    }
+
+    const routeOwnerId = route.uid;
+    if (routeOwnerId.toString() !== req.session.userId.toString()) {
+      return res.status(403).render("error", {
+        message: "You are not authorized to create a route for this post."
+      });
     }
 
     console.log({ ...route.toJSON() });
@@ -321,9 +369,17 @@ router.get("/edit/:id", async (req, res) => {
   }
 });
 
-router.post("/edit/:id", async (req, res) => {
-  const { id } = req.params;
-  console.log(id);
+router.post("/edit/:id", isAuthenticated, async (req, res) => {
+  const id = xss(req.params.id);
+  // console.log(id);
+  const route = await Route.findById(id);
+
+  const routeOwnerId = route.uid;
+  if (routeOwnerId.toString() !== req.session.userId.toString()) {
+    return res.status(403).render("error", {
+      message: "You are not authorized to edit this route."
+    });
+  }
 
   const {
     "route-name": routeName,
@@ -340,16 +396,16 @@ router.post("/edit/:id", async (req, res) => {
 
   // Trim inputs
   const trimmedData = {
-    routeName: routeName.trim(),
-    routeDesc: routeDesc.trim(),
-    routeDuration: routeDuration.trim(),
-    waypoint1Coordinates: waypoint1Coordinates.trim(),
-    waypoint2Coordinates: waypoint2Coordinates.trim(),
-    waypoint1Name: waypoint1Name.trim(),
-    waypoint2Name: waypoint2Name.trim(),
-    waypoint1Description: waypoint1Description.trim(),
-    waypoint2Description: waypoint2Description.trim(),
-    routeType: routeType.trim()
+    routeName: routeName?.trim(),
+    routeDesc: routeDesc?.trim(),
+    routeDuration: routeDuration?.trim(),
+    waypoint1Coordinates: waypoint1Coordinates?.trim(),
+    waypoint2Coordinates: waypoint2Coordinates?.trim(),
+    waypoint1Name: waypoint1Name?.trim(),
+    waypoint2Name: waypoint2Name?.trim(),
+    waypoint1Description: waypoint1Description?.trim(),
+    waypoint2Description: waypoint2Description?.trim(),
+    routeType: routeType?.trim()
   };
 
   // Server-Side Validation
@@ -455,6 +511,9 @@ router.post("/edit/:id", async (req, res) => {
     const durationInHours = Math.floor(durationInMinutes / 60);
     const remainingMinutes = durationInMinutes % 60;
 
+    const distanceInMeters = route.distance;
+    const distanceInKm = (distanceInMeters / 1000).toFixed(2);
+
     let formattedDuration = "";
     if (durationInHours > 0) {
       formattedDuration += `${durationInHours} hour${durationInHours > 1 ? "s" : ""} `;
@@ -495,22 +554,32 @@ router.post("/edit/:id", async (req, res) => {
           description: trimmedData.waypoint2Description
         },
         routeType: trimmedData.routeType,
-        mapDataUrl
+        mapDataUrl,
+        distance: `${distanceInKm} km`,
+        duration: formattedDuration
       },
       { new: true, runValidators: true }
     );
     if (!updatedRoute) {
       return res.status(404).render("error", { message: "Route not found." });
     }
-    res.redirect(`/`);
+    res.redirect(`/post/${updatedRoute.postId}`);
   } catch (error) {
     console.error("Failed to update route:", error);
     res.status(500).render("error", { message: "Failed to update route." });
   }
 });
 
-router.post("/delete/:id", async (req, res) => {
-  const { id } = req.params;
+router.post("/delete/:id", isAuthenticated, async (req, res) => {
+  const id = xss(req.params.id);
+
+  const route = await Route.findById(id);
+  const routeOwnerId = route.uid;
+  if (routeOwnerId.toString() !== req.session.userId.toString()) {
+    return res.status(403).render("error", {
+      message: "You are not authorized to delete this route."
+    });
+  }
 
   try {
     const route = await Route.findByIdAndDelete(id);
@@ -518,8 +587,8 @@ router.post("/delete/:id", async (req, res) => {
       return res.status(404).render("error", { message: "Route not found." });
     }
 
-    // Redirect to home with success alert
-    res.redirect(`/`);
+    // Redirect to original post
+    res.redirect(`/post/${route.postId}`);
   } catch (error) {
     console.error("Failed to delete route:", error.message);
     res.status(500).render("error", { message: "Failed to delete route." });

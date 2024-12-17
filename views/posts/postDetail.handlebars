@@ -19,14 +19,23 @@
     <h2>Introduction</h2>
     <p>{{post.intro}}</p>
     <h2>Content</h2>
+    {{#if existMap}}
     {{!-- This link should take user to the embedded map page for the post: --}}
-    {{#if showRouteLink}}
-    <a href="/route/{{post._id}}" class="map-link">View Map</a>
+    <a href="/route/{{post._id}}" class="map-link">View Route on Map</a>  
     {{else}}
-    <p>No route found</p>
-    <a href="/route/new/{{post._id}}">Create new route</a>
+        <p>No map for this post.</p>     
     {{/if}}
-    <p>{{post.content.description}}</p>
+    <p>{{{post.content.description}}}</p>
+    <h2>Images</h2>
+    {{#if post.content.images}}
+        <div class="image-container">
+            {{#each post.content.images}}
+                <img src="{{this}}" alt="Post Image {{@index}}"><br>
+            {{/each}}
+        </div>
+    {{else}}
+        <p>No image for this post.</p>
+    {{/if}}
 </section>
 <div>
     <h3 id="likes">Like by {{likes}} people.</h3>

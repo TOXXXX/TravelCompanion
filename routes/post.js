@@ -1,7 +1,15 @@
-import express, { Route } from "express";
+import express from "express";
+import multer from "multer";
+import sharp from "sharp";
+import path from "path";
+import fs from "fs";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
-import { getFollowingUsers, getUserById } from "../data/userService.js";
+import {
+  getFollowingUsers,
+  getUserById,
+  getAllHiddenUserIds
+} from "../data/userService.js";
 import {
   getFilteredPostsWithRoute,
   getPostById,
@@ -16,14 +24,39 @@ import {
 } from "../data/comment.js";
 import xss from "xss";
 import Post from "../models/posts.js";
-import Comment from "../models/comments.js";
+import Route from "../models/routes.js";
 import User from "../models/users.js";
 import { isRouteExists } from "../data/route.js";
 
 const router = express.Router();
 
-// TODO: The unit of distance and duration still unclear
-// TODO: Location is currently not available
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/posts");
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  // limits: { fileSize: 1 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png/;
+    const extname = filetypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+      return cb(null, true);
+    }
+    cb(new Error("Only JPEG, JPG, and PNG files are allowed."));
+  }
+});
+
 router
   .route("/")
   .get(async (req, res) => {
@@ -41,7 +74,7 @@ router
       // Search can be empty string (after trimming), which means no search filter
       let search;
       try {
-        search = validTrimInput(req.body.search, "string");
+        search = validTrimInput(xss(req.body.search), "string");
       } catch (e) {
         if (e.message === "input must not be empty or just white spaces") {
           search = "";
@@ -56,7 +89,6 @@ router
 
       let following_user_ids = [];
 
-      // TODO: Filter with following users not tested, need to test with actual following users
       if (following === true && req.session.userId) {
         // If following is true, show posts from users that the current user is following
         // Otherwise, show posts from everyone
@@ -78,12 +110,16 @@ router
           routes = item.routeInfo;
         } else {
           routes = {
-            tripDuration: "N/A"
+            distance: "N/A",
+            duration: "N/A",
+            origin: "N/A",
+            destination: "N/A"
           };
         }
 
         return {
           id: item._id,
+          uid: item.uid,
           title: item.title,
           intro: item.intro,
           type: item.isPlan ? "Plan" : "Route",
@@ -92,12 +128,28 @@ router
           liked: req.session.userId
             ? item.likeByUsers.includes(req.session.userId)
             : false,
-          // TODO: Distance is currently not available
-          distance: "N/A",
-          duration: routes.tripDuration || "N/A",
-          // TODO: Location is currently not available
-          locations: "N/A"
+          distance: routes.distance || "N/A",
+          duration: routes.duration || "N/A",
+          origin: routes.origin ? routes.origin.name.split(",")[0] : "N/A",
+          destination: routes.destination
+            ? routes.destination.name.split(",")[0]
+            : "N/A",
+          intendedTime:
+            item.intendedTime.length === 0
+              ? "N/A"
+              : item.intendedTime
+                  .map((date) => date.toISOString().split("T")[0])
+                  .join(" to ")
         };
+      });
+
+      // Filter out hidden users
+      const hiddenUserIds = (await getAllHiddenUserIds()).map((id) =>
+        id.toString()
+      );
+
+      posts = posts.filter((item) => {
+        return !hiddenUserIds.includes(item.uid);
       });
 
       return res.status(200).json({ posts });
@@ -130,83 +182,137 @@ router.get("/create", isAuthenticated, (req, res) => {
   }
 });
 
-router.post("/create", isAuthenticated, async (req, res) => {
-  try {
-    let {
-      postTitle,
-      postDescription,
-      postContent,
-      postType,
-      startDate,
-      endDate
-    } = req.body;
+router.post(
+  "/create",
+  isAuthenticated,
+  upload.array("postPictures", 10),
+  async (req, res) => {
+    try {
+      let {
+        postTitle,
+        postDescription,
+        postContent,
+        postType,
+        startDate,
+        endDate
+      } = req.body;
 
-    postTitle = validTrimInput(postTitle, "string");
-    postDescription = validTrimInput(postDescription, "string");
-    postContent = validTrimInput(postContent, "string");
-    postType = validTrimInput(postType, "string");
+      postTitle = xss(postTitle);
+      postDescription = xss(postDescription);
+      postContent = xss(postContent);
+      postType = xss(postType);
 
-    let postData;
-    let now = new Date();
+      postTitle = validTrimInput(postTitle, "string");
+      postDescription = validTrimInput(postDescription, "string");
+      postContent = validTrimInput(postContent, "string");
+      postType = validTrimInput(postType, "string");
 
-    if (postType === "route") {
-      let intendedTime = [];
-      if (startDate && endDate) {
-        intendedTime = [startDate, endDate];
+      if (postDescription.length > 100) {
+        throw new Error("Description cannot exceed 100 characters");
       }
-      postData = {
-        uid: req.session.userId,
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: false,
-        intendedTime: intendedTime,
-        created: now,
-        lastEdited: now,
-        comments: [],
-        likeByUsers: []
-      };
-    } else if (postType === "plan") {
-      startDate = validInputDate(startDate);
-      endDate = validInputDate(endDate);
-      postData = {
-        uid: req.session.userId,
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: true,
-        intendedTime: [startDate, endDate],
-        created: now,
-        lastEdited: now,
-        comments: [],
-        likeByUsers: []
-      };
-    } else {
-      throw new Error("Invalid post type");
-    }
+      if (postContent.length > 10000) {
+        throw new Error("Content cannot exceed 10000 characters");
+      }
 
-    // Save the post
-    const newPost = new Post(postData);
-    await newPost.save();
-    await User.findByIdAndUpdate(
-      req.session.userId,
-      { $push: { posts: String(newPost._id) } },
-      { new: true }
-    );
-    // Redirect to display the new post
-    //return res.status(201).redirect(`/post/${newPost._id}`);
-    return res.status(201).redirect(`/route/new/${newPost._id}`);
-  } catch (e) {
-    return res.status(400).render("error", {
-      message: e.message
-    });
+      let images = [];
+      if (req.files.length > 0) {
+        if (req.files.length > 5) {
+          throw new Error("You can only upload up to 5 images");
+        }
+        for (let i = 0; i < req.files.length; i++) {
+          const image = req.files[i].path;
+          const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
+          await sharp(image)
+            .resize({ width: 600, height: 600, fit: "inside" })
+            .jpeg({ quality: 90 })
+            //.png()
+            .toFile(`public${clientPicPath}`);
+          images.push(clientPicPath);
+          fs.unlinkSync(image); // Delete the original image
+        }
+      }
+
+      let postData;
+      let now = new Date();
+
+      if (postType === "route") {
+        let intendedTime = [];
+        if (startDate && endDate) {
+          intendedTime = [startDate, endDate];
+        }
+        postData = {
+          uid: req.session.userId,
+          title: postTitle,
+          intro: postDescription,
+          content: {
+            description: postContent,
+            images: images
+          },
+          isPlan: false,
+          intendedTime: intendedTime,
+          created: now,
+          lastEdited: now,
+          comments: [],
+          likeByUsers: []
+        };
+      } else if (postType === "plan") {
+        startDate = validInputDate(startDate);
+        endDate = validInputDate(endDate);
+        postData = {
+          uid: req.session.userId,
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent, images: images },
+          isPlan: true,
+          intendedTime: [startDate, endDate],
+          created: now,
+          lastEdited: now,
+          comments: [],
+          likeByUsers: []
+        };
+      } else {
+        throw new Error("Invalid post type");
+      }
+
+      // Save the post
+      const newPost = new Post(postData);
+      await newPost.save();
+      await User.findByIdAndUpdate(
+        req.session.userId,
+        { $push: { posts: String(newPost._id) } },
+        { new: true }
+      );
+      // Redirect to display the new post
+      return res.status(201).redirect(`/route/new/${newPost._id}`);
+    } catch (e) {
+      return res.status(400).render("error", {
+        message: e.message
+      });
+    }
   }
-});
+);
 
 router.get("/:postId", async (req, res) => {
   try {
     const post = await getPostById(xss(req.params.postId));
     let comments = await getPostComments(xss(req.params.postId)); //tested
+    const postAuthor = await getUserById(post.uid);
+
+    if (postAuthor.isHidden) {
+      return res.status(404).render("error", {
+        message:
+          "This post has been temporarily hidden due to violation of terms."
+      });
+    }
+
+    for (let i = 0; i < comments.length; i++) {
+      const isHidden = (await getUserById(comments[i].uid)).isHidden;
+      if (isHidden) {
+        comments = comments.splice(i, 1);
+        i--;
+      }
+    }
+
     for (let i = 0; i < comments.length; i++) {
       comments[i] = {
         _id: comments[i]._id,
@@ -217,6 +323,7 @@ router.get("/:postId", async (req, res) => {
         lastEdited: comments[i].lastEdited.toDateString()
       };
     }
+    const existMap = await Route.exists({ postId: xss(req.params.postId) }); // untested xss
     const isAuthor = post.uid == req.session.userId;
     const postUserName = (await getUserById(post.uid)).userName;
     const numOfLikes = post.likeByUsers.length;
@@ -228,8 +335,13 @@ router.get("/:postId", async (req, res) => {
       endDate = post.intendedTime[1].toDateString();
     }
 
-    const showRouteLink = await isRouteExists(post._id);
-    console.log({showRouteLink});
+    let postContentDes = post.content.description;
+    if (postContentDes.includes("\n")) {
+      postContentDes = postContentDes.split("\n").join("<br>");
+    } else if (postContentDes.includes("\r")) {
+      postContentDes = postContentDes.split("\r").join("<br>");
+    }
+    post.content.description = postContentDes;
 
     return res.render("posts/postDetail", {
       title: `Post: ${post.title}`,
@@ -242,7 +354,7 @@ router.get("/:postId", async (req, res) => {
       startDate: startDate,
       endDate: endDate,
       isAuthor: isAuthor,
-      showRouteLink: !!showRouteLink
+      existMap: existMap
     });
   } catch (e) {
     console.log(e);
@@ -254,6 +366,15 @@ router.get("/:postId", async (req, res) => {
 
 router.delete("/delete/:postId", isAuthenticated, async (req, res) => {
   try {
+    const post = await getPostById(xss(req.params.postId));
+    if (post) {
+      if (post.uid != req.session.userId) {
+        throw new Error("You are not authorized to delete this post");
+      }
+    } else {
+      throw new Error(`Could not find post with id ${xss(req.params.postId)}`);
+    }
+
     const deletedPost = await deletePostById(xss(req.params.postId));
     if (!deletedPost) {
       throw new Error(
@@ -271,6 +392,15 @@ router.delete("/delete/:postId", isAuthenticated, async (req, res) => {
 router.get("/edit/:postId", isAuthenticated, async (req, res) => {
   try {
     const post = await getPostById(xss(req.params.postId));
+    const route = await Route.findOne({ postId: xss(req.params.postId) });
+    let routeId;
+    if (route) {
+      routeId = route._id;
+    }
+
+    if (post.uid != req.session.userId) {
+      throw new Error("You are not authorized to edit this post");
+    }
 
     if (!post) {
       throw new Error(`Could not find post with id ${xss(req.params.postId)}`);
@@ -279,7 +409,8 @@ router.get("/edit/:postId", isAuthenticated, async (req, res) => {
       res.render("posts/edit", {
         title: "Edit Post",
         customCSS: "posts",
-        post: post
+        post: post,
+        routeId: routeId
       });
     } else {
       const offset = new Date().getTimezoneOffset();
@@ -304,66 +435,123 @@ router.get("/edit/:postId", isAuthenticated, async (req, res) => {
   }
 });
 
-router.patch("/edit/:postId", isAuthenticated, async (req, res) => {
-  try {
-    let {
-      postTitle,
-      postDescription,
-      postContent,
-      postType,
-      startDate,
-      endDate
-    } = req.body;
-    postTitle = validTrimInput(postTitle, "string");
-    postDescription = validTrimInput(postDescription, "string");
-    postContent = validTrimInput(postContent, "string");
-    postType = validTrimInput(postType, "string");
-    let postData;
-    let now = new Date();
-    if (postType === "route") {
-      let intendedTime = [];
-      if (startDate && endDate) {
-        intendedTime = [startDate, endDate];
+router.patch(
+  "/edit/:postId",
+  isAuthenticated,
+  upload.array("postPictures", 10),
+  async (req, res) => {
+    try {
+      let {
+        postTitle,
+        postDescription,
+        postContent,
+        postType,
+        startDate,
+        endDate
+      } = req.body;
+      postTitle = xss(postTitle);
+      postDescription = xss(postDescription);
+      postContent = xss(postContent);
+      postType = xss(postType);
+
+      postTitle = validTrimInput(postTitle, "string");
+      postDescription = validTrimInput(postDescription, "string");
+      postContent = validTrimInput(postContent, "string");
+      postType = validTrimInput(postType, "string");
+      let postData;
+      let now = new Date();
+
+      const post = await getPostById(xss(req.params.postId));
+      if (post) {
+        if (post.uid != req.session.userId) {
+          throw new Error("You are not authorized to edit this post");
+        }
+      } else {
+        throw new Error(
+          `Could not find post with id ${xss(req.params.postId)}`
+        );
       }
-      postData = {
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: false,
-        intendedTime: intendedTime,
-        lastEdited: now
-      };
-    } else if (postType === "plan") {
-      startDate = validInputDate(startDate);
-      endDate = validInputDate(endDate);
-      postData = {
-        title: postTitle,
-        intro: postDescription,
-        content: { description: postContent },
-        isPlan: true,
-        intendedTime: [startDate, endDate],
-        lastEdited: now
-      };
-    } else {
-      throw new Error("Invalid post type");
-    }
-    const updatedPost = await updatePostById(xss(req.params.postId), postData);
-    if (!updatedPost) {
-      throw new Error(
-        `Could not update post with id ${xss(req.params.postId)}`
+
+      if (postDescription.length > 100) {
+        throw new Error("Description cannot exceed 100 characters");
+      }
+      if (postContent.length > 10000) {
+        throw new Error("Content cannot exceed 10000 characters");
+      }
+
+      if (postType === "route") {
+        let intendedTime = [];
+        if (startDate && endDate) {
+          intendedTime = [startDate, endDate];
+        }
+        postData = {
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent },
+          isPlan: false,
+          intendedTime: intendedTime,
+          lastEdited: now
+        };
+      } else if (postType === "plan") {
+        startDate = validInputDate(startDate);
+        endDate = validInputDate(endDate);
+        postData = {
+          title: postTitle,
+          intro: postDescription,
+          content: { description: postContent },
+          isPlan: true,
+          intendedTime: [startDate, endDate],
+          lastEdited: now
+        };
+      } else {
+        throw new Error("Invalid post type");
+      }
+
+      if (req.files.length > 0) {
+        const oldPost = await getPostById(xss(req.params.postId));
+        let dbImgs = oldPost.content.images;
+        if (req.files.length + dbImgs.length > 5) {
+          throw new Error("You can only have up to 5 images for a post");
+        }
+        for (let i = 0; i < req.files.length; i++) {
+          const image = req.files[i].path;
+          const clientPicPath = `/uploads/posts/resized-${req.files[i].filename}`;
+          await sharp(image)
+            .resize({ width: 600, height: 600, fit: "inside" })
+            .jpeg({ quality: 90 })
+            //.png()
+            .toFile(`public${clientPicPath}`);
+          dbImgs.push(clientPicPath);
+          fs.unlinkSync(image); // Delete the un-cut images
+        }
+        postData.content.images = dbImgs;
+      } else {
+        const oldPost = await getPostById(xss(req.params.postId));
+        postData.content.images = oldPost.content.images;
+      }
+
+      const updatedPost = await updatePostById(
+        xss(req.params.postId),
+        postData
       );
+      if (!updatedPost) {
+        throw new Error(
+          `Could not update post with id ${xss(req.params.postId)}`
+        );
+      }
+      return res.status(200).json({ message: "Post updated successfully" });
+    } catch (e) {
+      return res.status(400).render("error", {
+        message: e.message
+      });
     }
-    return res.status(200).json({ message: "Post updated successfully" });
-  } catch (e) {
-    return res.status(400).render("error", {
-      message: e.message
-    });
   }
-});
+);
 
 router.post("/:postId/comment", isAuthenticated, async (req, res) => {
   try {
     let { makeComment } = req.body;
+    makeComment = xss(makeComment);
     makeComment = validTrimInput(makeComment, "string");
     if (!makeComment) {
       throw new Error("Comment cannot be empty");
@@ -390,6 +578,17 @@ router.delete(
   isAuthenticated,
   async (req, res) => {
     try {
+      const comment = await getPostComments(xss(req.params.commentId));
+      if (comment) {
+        if (comment.uid != req.session.userId) {
+          throw new Error("You are not authorized to delete this comment");
+        }
+      } else {
+        throw new Error(
+          `Could not find comment with id ${xss(req.params.commentId)}`
+        );
+      }
+
       const deletedComment = await deleteCommentById(xss(req.params.commentId));
       if (!deletedComment) {
         throw new Error(
@@ -398,11 +597,32 @@ router.delete(
       }
       return res.status(204).json({ message: "Comment deleted" });
     } catch (e) {
-      return res.status(400).render("error", {
-        message: e.message
-      });
+      return res.status(400).json({ error: e.message });
     }
   }
 );
+
+router.delete("/image/delete", isAuthenticated, async (req, res) => {
+  try {
+    let { postId, imgSrc } = req.body;
+    postId = xss(postId);
+    imgSrc = xss(imgSrc);
+    const post = await Post.findById(postId);
+    const postUser = await User.findById(post.uid);
+    if (postUser._id != req.session.userId) {
+      throw new Error("You are not authorized to delete this image");
+    }
+    post.content.images = post.content.images.filter((img) => img !== imgSrc);
+    await updatePostById(postId, post);
+
+    fs.unlink(`public${imgSrc}`, (err) => {
+      if (err) throw err;
+    });
+
+    return res.status(204).json({ message: "Image deleted" });
+  } catch (e) {
+    return res.status(400).json({ error: e.message });
+  }
+});
 
 export default router;

@@ -11,7 +11,6 @@ import { setAuth } from "./middleware/auth.js";
 
 dotenv.config();
 
-
 const logger = (req, res, next) => {
   console.log(
     `[${new Date().toUTCString()}]: ${req.method} ${req.originalUrl} (${
@@ -52,7 +51,7 @@ const hbs = handlebars.create({
     default: (value, defaultValue) => value || defaultValue,
     json: (context) => JSON.stringify(context),
     conditionalRouteEditCreatePath: (isEdit, postId, routeId) => {
-      console.log({isEdit, postId, routeId});
+      console.log({ isEdit, postId, routeId });
       return isEdit ? `/route/edit/${routeId}` : `/route/new/${postId}`;
     }
   },
@@ -73,7 +72,7 @@ app.set("views", "./views");
 
 const startServer = async () => {
   try {
-    //await seedDatabase();
+    await seedDatabase();
 
     app.use(express.json());
 

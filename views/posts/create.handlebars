@@ -5,7 +5,7 @@
     <p style="text-align: center; padding-top: 200px;">Mapbox Map would be embedded here</p>
   </div> --}}
   <div class="route-form">
-    <form action="/post/create" method="POST" name="createPost" id="createPost">
+    <form action="/post/create" method="POST" name="createPost" id="createPost" enctype="multipart/form-data">
       <div class="form-group">
         <label for="postTitle" class="form-labels">Post Title</label>
         <input type="text" id="postTitle" name="postTitle" required>
@@ -13,19 +13,20 @@
       <div class="form-group">
         <label for="postDescription" class="form-labels">Brief Description</label><br>
         <textarea id="postDescription" name="postDescription" rows="3" 
-        placeholder="Enter a brief description of your route/plan"
+        placeholder="(Up to 100 characters) Enter a brief description of your route/plan"
         required></textarea>
       </div>
       <div class="form-group">
         <label for="postContent" class="form-labels">Post Content</label><br>
         <textarea id="postContent" name="postContent" rows="10" 
-        placeholder="Tell us more about what your route/plan entails"
+        placeholder="(Up to 10000 characters) Tell us more about what your route/plan entails"
          required></textarea>
       </div>
-      {{!-- <div class="form-group">
-        <label for="route-duration">Duration (days)</label>
-        <input type="number" id="route-duration" name="route-duration" min="1" required>
-      </div> --}}
+      <div class="form-group">
+        <label for="postPictures">Pictures(up to 5):<br>
+        Only JPEG, JPG, and PNG files are allowed.</label>
+        <input type="file" name="postPictures" id="postPictures" accept="image/jpeg, image/png" multiple>
+      </div>
       <div class="form-group">
         <p>If it is somewhere you plan to visit, choose "Plan"<br>
         If it is somewhere you have visited or only hypothetical, choose "Route"
@@ -45,6 +46,7 @@
         <input type="date" id="endDate" name="endDate" required>
       </div>
       <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+        <h4>Submission Errors:</h4>
         {{!-- Frontend validation error --}}
       </div>
       <button type="submit" class="btn" name="submitBTN" id="submitBTN" >Create Route</button>

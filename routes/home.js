@@ -13,9 +13,16 @@ router.get("/", async (req, res) => {
       return {
         title: post.title,
         intro: post.intro,
-        // TODO: destinations are currently not available
-        destinations: "N/A",
-        duration: post.routeInfo ? post.routeInfo.tripDuration : "N/A",
+        destinations: post.routeInfo
+          ? `${post.routeInfo.origin.name.split(",")[0]} to ${post.routeInfo.destination.name.split(",")[0]}`
+          : "N/A",
+        duration: post.routeInfo ? post.routeInfo.duration : "N/A",
+        intendedDates:
+          post.intendedTime.length === 0
+            ? "N/A"
+            : post.intendedTime
+                .map((date) => date.toISOString().split("T")[0])
+                .join(" to "),
         likes: post.likeByUsers.length,
         comments: post.comments.length
       };

@@ -4,7 +4,7 @@
     <div class="report-item" id="{{this._id}}">
         <div class="report-header">
             <span class="report-type">{{this.type}}</span>
-            <span class="report-date">{{this.createdAt}}</span>
+            <span class="report-date">{{formatDate this.createdAt}}</span>
         </div>
         <div class="report-content">
             <p><strong>Reported User:</strong> {{this.reportedUser}}</p>

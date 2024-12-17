@@ -3,9 +3,7 @@ import {
   toggleFollowUser,
   addCommentToUser
 } from "./data/userService.js";
-import { createPost } from "./data/post.js";
-import { createRoute } from "./data/route.js";
-import { createComment } from "./data/comment.js";
+import Report from "./models/report.js";
 import { dropDB, disconnectDB } from "./config/db.js";
 
 const seedDatabase = async () => {
@@ -260,58 +258,92 @@ const seedDatabase = async () => {
     let createdPosts = [];
 
     // Create Posts and Routes in a one-to-one relationship
-    for (let i = 0; i < postData.length; i++) {
-      const userId = createdUsers[i]._id;
-      const post = await createPost(userId, postData[i]);
-      createdPosts.push(post);
+    // for (let i = 0; i < postData.length; i++) {
+    //   const userId = createdUsers[i]._id;
+    //   const post = await createPost(userId, postData[i]);
+    //   createdPosts.push(post);
 
-      // Add postID and uid to the route data
-      const routeToCreate = {
-        uid: userId,
-        postId: post._id,
-        ...routeData[i]
-      };
+    //   // Add postID and uid to the route data
+    //   const routeToCreate = {
+    //     uid: userId,
+    //     postId: post._id,
+    //     ...routeData[i]
+    //   };
 
-      // Last post does not have a route
-      if (i !== postData.length - 1) {
-        const route = await createRoute(routeToCreate);
-      }
-    }
+    //   // Last post does not have a route
+    //   if (i !== postData.length - 1) {
+    //     const route = await createRoute(routeToCreate);
+    //   }
+    // }
 
     // Comments on the posts
-    const postComments = [
+    // const postComments = [
+    //   {
+    //     uid: createdUsers[1]._id,
+    //     content: "This is amazing!",
+    //     postId: createdPosts[0]._id
+    //   },
+    //   {
+    //     uid: createdUsers[2]._id,
+    //     content: "Great work!",
+    //     postId: createdPosts[1]._id
+    //   },
+    //   {
+    //     uid: createdUsers[3]._id,
+    //     content: "I love this place!",
+    //     postId: createdPosts[2]._id
+    //   },
+    //   {
+    //     uid: createdUsers[4]._id,
+    //     content: "Fantastic view!",
+    //     postId: createdPosts[3]._id
+    //   },
+    //   {
+    //     uid: createdUsers[0]._id,
+    //     content: "Beautiful scenery!",
+    //     postId: createdPosts[4]._id
+    //   }
+    // ];
+
+    // for (const commentData of postComments) {
+    //   await createComment(commentData);
+    // }
+
+    console.log("Sample posts and routes added successfully");
+
+    const sampleReports = [
       {
-        uid: createdUsers[1]._id,
-        content: "This is amazing!",
-        postId: createdPosts[0]._id
+        reportedBy: createdUsers[1]._id,
+        reportedUser: createdUsers[0]._id,
+        description: "Test description",
+        type: "Inappropriate Content"
       },
       {
-        uid: createdUsers[2]._id,
-        content: "Great work!",
-        postId: createdPosts[1]._id
+        reportedBy: createdUsers[2]._id,
+        reportedUser: createdUsers[1]._id,
+        description: "Test description",
+        type: "Spam"
       },
       {
-        uid: createdUsers[3]._id,
-        content: "I love this place!",
-        postId: createdPosts[2]._id
-      },
-      {
-        uid: createdUsers[4]._id,
-        content: "Fantastic view!",
-        postId: createdPosts[3]._id
-      },
-      {
-        uid: createdUsers[0]._id,
-        content: "Beautiful scenery!",
-        postId: createdPosts[4]._id
+        reportedBy: createdUsers[3]._id,
+        reportedUser: createdUsers[2]._id,
+        description: "Test description",
+        type: "Harassment"
       }
     ];
 
-    for (const commentData of postComments) {
-      await createComment(commentData);
+    for (const reportData of sampleReports) {
+      const report = new Report({
+        reportedBy: reportData.reportedBy,
+        reportedUser: reportData.reportedUser,
+        description: reportData.description,
+        type: reportData.type
+      });
+
+      await report.save();
     }
 
-    console.log("Sample posts and routes added successfully");
+    console.log("Sample reports added successfully");
 
     console.log("Seeding completed.");
 

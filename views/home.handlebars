@@ -3,20 +3,20 @@
     <h2>Discover Travel Routes & Find Companions</h2>
     <p>Share your travel experiences and connect with fellow adventurers</p>
     <div class="cta-buttons">
-      <a href="/post/create" class="btn">Create a Route</a>
+      <a href="/post/create" class="btn">Create a Post</a>
       <a href="/companions" class="btn btn-outline">Find Companions</a>
     </div>
   </section>
 
   <section id="routes">
-    <h2>Popular Travel Routes</h2>
+    <h2>Popular Travel Posts</h2>
     <div class="card-grid">
       {{#each posts}}
         <div class="card">
           <h3>{{ title }}</h3>
           <p>{{ intro }}</p>
-          <p><strong>Destinations:</strong> {{ destinations }}</p>
-          <p><strong>Duration:</strong> {{ duration }}</p>
+          <p><strong>Route:</strong><br> {{ destinations }}</p>
+          <p><strong>Intended Dates:</strong> {{ intendedDates }}</p>
           <p>{{ likes }} likes • {{ comments }} comments</p>
         </div>
       {{/each}}

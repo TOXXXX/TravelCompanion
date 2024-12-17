@@ -1,6 +1,7 @@
 import express from "express";
+import xss from "xss";
 import { isAuthenticated, requireRole } from "../middleware/auth.js";
-import { getUserById, getUserByUsername } from "../data/userService.js";
+import { getUserByUsernameForReport } from "../data/userService.js";
 import Report from "../models/report.js";
 
 const router = express.Router();
@@ -9,25 +10,30 @@ router.get("/report/:username", isAuthenticated, (req, res) => {
   return res.render("report", {
     title: "Report",
     customCSS: "report",
-    username: req.params.username
+    username: xss(req.params.username)
   });
 });
 
 router.post("/report/:username", isAuthenticated, async (req, res) => {
   try {
     // Handle report submission
-    const { reportType, description } = req.body;
+    let { reportType, description } = req.body;
+
+    reportType = xss(reportType);
+    description = xss(description);
 
     if (!reportType || !description) {
       return res.status(400).send("All fields are required");
     }
 
-    if (req.session.userName === req.params.username) {
+    if (req.session.userName === xss(req.params.username)) {
       return res.status(400).send("You cannot report yourself");
     }
 
     // Get the user being reported
-    const reportedUser = await getUserByUsername(req.params.username);
+    const reportedUser = await getUserByUsernameForReport(
+      xss(req.params.username)
+    );
 
     if (!reportedUser) {
       return res.status(404).send("User not found");
@@ -98,14 +104,27 @@ router.post(
   requireRole("Moderator"),
   async (req, res) => {
     try {
-      const username = req.params.username;
-      const user = await getUserByUsername(username);
+      const username = xss(req.params.username);
+      const user = await getUserByUsernameForReport(username);
 
       if (!user) {
         return res.status(404).send("User not found");
       }
 
       user.isHidden = !user.isHidden;
+
+      // Invalidate the user's session if they are hidden
+      if (user.isHidden) {
+        req.sessionStore.destroy(user.sessionId, (err) => {
+          if (err) {
+            console.log(err);
+            return res
+              .status(500)
+              .send("An error occurred while invalidating the session");
+          }
+        });
+      }
+
       await user.save();
 
       res.status(200).json({ message: "User disabled successfully" });
@@ -136,6 +155,29 @@ router.get(
       title: "Moderator",
       customCSS: "moderator"
     });
+  }
+);
+
+router.get(
+  "/user/:username/hidden",
+  isAuthenticated,
+  requireRole("Moderator"),
+  async (req, res) => {
+    try {
+      const username = req.params.username;
+      const user = await getUserByUsernameForReport(username);
+
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+
+      res.status(200).json({ isHidden: user.isHidden });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .send("An error occurred while checking if the user is hidden");
+    }
   }
 );
 

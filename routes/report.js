@@ -109,6 +109,10 @@ router.post(
       const username = xss(req.params.username);
       const user = await getUserByUsernameForReport(username);
 
+      if (req.session.userName === username) {
+        return res.status(400).send("You cannot disable yourself");
+      }
+
       if (!user) {
         return res.status(404).send("User not found");
       }

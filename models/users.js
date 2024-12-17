@@ -10,7 +10,7 @@ const UserSchema = new Schema({
   followers: { type: [String], default: [] },
   following: { type: [String], default: [] },
   email: { type: String, required: true, unique: true },
-  phoneNumber: { type: String, unique: true, sparse: true },
+  phoneNumber: { type: String, sparse: true },
   posts: { type: [String], default: [] },
   personalPageComments: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Comment" }

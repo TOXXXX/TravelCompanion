@@ -145,10 +145,10 @@
     waypoint2DescriptionInput && waypoint2DescriptionError) {
 
     function validateRouteName() {
-      const routeNameRegex = /^[A-Za-z_]+$/;
+      const routeNameRegex = /^[A-Za-z_\s]+$/;
       const value = routeNameInput.value.trim();
       if (!routeNameRegex.test(value)) {
-        routeNameError.textContent = 'Route name can only contain letters and underscore.';
+        routeNameError.textContent = 'Route name can only contain letters, underscore and spaces.';
         routeNameError.classList.add('active');
         routeNameInput.classList.add('invalid');
         return false;

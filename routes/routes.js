@@ -109,7 +109,7 @@ router.post("/new/:postId", isAuthenticated, async (req, res) => {
     });
   }
 
-  const routeNameRegex = /^[A-Za-z_]+$/;
+  const routeNameRegex = /^[A-Za-z_\s]+$/;
   if (!routeNameRegex.test(routeName)) {
     //return res.status(400).send("Invalid Route Name. Only letters and spaces are allowed.");
     return res.status(404).render("error", {

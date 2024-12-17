@@ -36,6 +36,7 @@ router.get("/new/:postId", isAuthenticated, async (req, res) => {
 
     res.render("create-route", {
       pageHeading: "Create new route",
+      title: "Create Route",
       customCSS: "create-route",
       MAPBOX_ACCESS_TOKEN,
       postId
@@ -286,6 +287,7 @@ router.post("/new/:postId", isAuthenticated, async (req, res) => {
     if (action === "createRoute") {
       return res.render("create-route", {
         pageHeading: "Review your route",
+        title: "Create Route",
         customCSS: "create-route",
         MAPBOX_ACCESS_TOKEN,
         postId,
@@ -332,6 +334,7 @@ router.get("/:postId", async (req, res) => {
     const post = await Post.findById(postId);
     return res.render("route-detail", {
       customCSS: "create-route",
+      title: "Route Detail",
       route,
       post,
       isRouteOwner: isRouteOwner
@@ -364,6 +367,7 @@ router.get("/edit/:id", isAuthenticated, async (req, res) => {
 
     res.render("create-route", {
       pageHeading: `Edit route: ${route.routeName}`,
+      title: "Create Route",
       customCSS: "create-route",
       MAPBOX_ACCESS_TOKEN,
       ...route.toJSON(),

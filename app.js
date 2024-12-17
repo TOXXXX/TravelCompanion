@@ -3,7 +3,6 @@ import handlebars from "express-handlebars";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import registerRoutes from "./routes/index.js";
-import seedDatabase from "./seed.js";
 import flash from "connect-flash";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
@@ -72,7 +71,7 @@ app.set("views", "./views");
 
 const startServer = async () => {
   try {
-    await seedDatabase();
+    // await seedDatabase();
 
     app.use(express.json());
 

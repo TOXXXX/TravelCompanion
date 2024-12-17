@@ -1,5 +1,14 @@
 # **Travel Companion Platform**
 
+## Installation
+
+Before following the installation instructions below, your system will need the latest version of node.js and mongodb.
+
+1. `npm install` - installs all the package dependencies
+2. copy the `.env` file provided to the project root
+3. `npm run seed` - seed database
+4. `npm start` - run the application
+
 ## Group Members
 
 (Alphabetical)

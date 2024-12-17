@@ -1,6 +1,7 @@
 import Post from "../models/posts.js";
 import User from "../models/users.js";
 import Route from "../models/routes.js";
+import Comment from "../models/comments.js";
 import mongoose from "mongoose";
 
 export const getPostById = async (postId) => {
@@ -105,9 +106,15 @@ export const getFilteredPostsWithRoute = async (
 export const deletePostById = async (postId) => {
   try {
     const route = await Route.find({ postId });
+    const comments = await Comment.find({ postId });
     if (route.length > 0) {
       for (let i = 0; i < route.length; i++) {
         await Route.findByIdAndDelete(route[i]._id);
+      }
+    }
+    if (comments.length > 0) {
+      for (let i = 0; i < comments.length; i++) {
+        await Comment.findByIdAndDelete(comments[i]._id);
       }
     }
 

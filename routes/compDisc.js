@@ -16,6 +16,7 @@ router.get("/", isAuthenticated, async (req, res) => {
 
     res.render("compDiscPage", {
       title: "Companion Discovery",
+      customCSS: "compDisc",
       hasMatchedUsers: hasMatchedUsers,
       matchedUsers: matchedUserObjs
     });

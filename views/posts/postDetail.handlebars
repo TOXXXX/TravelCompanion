@@ -1,16 +1,17 @@
-<h1>{{post.title}}</h1>
+<h1 class="pageTitle">{{post.title}}</h1>
 {{#if isAuthor}}
-
-    <button type="button" id="deletePost" name="deletePost">Delete Post</button>
+    <div class="isAuthorButtons">
+    <button class="postButtonDelete" type="button" id="deletePost" name="deletePost">Delete Post</button>
     <form action="/post/edit/{{post._id}}" method="GET" id="editPost" name="editPost">
-        <button type="submit" id="edit" name="edit">Edit Post</button>
+        <button class="postButton" type="submit" id="edit" name="edit">Edit Post</button>
     </form>
+    </div>
 {{/if}}
 <section class="post-content">
     {{#if post.isPlan}}
-        <p>A Travel Plan of {{author}}</p>
+        <p>A Travel Plan of <a href="/personal/{{author}}">{{author}}</a></p>
     {{else}}
-        <p>A Travel Route Shared by {{author}}</p>
+        <p>A Travel Route Shared by <a href="/personal/{{author}}">{{author}}</a></p>
     {{/if}}
     {{#if timed}}
         <p>Start Date: {{startDate}}</p>
@@ -43,21 +44,21 @@
 <hr>
 <div id="comments-div"  class="comments-box">
     <h2>Comments</h2>
-    <ol id="commentList" name="commentList">
+    <ol id="commentList">
         {{#each comments}}
         <li class="comment-box" data-commentid="{{this._id}}">
             <h4 class="comment-author">{{this.author}}</h4>
             <p class="comment-content">{{this.content}}</p>
             <p class="comment-lastedited">Last Edited: {{this.lastEdited}}</p>
             {{#if this.isAuthor}}
-                <button type="button" class="deleteComment" name="deleteComment{{this._id}}"
+                <button class="postButtonDelete" type="button" class="deleteComment" name="deleteComment{{this._id}}"
                  id="deleteComment{{this._id}}">Delete My Comment</button>
             {{/if}}
         </li>
         {{/each}}
     </ol>
 <hr>
-    <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+    <div class= "form-group" id = "errorDiv" hidden>
         {{!-- Frontend validation error --}}
     </div>
     <div class= "form-group">
@@ -65,7 +66,7 @@
         <label for="makeComment">Comment:</label>
         <textarea name="makeComment" id="makeComment"
         placeholder="Make a friendly comment here..."></textarea>
-        <button type="submit" id="submit" name="submit">Submit</button>
+        <button class="postButton" type="submit" id="submit" name="submit">Submit</button>
     </form>
     </div>
 </div>

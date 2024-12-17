@@ -349,7 +349,7 @@ router.get("/:postId", async (req, res) => {
 
     return res.render("posts/postDetail", {
       title: `Post: ${post.title}`,
-      customCSS: "posts",
+      customCSS: "postDetail",
       post: post,
       author: postUserName,
       comments: comments,

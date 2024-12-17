@@ -55,7 +55,9 @@ router.post("/report/:username", isAuthenticated, async (req, res) => {
       return res.status(400).send("Description is too long");
     }
 
-    const reportedByUser = await getUserByUsername(req.session.userName);
+    const reportedByUser = await getUserByUsernameForReport(
+      req.session.userName
+    );
 
     const report = new Report({
       reportedBy: reportedByUser._id,
@@ -106,6 +108,10 @@ router.post(
     try {
       const username = xss(req.params.username);
       const user = await getUserByUsernameForReport(username);
+
+      if (req.session.userName === username) {
+        return res.status(400).send("You cannot disable yourself");
+      }
 
       if (!user) {
         return res.status(404).send("User not found");

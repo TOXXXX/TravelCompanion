@@ -1,11 +1,11 @@
-<h1>Companion Discovery Page</h1>
+<h1 class="pageTitle">Companion Discovery Page</h1>
 
 <div>
   {{#if hasMatchedUsers}}
     <ul>
       {{#each matchedUsers}}
-      <div class="companion-div">
-        <li class="companion">
+      <li class="companion">
+        <div class="companion-div">
           <a href="/personal/{{this.userName}}">
           <img src="{{#if this.profilePicture}}{{this.profilePicture}}{{else}}/default-profile.svg{{/if}}" alt="Profile Picture" class="profile-pic">
           <h2>{{this.userName}}</h2>
@@ -13,8 +13,8 @@
           <p>About me: <br>{{this.bio}}</p>
           <p>Contact me at: {{this.email}}</p>
           <p>We could be about {{this.distance}}km close during {{this.startDate}} to {{this.endDate}}</p>
-        </li>
-      </div>
+        </div>
+      </li>
       {{/each}}
     </ul>
   {{else}}

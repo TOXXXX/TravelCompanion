@@ -145,7 +145,18 @@ $(document).ready(function () {
   // Click event for delete button
   $("#posts-container").on("click", ".delete", function () {
     const postId = $(this).data("postid");
-    window.location.replace(`/post/delete/${postId}`);
+    $.ajax({
+      url: `/post/delete/${postId}`,
+      method: "DELETE",
+      success: function (response) {
+        alert("Post deleted successfully.");
+        window.location.reload();
+      },
+      error: function () {
+        alert("You are not authorized to delete this post.");
+        window.location.reload();
+      }
+    });
   });
 
   // Click event for comments

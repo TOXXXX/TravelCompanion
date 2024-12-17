@@ -107,6 +107,10 @@ router.post("/login", async (req, res) => {
     req.session.userName = user.userName;
     req.session.role = user.role;
 
+    // Store session ID in the database
+    user.sessionId = req.sessionID;
+    await user.save();
+
     res.json({ message: "Logged in successfully" });
   } catch (error) {
     res.status(500).send(`Error logging in: ${error.message}`);

@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 const UserSchema = new Schema({
   userName: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  sessionId: { type: String, default: "" },
   accountCreated: { type: Date, default: Date.now },
   followers: { type: [String], default: [] },
   following: { type: [String], default: [] },

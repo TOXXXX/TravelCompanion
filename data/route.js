@@ -9,3 +9,7 @@ export const createRoute = async (routeData) => {
     throw new Error(`Unable to create route: ${error.message}`);
   }
 };
+
+export const isRouteExists = async (postId) => {
+  return await Route.exists({postId});
+}

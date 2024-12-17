@@ -1,33 +1,38 @@
 <h1>{{post.title}}</h1>
 {{#if isAuthor}}
 
-    <button type="button" id="deletePost" name="deletePost">Delete Post</button>
-    <form action="/post/edit/{{post._id}}" method="GET" id="editPost" name="editPost">
-        <button type="submit" id="edit" name="edit">Edit Post</button>
-    </form>
+<button type="button" id="deletePost" name="deletePost">Delete Post</button>
+<form action="/post/edit/{{post._id}}" method="GET" id="editPost" name="editPost">
+    <button type="submit" id="edit" name="edit">Edit Post</button>
+</form>
 {{/if}}
 <section class="post-content">
     {{#if post.isPlan}}
-        <p>A Travel Plan of {{author}}</p>
+    <p>A Travel Plan of {{author}}</p>
     {{else}}
-        <p>A Travel Route Shared by {{author}}</p>
+    <p>A Travel Route Shared by {{author}}</p>
     {{/if}}
     {{#if timed}}
-        <p>Start Date: {{startDate}}</p>
-        <p>End Date: {{endDate}}</p>
+    <p>Start Date: {{startDate}}</p>
+    <p>End Date: {{endDate}}</p>
     {{/if}}
     <h2>Introduction</h2>
     <p>{{post.intro}}</p>
     <h2>Content</h2>
     {{!-- This link should take user to the embedded map page for the post: --}}
-    <a href="/route/{{post._id}}" class="map-link">View Map</a>        
+    {{#if showRouteLink}}
+    <a href="/route/{{post._id}}" class="map-link">View Map</a>
+    {{else}}
+    <p>No route found</p>
+    <a href="/route/new/{{post._id}}">Create new route</a>
+    {{/if}}
     <p>{{post.content.description}}</p>
 </section>
 <div>
     <h3 id="likes">Like by {{likes}} people.</h3>
 </div>
 <hr>
-<div id="comments-div"  class="comments-box">
+<div id="comments-div" class="comments-box">
     <h2>Comments</h2>
     <ol id="commentList" name="commentList">
         {{#each comments}}
@@ -36,27 +41,23 @@
             <p class="comment-content">{{this.content}}</p>
             <p class="comment-lastedited">Last Edited: {{this.lastEdited}}</p>
             {{#if this.isAuthor}}
-                <button type="button" class="deleteComment" name="deleteComment{{this._id}}"
-                 id="deleteComment{{this._id}}">Delete My Comment</button>
+            <button type="button" class="deleteComment" name="deleteComment{{this._id}}"
+                id="deleteComment{{this._id}}">Delete My Comment</button>
             {{/if}}
         </li>
         {{/each}}
     </ol>
-<hr>
-    <div class= "form-group" id = "errorDiv" name = "errorDiv" hidden>
+    <hr>
+    <div class="form-group" id="errorDiv" name="errorDiv" hidden>
         {{!-- Frontend validation error --}}
     </div>
-    <div class= "form-group">
+    <div class="form-group">
         <form action="/post/{{post._id}}/comment" method="POST" id="postComment" name="postComment">
-        <label for="makeComment">Comment:</label>
-        <textarea name="makeComment" id="makeComment"
-        placeholder="Make a friendly comment here..."></textarea>
-        <button type="submit" id="submit" name="submit">Submit</button>
-    </form>
+            <label for="makeComment">Comment:</label>
+            <textarea name="makeComment" id="makeComment" placeholder="Make a friendly comment here..."></textarea>
+            <button type="submit" id="submit" name="submit">Submit</button>
+        </form>
     </div>
 </div>
 
 <script src="/js/postDetail.js"></script>
-
-
-

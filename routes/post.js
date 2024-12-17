@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Route } from "express";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
 import { getFollowingUsers, getUserById } from "../data/userService.js";
@@ -18,6 +18,7 @@ import xss from "xss";
 import Post from "../models/posts.js";
 import Comment from "../models/comments.js";
 import User from "../models/users.js";
+import { isRouteExists } from "../data/route.js";
 
 const router = express.Router();
 
@@ -227,6 +228,9 @@ router.get("/:postId", async (req, res) => {
       endDate = post.intendedTime[1].toDateString();
     }
 
+    const showRouteLink = await isRouteExists(post._id);
+    console.log({showRouteLink});
+
     return res.render("posts/postDetail", {
       title: `Post: ${post.title}`,
       customCSS: "posts",
@@ -237,7 +241,8 @@ router.get("/:postId", async (req, res) => {
       timed: timed,
       startDate: startDate,
       endDate: endDate,
-      isAuthor: isAuthor
+      isAuthor: isAuthor,
+      showRouteLink: !!showRouteLink
     });
   } catch (e) {
     console.log(e);

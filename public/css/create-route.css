@@ -104,7 +104,7 @@ footer {
         height: 300px;
     }
 }
-.container {
+.route-container {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;

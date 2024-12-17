@@ -5,7 +5,11 @@ import path from "path";
 import fs from "fs";
 import { isAuthenticated, isAuthenticatedAPI } from "../middleware/auth.js";
 import { validTrimInput, validInputDate } from "../helpers.js";
-import { getFollowingUsers, getUserById } from "../data/userService.js";
+import {
+  getFollowingUsers,
+  getUserById,
+  getAllHiddenUserIds
+} from "../data/userService.js";
 import {
   getFilteredPostsWithRoute,
   getPostById,
@@ -114,6 +118,7 @@ router
 
         return {
           id: item._id,
+          uid: item.uid,
           title: item.title,
           intro: item.intro,
           type: item.isPlan ? "Plan" : "Route",
@@ -135,6 +140,15 @@ router
                   .map((date) => date.toISOString().split("T")[0])
                   .join(" to ")
         };
+      });
+
+      // Filter out hidden users
+      const hiddenUserIds = (await getAllHiddenUserIds()).map((id) =>
+        id.toString()
+      );
+
+      posts = posts.filter((item) => {
+        return !hiddenUserIds.includes(item.uid);
       });
 
       return res.status(200).json({ posts });

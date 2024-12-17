@@ -111,8 +111,12 @@ router
           routes = {
             distance: "N/A",
             duration: "N/A",
-            origin: "N/A",
-            destination: "N/A"
+            origin: {
+              name: "N/A"
+            },
+            destination: {
+              name: "N/A"
+            }
           };
         }
 

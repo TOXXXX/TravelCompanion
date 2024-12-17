@@ -274,10 +274,7 @@ const seedDatabase = async () => {
         ...routeData[i]
       };
 
-      // Last post does not have a route
-      if (i !== postData.length - 1) {
-        const route = await createRoute(routeToCreate);
-      }
+      const route = await createRoute(routeToCreate);
     }
 
     // Comments on the posts

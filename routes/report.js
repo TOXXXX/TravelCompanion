@@ -55,7 +55,9 @@ router.post("/report/:username", isAuthenticated, async (req, res) => {
       return res.status(400).send("Description is too long");
     }
 
-    const reportedByUser = await getUserByUsername(req.session.userName);
+    const reportedByUser = await getUserByUsernameForReport(
+      req.session.userName
+    );
 
     const report = new Report({
       reportedBy: reportedByUser._id,
